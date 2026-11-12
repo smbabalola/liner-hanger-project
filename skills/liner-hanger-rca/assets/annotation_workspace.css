@@ -1,0 +1,87 @@
+/* Liner Hanger Investigation Skill — contextual annotation UI (v1.5) */
+#iw-toolbar,#iw-workspace{--iw-bg:#0b1c2d;--iw-line:#31516a;--iw-muted:#a5bbd0;--iw-accent:#6ed3f4}
+#iw-toolbar{border:1px solid #33647d;background:#102c41;border-radius:10px;padding:11px 13px;margin:0 0 13px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#iw-toolbar .iw-instruction{flex:1;min-width:240px;color:#d4eaf7;font-size:12px}
+#iw-toolbar .iw-count{color:#a5c7d8;font-size:11px}
+#iw-workspace{margin-top:16px;background:#102034;border:1px solid #31516a;border-radius:11px;padding:17px;scroll-margin-top:16px}
+#iw-workspace h2{font-size:18px;letter-spacing:-.25px}
+#iw-workspace h3{margin:12px 0 8px;font-size:13px}
+#iw-workspace .iw-subtle{color:var(--iw-muted);font-size:11px}
+#iw-workspace .iw-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(290px,1fr);gap:15px}
+#iw-workspace .iw-card{padding:13px;border:1px solid #294962;border-radius:9px;background:#0b1a2b;min-width:0}
+#iw-workspace .iw-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:9px 0}
+#iw-workspace button,#iw-toolbar button{padding:7px 10px;border:1px solid #496d87;border-radius:7px;background:#1c425d;color:#ecf5fd;font-size:12px;cursor:pointer}
+#iw-workspace button:hover,#iw-toolbar button:hover{background:#2b5975}
+#iw-workspace button:disabled{opacity:.5;cursor:not-allowed}
+#iw-workspace button.iw-main,#iw-toolbar button.iw-main{background:#0e7ea3;border-color:#2eacca;font-weight:700}
+#iw-workspace .iw-field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:#c0d5e8;margin:8px 0}
+#iw-workspace input[type=text],#iw-workspace select,#iw-workspace textarea{background:#091928;color:#f2f7ff;border:1px solid #43627a;border-radius:7px;padding:9px;font:inherit;width:100%;min-width:0}
+#iw-workspace textarea{min-height:107px}
+#iw-workspace .iw-inline{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#iw-workspace .iw-zoomwrap{background:#081829;padding:9px;border:1px solid #29465f;border-radius:8px}
+#iw-detail{display:block;width:100%;height:180px;touch-action:none;cursor:crosshair}
+#iw-workspace .iw-chip{display:inline-block;color:#bfe5f7;border:1px solid #37718b;background:#123147;border-radius:100px;padding:3px 8px;font-size:10px;line-height:1.4}
+#iw-workspace .iw-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+#iw-workspace .iw-warning{border-left:3px solid #dab16b;background:#28251d;padding:9px 10px;border-radius:6px;color:#e6d3b2;font-size:11px;margin:9px 0}
+#iw-workspace .iw-entry{padding:10px 12px;margin:8px 0;border:1px solid #34536b;border-radius:8px;background:#102437}
+#iw-workspace .iw-entry strong{font-size:12px}
+#iw-workspace .iw-entry .iw-when{color:#9ebed2;font-size:11px;margin:3px 0}
+#iw-workspace .iw-entry p{font-size:12px;color:#dae6f0;margin:5px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+#iw-workspace .iw-entry .iw-actions{margin:4px 0 0}
+#iw-workspace .iw-list{max-height:470px;overflow:auto}
+#iw-workspace .iw-fileline{font-size:11px;border-bottom:1px solid #254258;padding:5px 0;overflow-wrap:anywhere}
+#iw-workspace #iw-pendingFiles{color:#bed7e7;font-size:11px}
+#iw-workspace .iw-suggestions{max-height:340px;overflow:auto}
+#iw-workspace .iw-status{color:#81d4f0;font-size:11px;min-height:15px}
+#iw-workspace .iw-meta{color:#95b2c6;font-size:11px}
+.iw-plot-shell{position:relative}
+.iw-plot-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.iw-plot-span{position:absolute;top:8px;bottom:22px;background:rgba(255,187,99,.13);border-left:1px solid rgba(255,196,100,.8);border-right:1px solid rgba(255,196,100,.8)}
+.iw-plot-span.iw-selected{background:rgba(108,212,247,.18);border-color:#6cd4f7}
+.iw-plot-span.iw-draft{background:rgba(156,133,245,.13);border-color:#ac99fa}
+.iw-plot-shell.iw-selecting canvas{cursor:col-resize!important}
+.iw-plot-shell.iw-selecting{outline:1px dashed #6cd4f7;outline-offset:1px}
+@media(max-width:900px){#iw-workspace .iw-grid{grid-template-columns:1fr}}
+@media(max-width:560px){#iw-workspace .iw-inline{grid-template-columns:1fr}}
+@media print{.control,#iw-toolbar,#iw-workspace{display:none}}
+
+/* v1.5: chart-first workflow with a contextual dialog and dockable notebook */
+#iw-workspace{margin:0;padding:0;background:transparent;border:0}
+#iw-toolbar{position:relative;z-index:2}
+#iw-toolbar .iw-playback-toggle{display:inline-flex;align-items:center;gap:6px;color:#cee3ee;font-size:11px;white-space:nowrap;cursor:pointer}
+#iw-toolbar .iw-playback-toggle input{accent-color:#46bedf}
+#iw-toolbar .iw-instruction{min-width:230px}
+#iw-workspace .iw-overlay{position:fixed;inset:0;z-index:1000;pointer-events:none}
+#iw-workspace .iw-overlay[hidden],#iw-workspace .iw-sidebar[hidden],#iw-workspace .iw-hover[hidden],#iw-workspace .iw-playNotice[hidden]{display:none!important}
+#iw-workspace .iw-backdrop{position:absolute;inset:0;background:rgba(2,10,22,.23);pointer-events:auto}
+#iw-workspace .iw-dialog{position:fixed;top:7vh;right:15px;width:min(570px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:#10273a;border:1px solid #53819b;border-radius:13px;box-shadow:0 22px 66px rgba(0,0,0,.65);pointer-events:auto;display:flex;flex-direction:column;overflow:hidden}
+#iw-workspace .iw-dialoghead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid #37566b;background:#112f43;flex:none}
+#iw-workspace .iw-dialoghead h2{font-size:17px;margin:2px 0 0;line-height:1.25;color:#f0f8ff}
+#iw-workspace .iw-eyebrow{color:#66cfe9;font-size:10px;letter-spacing:1.2px;font-weight:800}
+#iw-workspace .iw-dialoghead button{min-width:35px;padding:7px 10px}
+#iw-workspace .iw-dialogbody,#iw-workspace .iw-sidebody{overflow-y:auto;min-height:0;padding:14px 16px 18px;overscroll-behavior:contain}
+#iw-workspace .iw-dialogbody h3{margin-top:13px}
+#iw-workspace .iw-dialogbody .iw-field{margin:8px 0}
+#iw-workspace .iw-dialogbody textarea{min-height:95px}
+#iw-workspace .iw-dialogbody #iw-detail{height:138px}
+#iw-workspace .iw-dialogbody .iw-zoomwrap{padding:5px}
+#iw-workspace .iw-sidebar{position:fixed;right:0;top:0;bottom:0;width:min(415px,100vw);z-index:900;display:flex;flex-direction:column;border-left:1px solid #4a7590;background:#0d2132;box-shadow:-20px 0 45px rgba(0,0,0,.5)}
+#iw-workspace .iw-sidebar .iw-subtle{line-height:1.5}
+#iw-workspace .iw-sidebar .iw-entry{margin:8px 0}
+#iw-workspace .iw-sidebar .iw-list{max-height:none}
+#iw-workspace .iw-sidebar .iw-entry p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+#iw-workspace .iw-hover{position:fixed;z-index:700;max-width:min(310px,calc(100vw - 25px));min-width:190px;pointer-events:none;border:1px solid #6b91a9;border-radius:9px;box-shadow:0 10px 26px #050e18b0;background:#142e44;padding:10px 12px;color:#f2faff;font-size:12px}
+#iw-workspace .iw-hover strong{display:block;font-size:12px;margin:3px 0}
+#iw-workspace .iw-hover small{color:#a9cbdf;font-size:10px}
+#iw-workspace .iw-hover p{color:#cddfea;line-height:1.35;margin:5px 0;font-size:11px}
+#iw-workspace .iw-playNotice{position:fixed;bottom:22px;right:20px;max-width:min(440px,calc(100vw - 20px));z-index:800;display:flex;gap:10px;align-items:center;background:#142f44;border:1px solid #6f9db9;border-radius:11px;box-shadow:0 15px 32px #08131dc0;padding:12px 13px}
+#iw-workspace .iw-playNotice strong{display:block;font-size:12px;margin-top:4px}
+#iw-workspace .iw-playNotice small{display:block;color:#b8d2df;font-size:10px;margin-top:4px}
+#iw-workspace .iw-playNotice button{flex:none}
+.iw-plot-span{transition:background .12s ease;}
+.iw-plot-span.iw-saved{background:rgba(255,194,105,.14);border-color:rgba(255,200,107,.88)}
+.iw-plot-span.iw-point{min-width:4px;border-left-width:2px;border-right:0;background:rgba(255,194,105,.3)}
+.iw-plot-shell canvas{touch-action:pan-y}
+.iw-plot-shell.iw-selecting canvas{touch-action:none}
+@media(max-width:720px){#iw-workspace .iw-dialog{left:12px!important;right:12px!important;top:12px!important;width:calc(100vw - 24px)!important;max-height:calc(100vh - 24px)}#iw-workspace .iw-playNotice{right:10px;bottom:10px}#iw-toolbar .iw-instruction{flex-basis:100%;min-width:0}}
+@media print{#iw-workspace,#iw-toolbar{display:none!important}}

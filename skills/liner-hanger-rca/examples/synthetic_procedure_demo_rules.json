@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "job_id": "SYNTHETIC PROCEDURE CHECK DEMONSTRATION - NOT A REAL WELL",
+  "procedure": {
+    "name": "SYNTHETIC TEST ONLY: ROTATION LIMIT",
+    "approved": true,
+    "revision": "SYNTHETIC-TEST-1",
+    "approval_reference": "SYNTHETIC TEST FIXTURE - NOT FIELD APPROVAL"
+  },
+  "telemetry_clock_alignment_verified": true,
+  "channel_units": {"rpm": "rpm"},
+  "rules": [
+    {
+      "id": "DEMO-ROT-01",
+      "step": "Fictional rotation-limit check",
+      "description": "SYNTHETIC ONLY: the test fixture requires rotational speed not to exceed 30 rpm.",
+      "approved": true,
+      "source_reference": "SYNTHETIC TEST PROCEDURE, section 1 (not real OEM guidance)",
+      "channel": "rpm",
+      "unit": "rpm",
+      "operator": "<=",
+      "value": 30,
+      "window": {"start": "2021-01-01T00:00:00", "end": "2021-01-01T00:30:00"},
+      "min_coverage": 0.8,
+      "min_duration_minutes": 0
+    }
+  ]
+}

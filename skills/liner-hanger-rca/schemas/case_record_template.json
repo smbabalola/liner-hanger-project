@@ -1,0 +1,20 @@
+{
+  "case_id": "CASE-REPLACE",
+  "job_id": null,
+  "source_event_ids": [],
+  "tool_model": null,
+  "tool_revision": null,
+  "event_time_start": null,
+  "event_time_end": null,
+  "event_depth_md": null,
+  "observed_signatures": [],
+  "suspected_mechanisms": [],
+  "evidence_for": [],
+  "evidence_against": [],
+  "unknowns": [],
+  "status": "not_investigated",
+  "confirmed_failure_mechanism": null,
+  "verified_by": null,
+  "verification_evidence": [],
+  "tenant_access_scope": "private"
+}

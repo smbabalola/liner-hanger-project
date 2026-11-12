@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "job_id": "REPLACE_WITH_JOB_ID",
+  "procedure": {
+    "name": "REPLACE_WITH_APPROVED_JOB_PROGRAMME",
+    "revision": "",
+    "approved": false,
+    "approval_reference": ""
+  },
+  "telemetry_clock_alignment_verified": false,
+  "channel_units": {
+    "rpm": "rpm",
+    "torque": "ft-lbs"
+  },
+  "rules": []
+}

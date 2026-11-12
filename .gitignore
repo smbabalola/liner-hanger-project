@@ -1,0 +1,10 @@
+
+# Python generated files
+__pycache__/
+*.pyc
+*.pyo
+
+# Python generated files
+__pycache__/
+*.pyc
+*.pyo

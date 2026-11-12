@@ -1,0 +1,29 @@
+{
+  "job_id": "SYNTHETIC PROCEDURE CHECK DEMONSTRATION - NOT A REAL WELL",
+  "rules_evaluated": 1,
+  "deviation_count": 1,
+  "not_verifiable_rules": 0,
+  "results": [
+    {
+      "id": "DEMO-ROT-01",
+      "step": "Fictional rotation-limit check",
+      "description": "SYNTHETIC ONLY: the test fixture requires rotational speed not to exceed 30 rpm.",
+      "source_reference": "SYNTHETIC TEST PROCEDURE, section 1 (not real OEM guidance)",
+      "channel": "rpm",
+      "status": "deviation",
+      "instances": [
+        {
+          "start": "2021-01-01T00:10",
+          "last_failed_sample": "2021-01-01T00:15",
+          "n_points": 2,
+          "approx_duration_minutes": 10.0,
+          "observed_min": 48.0,
+          "observed_max": 49.0
+        }
+      ],
+      "reasons": [],
+      "data_coverage": 1.0
+    }
+  ],
+  "notice": "Retrospective checks only. Engineers must review source authenticity, sensor integrity and each apparent deviation."
+}

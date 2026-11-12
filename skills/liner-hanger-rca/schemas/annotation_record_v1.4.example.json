@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.4.0",
+  "kind": "liner_hanger_investigation_evidence",
+  "case_id": "EXAMPLE-WELL-ID",
+  "case_type": "production casing / liner hanger / other",
+  "telemetry_source": "source archive or WITSML source ID",
+  "telemetry_time_zone": "Unverified until independently established",
+  "numeric_source": "1-minute medians; original ten-second data retained separately",
+  "procedure_compliance": "Not verifiable without an approved job-specific procedure",
+  "annotations": [
+    {
+      "id": "unique-evidence-record-id",
+      "case_id": "EXAMPLE-WELL-ID",
+      "kind": "observation",
+      "review_status": "open",
+      "author": "Engineer / initials",
+      "title": "Example observation — not an actual field finding",
+      "notes": "Observed signal and engineering interpretation, separately stated",
+      "source_refs": "time-indexed log entry or approved procedure page",
+      "channel": 3,
+      "channel_name": "Hook load",
+      "start_index": 120,
+      "end_index": 130,
+      "start_time": "2023-07-11 00:00",
+      "end_time": "2023-07-11 00:10",
+      "time_basis": "Pason clock; timezone unverified. ISO rendering is a technical encoding, not confirmation of UTC.",
+      "data_basis": "1-minute medians; verify 10-second recordings",
+      "depth_basis": "Bit Depth is a casing-shoe position proxy",
+      "attachments": [],
+      "created_at": "2026-11-11T00:00:00Z",
+      "updated_at": "2026-11-11T00:00:00Z",
+      "source": "engineer_manual",
+      "signal_summary": {
+        "samples": 11,
+        "minimum": null,
+        "maximum": null,
+        "unit": "klb"
+      }
+    }
+  ],
+  "suggestions_are_not_findings": true
+}

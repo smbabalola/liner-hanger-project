@@ -1,0 +1,134 @@
+{
+  "source_zip": "liner-hanger-investigation-skill-v1.5.zip",
+  "source_zip_sha256": "9b6e2f04f3f2100124b182ce61ecac572d0e34ebd0641232b3bfced761a53d6b",
+  "excluded": [
+    "examples/utah_forge_16A_78_32/**",
+    "examples/utah_forge_16B_78_32/** except replay.html"
+  ],
+  "files": {
+    "skills/liner-hanger-rca/README.md": {
+      "sha256": "2106ffed697bf621951222da344a74d9512ac88d77af8639a4b5f80df69700ba",
+      "bytes": 9103
+    },
+    "skills/liner-hanger-rca/SKILL.md": {
+      "sha256": "2970261d36b10c1e72ece49056b81182e12f0cbfb1551b4956f441dea0677fd6",
+      "bytes": 14811
+    },
+    "skills/liner-hanger-rca/assets/annotation_workspace.css": {
+      "sha256": "485ee44223d5d1d3237ba1a6ec4dd80688cfcab7cf07064cf391280cf3647843",
+      "bytes": 8224
+    },
+    "skills/liner-hanger-rca/assets/annotation_workspace.js": {
+      "sha256": "4066da4620b470e6f07911da21e8f244b4034ddd9b84396788dc964a426c87f1",
+      "bytes": 32354
+    },
+    "skills/liner-hanger-rca/examples/synthetic_preset_review.md": {
+      "sha256": "c991070caaf224afc67e410fdd107446d0291a80ea2e93520669feef68c93267",
+      "bytes": 1185
+    },
+    "skills/liner-hanger-rca/examples/synthetic_procedure_demo_5min.csv": {
+      "sha256": "52ebfc4164c0c64320c38037e34c567555fb5d93ee6b3855b729d77e9ee6791e",
+      "bytes": 143
+    },
+    "skills/liner-hanger-rca/examples/synthetic_procedure_demo_findings.json": {
+      "sha256": "8eb8d1a8d73d563ab10cfc062f1c63b19cfbad6a13ec268b363e2ca55cde54f5",
+      "bytes": 957
+    },
+    "skills/liner-hanger-rca/examples/synthetic_procedure_demo_rules.json": {
+      "sha256": "7caca7e68f40b42c628ff4cd5cc180fc41fd81c04a8708184fab23b64135faef",
+      "bytes": 937
+    },
+    "skills/liner-hanger-rca/examples/utah_forge_16B_78_32/replay.html": {
+      "sha256": "7b9338d0ac5f49e237c57e1eb44a1e8d8ad513640f00cd7022c1befb35376a50",
+      "bytes": 400996
+    },
+    "skills/liner-hanger-rca/references/DATA_INTAKE.md": {
+      "sha256": "315a71d3d7aa4a79602682d7dbafd89729cb56ca33bd4b54764a81bafaa10fd7",
+      "bytes": 909
+    },
+    "skills/liner-hanger-rca/references/ENGINEER_ANNOTATIONS.md": {
+      "sha256": "6b58a7ab14099ee40d419f01a146e70bd60fc973b13e5b480a7b72247821398b",
+      "bytes": 7099
+    },
+    "skills/liner-hanger-rca/references/HYPOTHESIS_LIBRARY.md": {
+      "sha256": "e447394673e203da561109b78c69d0c652156f50cd4179949fc05b0636c86f4e",
+      "bytes": 1370
+    },
+    "skills/liner-hanger-rca/references/INGESTION_AND_RULES.md": {
+      "sha256": "dfc3fbf6eae9750f6d161a135564629018a33f6cf05272a78ebe061942f9420f",
+      "bytes": 3269
+    },
+    "skills/liner-hanger-rca/references/INVESTIGATION_METHOD.md": {
+      "sha256": "20ee86d9e14140a7e29ed372782dbcdcad480893235206928693225f57c09c04",
+      "bytes": 1056
+    },
+    "skills/liner-hanger-rca/references/KNOWLEDGE_BASE.md": {
+      "sha256": "8feabc73a3faab3651e28ab1a0543966af76f85f060c3acb2ee70cb516e49cc6",
+      "bytes": 5406
+    },
+    "skills/liner-hanger-rca/references/PROCEDURE_COMPLIANCE.md": {
+      "sha256": "872cfd9685f90a96c3b42c2397d47edd21ed2fa79161b5c4c775f46a9a0ae562",
+      "bytes": 4887
+    },
+    "skills/liner-hanger-rca/references/REPORT_TEMPLATE.md": {
+      "sha256": "0e2a90f0bca4f179103db65f9e13984281636c495669bd0636a6b2a67651af2b",
+      "bytes": 625
+    },
+    "skills/liner-hanger-rca/references/SOURCES.md": {
+      "sha256": "97c8539474df23ffed0533f2a79bae6e1fc0d60328f5cac01ba047f6a4489399",
+      "bytes": 262
+    },
+    "skills/liner-hanger-rca/references/SOURCE_REGISTER.md": {
+      "sha256": "a3aeb122a68d9a44564c237ca7585b51b4bcc75799a3784cef3791436c93d9cf",
+      "bytes": 3541
+    },
+    "skills/liner-hanger-rca/schemas/annotation_record_v1.4.example.json": {
+      "sha256": "3074cd749a87e4a81e02efe59aad895076b71b6800b7b1cfbd8a77bc8d873b93",
+      "bytes": 1672
+    },
+    "skills/liner-hanger-rca/schemas/case_record_template.json": {
+      "sha256": "66d88590b599784ae3d6a2742cef757b92d067bdbc750a68ef2fedd3d4efb531",
+      "bytes": 489
+    },
+    "skills/liner-hanger-rca/schemas/job_knowledge_template.json": {
+      "sha256": "5444f9b1db32c9f7d7266dfdb35ac675c7a772f67063ae4357fa5867ea48e2e9",
+      "bytes": 1146
+    },
+    "skills/liner-hanger-rca/schemas/procedure_rulebook_template.json": {
+      "sha256": "24ee0dcc30b86db200bdce41f6ab68c5088a4345b6f5b645bd8a512f3158b60b",
+      "bytes": 339
+    },
+    "skills/liner-hanger-rca/scripts/add_annotation_workspace.py": {
+      "sha256": "69a8e4fab6cbf6db32e3c466baa543e61df3c4aa6ebf3fbe6393282090b7e1aa",
+      "bytes": 11333
+    },
+    "skills/liner-hanger-rca/scripts/build_investigative_replay.py": {
+      "sha256": "03248934f9bfac973c89cc7ccc892a228a97584f59f1a78963810727608f3d34",
+      "bytes": 31304
+    },
+    "skills/liner-hanger-rca/scripts/build_timeline.py": {
+      "sha256": "7d4d46146bd7faf8d891372adaa94eb578ed3248fcd8420c7c78af88802c0eda",
+      "bytes": 2486
+    },
+    "skills/liner-hanger-rca/scripts/check_procedure.py": {
+      "sha256": "1e311bf38ac12dfe9036dbcb594ed30e0f618149dfe1aa5f027eebc90ce3f6b8",
+      "bytes": 6570
+    },
+    "skills/liner-hanger-rca/scripts/extract_procedure_candidates.py": {
+      "sha256": "870036abc803f5b00b20cc1252abb65c40e179d4eba1e572a56a6c3fe4b2f752",
+      "bytes": 1989
+    },
+    "skills/liner-hanger-rca/tests/test_annotation_workspace.py": {
+      "sha256": "759f555d7ad4bc971f44b9b9b61c99ce8150c9c9b409948c53c7ecdfa268a15e",
+      "bytes": 2349
+    },
+    "skills/liner-hanger-rca/tests/test_chart_modal_v15.py": {
+      "sha256": "63f19791dea3f9feb8a7e5192dee9073e7472df1a7339ab3495759207410eb1c",
+      "bytes": 4306
+    },
+    "skills/liner-hanger-rca/tests/test_procedure_checker.py": {
+      "sha256": "bf5e4617839d992357f6b4d48519ec5ac329b4706686d3262df88df3b67d4ff5",
+      "bytes": 1852
+    }
+  }
+}

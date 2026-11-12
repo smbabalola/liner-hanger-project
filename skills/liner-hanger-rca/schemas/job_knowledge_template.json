@@ -1,0 +1,53 @@
+{
+  "job_id": "EXAMPLE-REPLACE",
+  "classification": "synthetic_template",
+  "tenant": "",
+  "equipment": {
+    "manufacturer": null,
+    "model": null,
+    "revision": null,
+    "setting_family": null,
+    "running_tool": null,
+    "liner_hanger": null,
+    "liner_top_packer": null
+  },
+  "well": {
+    "reference_depth_unit": "m",
+    "liner_shoe_md": null,
+    "hanger_md": null
+  },
+  "procedures": [
+    {
+      "step_id": "STEP-01",
+      "stage": "run_in_hole",
+      "requirement_text": null,
+      "parameter": null,
+      "operator": null,
+      "specified_value": null,
+      "unit": null,
+      "condition": null,
+      "hold_time_sec": null,
+      "measurement_location": null,
+      "source_ref": null,
+      "approval_status": "unreviewed",
+      "verification_method": "indeterminate"
+    }
+  ],
+  "rig_data": {
+    "timezone": null,
+    "channels": [
+      "timestamp",
+      "depth_md",
+      "hookload",
+      "standpipe_pressure",
+      "pump_rate",
+      "pump_strokes",
+      "cumulative_pumped_volume",
+      "rpm",
+      "torque"
+    ],
+    "data_quality_notes": []
+  },
+  "sources": [],
+  "approved_by_engineer": null
+}
