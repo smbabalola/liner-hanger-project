@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-12  
 **Task:** LH-001 (focused Baker Hughes source inventory; overall asset audit remains open)  
-**Decision status:** Assessment only. **No scope change approved or implemented.**
+**Decision status:** User confirmed **Baker Hughes retrospective fault finding** as release v1 on 2026-11-12. This file contains the evolving technical coverage audit, not approval of individual model rules.
 
 ## Evidence examined
 
@@ -158,13 +158,9 @@ Ask the user to locate the original Baker Hughes training/engineering PDFs or im
 
 **Do not upload protected Baker Hughes manuals to a public repository**. Even if the user can lawfully review them here, redistribution in GitHub may require authorization. Prefer a private/local source vault and a sanitized rule index.
 
-## Scope decision pending
+## Scope decision confirmed
 
-Two viable product directions remain under discussion:
-- Broad liner-hanger engineering skill, with optional investigation.
-- **Baker Hughes-only retrospective fault-finding skill**, leveraging the existing investigation framework.
-
-No engineering direction is committed until the user explicitly decides following the documentary coverage audit.
+The user confirmed **Baker Hughes-only retrospective fault finding as first skill release** on 2026-11-12. This does not certify full tool/revision coverage. Broad engineering functions and additional manufacturers remain deferred. See [first-release-scope.md](first-release-scope.md).
 
 ## Next step
 
