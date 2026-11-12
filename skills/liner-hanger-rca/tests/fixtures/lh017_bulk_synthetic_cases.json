@@ -1,0 +1,471 @@
+{
+  "schema_version": "1.0",
+  "disclaimer": "ENTIRELY SYNTHETIC LH-017 batch: all scenario observations, source labels and assessments are fictional; no approved Baker Hughes thresholds or actual tool state.",
+  "cases": [
+    {
+      "case_id": "LH017-01-NORMAL-SYNTH",
+      "family_id": "ball-seat",
+      "family": "Ball drop / seating / water hammer",
+      "stage": "ball_drop",
+      "scenario_class": "normal",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Synthetic rig standpipe pressure response recorded after reported ball drop; ball location not measured",
+      "reported_log_summary": "Synthetic daily note reports a ball-drop attempt; no independently verified seating indication",
+      "observation_source_id": "SYNTHETIC-RIG-SPP-CSV",
+      "observed_channel": "synthetic-surface-channel",
+      "clock_verified": true,
+      "observation_status": "measured",
+      "hypothesis_questions": [
+        "Ball/seat interaction uncertainty",
+        "Transient or circulating-system response"
+      ],
+      "discriminating_checks": [
+        "Review historical pump output, source clock and pressure transient shape",
+        "Verify actual ball/seat configuration and distinguish line/transient effects"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-01-ANOMALOUS-SYNTH",
+      "family_id": "ball-seat",
+      "family": "Ball drop / seating / water hammer",
+      "stage": "ball_drop",
+      "scenario_class": "anomalous",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Synthetic rig standpipe pressure transient noted after reported ball-drop attempt; mechanism unresolved",
+      "reported_log_summary": "Synthetic daily note reports a ball-drop attempt; no independently verified seating indication",
+      "observation_source_id": "SYNTHETIC-RIG-SPP-CSV",
+      "observed_channel": "synthetic-surface-channel",
+      "clock_verified": true,
+      "observation_status": "measured",
+      "hypothesis_questions": [
+        "Ball/seat interaction uncertainty",
+        "Transient or circulating-system response"
+      ],
+      "discriminating_checks": [
+        "Review historical pump output, source clock and pressure transient shape",
+        "Verify actual ball/seat configuration and distinguish line/transient effects"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-01-AMBIGUOUS-SYNTH",
+      "family_id": "ball-seat",
+      "family": "Ball drop / seating / water hammer",
+      "stage": "ball_drop",
+      "scenario_class": "ambiguous",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Available surface signals cannot be reliably placed or assigned to the required equipment/source domain; Synthetic rig standpipe pressure response recorded after reported ball drop; ball location not measured",
+      "reported_log_summary": "Synthetic daily note reports a ball-drop attempt; no independently verified seating indication",
+      "observation_source_id": "SYNTHETIC-RIG-SPP-CSV",
+      "observed_channel": "UNVERIFIED-CHANNEL",
+      "clock_verified": false,
+      "observation_status": "unknown",
+      "hypothesis_questions": [
+        "Ball/seat interaction uncertainty",
+        "Transient or circulating-system response"
+      ],
+      "discriminating_checks": [
+        "Review historical pump output, source clock and pressure transient shape",
+        "Verify actual ball/seat configuration and distinguish line/transient effects"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-02-NORMAL-SYNTH",
+      "family_id": "hanger-setting",
+      "family": "Hanger setting",
+      "stage": "hanger_setting",
+      "scenario_class": "normal",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Synthetic surface hookload response logged during reported setting sequence; downhole slip engagement unknown",
+      "reported_log_summary": "Synthetic daily note reports hanger-setting attempt but lacks independently confirmed tool state",
+      "observation_source_id": "SYNTHETIC-HOOKLOAD-CSV",
+      "observed_channel": "synthetic-surface-channel",
+      "clock_verified": true,
+      "observation_status": "measured",
+      "hypothesis_questions": [
+        "Hanger setting interaction uncertainty",
+        "String drag or surface load-transfer alternative"
+      ],
+      "discriminating_checks": [
+        "Reconstruct rig standpipe, hookload and string movement using verified alignment",
+        "Review as-run hanger variant and competing drag/load-transfer effects"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-02-ANOMALOUS-SYNTH",
+      "family_id": "hanger-setting",
+      "family": "Hanger setting",
+      "stage": "hanger_setting",
+      "scenario_class": "anomalous",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Synthetic surface hookload response differs from stated sequence; friction/drag and load transfer unresolved",
+      "reported_log_summary": "Synthetic daily note reports hanger-setting attempt but lacks independently confirmed tool state",
+      "observation_source_id": "SYNTHETIC-HOOKLOAD-CSV",
+      "observed_channel": "synthetic-surface-channel",
+      "clock_verified": true,
+      "observation_status": "measured",
+      "hypothesis_questions": [
+        "Hanger setting interaction uncertainty",
+        "String drag or surface load-transfer alternative"
+      ],
+      "discriminating_checks": [
+        "Reconstruct rig standpipe, hookload and string movement using verified alignment",
+        "Review as-run hanger variant and competing drag/load-transfer effects"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-02-AMBIGUOUS-SYNTH",
+      "family_id": "hanger-setting",
+      "family": "Hanger setting",
+      "stage": "hanger_setting",
+      "scenario_class": "ambiguous",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Available surface signals cannot be reliably placed or assigned to the required equipment/source domain; Synthetic surface hookload response logged during reported setting sequence; downhole slip engagement unknown",
+      "reported_log_summary": "Synthetic daily note reports hanger-setting attempt but lacks independently confirmed tool state",
+      "observation_source_id": "SYNTHETIC-HOOKLOAD-CSV",
+      "observed_channel": "UNVERIFIED-CHANNEL",
+      "clock_verified": false,
+      "observation_status": "unknown",
+      "hypothesis_questions": [
+        "Hanger setting interaction uncertainty",
+        "String drag or surface load-transfer alternative"
+      ],
+      "discriminating_checks": [
+        "Reconstruct rig standpipe, hookload and string movement using verified alignment",
+        "Review as-run hanger variant and competing drag/load-transfer effects"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-03-NORMAL-SYNTH",
+      "family_id": "running-tool",
+      "family": "Running-tool release",
+      "stage": "running_tool_release",
+      "scenario_class": "normal",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Synthetic surface torque and string movement reported during running-tool release attempt; tool state not directly observed",
+      "reported_log_summary": "Synthetic daily report says release attempted; confirmation evidence not attached",
+      "observation_source_id": "SYNTHETIC-TORQUE-CSV",
+      "observed_channel": "synthetic-surface-channel",
+      "clock_verified": true,
+      "observation_status": "measured",
+      "hypothesis_questions": [
+        "Running-tool release interaction uncertainty",
+        "Surface drag, torque or string movement alternative"
+      ],
+      "discriminating_checks": [
+        "Verify running-tool exact type and documented release sequence",
+        "Correlate historical torque, hookload, movement and pump records without assuming disengagement"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-03-ANOMALOUS-SYNTH",
+      "family_id": "running-tool",
+      "family": "Running-tool release",
+      "stage": "running_tool_release",
+      "scenario_class": "anomalous",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Synthetic release-stage surface response appears unexpected; hydraulic/mechanical tool variants not yet established",
+      "reported_log_summary": "Synthetic daily report says release attempted; confirmation evidence not attached",
+      "observation_source_id": "SYNTHETIC-TORQUE-CSV",
+      "observed_channel": "synthetic-surface-channel",
+      "clock_verified": true,
+      "observation_status": "measured",
+      "hypothesis_questions": [
+        "Running-tool release interaction uncertainty",
+        "Surface drag, torque or string movement alternative"
+      ],
+      "discriminating_checks": [
+        "Verify running-tool exact type and documented release sequence",
+        "Correlate historical torque, hookload, movement and pump records without assuming disengagement"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-03-AMBIGUOUS-SYNTH",
+      "family_id": "running-tool",
+      "family": "Running-tool release",
+      "stage": "running_tool_release",
+      "scenario_class": "ambiguous",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Available surface signals cannot be reliably placed or assigned to the required equipment/source domain; Synthetic surface torque and string movement reported during running-tool release attempt; tool state not directly observed",
+      "reported_log_summary": "Synthetic daily report says release attempted; confirmation evidence not attached",
+      "observation_source_id": "SYNTHETIC-TORQUE-CSV",
+      "observed_channel": "UNVERIFIED-CHANNEL",
+      "clock_verified": false,
+      "observation_status": "unknown",
+      "hypothesis_questions": [
+        "Running-tool release interaction uncertainty",
+        "Surface drag, torque or string movement alternative"
+      ],
+      "discriminating_checks": [
+        "Verify running-tool exact type and documented release sequence",
+        "Correlate historical torque, hookload, movement and pump records without assuming disengagement"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-04-NORMAL-SYNTH",
+      "family_id": "cementing",
+      "family": "Cementing stage",
+      "stage": "cementing",
+      "scenario_class": "normal",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Synthetic rig pump rate and standpipe records exist; cement-unit discharge channel not independently identified",
+      "reported_log_summary": "Synthetic cementing-stage report exists; total pumped volume and returns remain source dependent",
+      "observation_source_id": "SYNTHETIC-RIG-PUMP-CSV",
+      "observed_channel": "synthetic-surface-channel",
+      "clock_verified": true,
+      "observation_status": "measured",
+      "hypothesis_questions": [
+        "Possible flow-path or return behaviour difference",
+        "Instrument/source mapping or reporting inconsistency"
+      ],
+      "discriminating_checks": [
+        "Reconcile separate rig and cement-unit source channels, rates, volumes and flow path",
+        "Review timestamped returns, losses and source-specific pump totals before interpretation"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-04-ANOMALOUS-SYNTH",
+      "family_id": "cementing",
+      "family": "Cementing stage",
+      "stage": "cementing",
+      "scenario_class": "anomalous",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Synthetic pumping and returns reports disagree in timing; no cement-placement calculation justified",
+      "reported_log_summary": "Synthetic cementing-stage report exists; total pumped volume and returns remain source dependent",
+      "observation_source_id": "SYNTHETIC-RIG-PUMP-CSV",
+      "observed_channel": "synthetic-surface-channel",
+      "clock_verified": true,
+      "observation_status": "measured",
+      "hypothesis_questions": [
+        "Possible flow-path or return behaviour difference",
+        "Instrument/source mapping or reporting inconsistency"
+      ],
+      "discriminating_checks": [
+        "Reconcile separate rig and cement-unit source channels, rates, volumes and flow path",
+        "Review timestamped returns, losses and source-specific pump totals before interpretation"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-04-AMBIGUOUS-SYNTH",
+      "family_id": "cementing",
+      "family": "Cementing stage",
+      "stage": "cementing",
+      "scenario_class": "ambiguous",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Available surface signals cannot be reliably placed or assigned to the required equipment/source domain; Synthetic rig pump rate and standpipe records exist; cement-unit discharge channel not independently identified",
+      "reported_log_summary": "Synthetic cementing-stage report exists; total pumped volume and returns remain source dependent",
+      "observation_source_id": "SYNTHETIC-RIG-PUMP-CSV",
+      "observed_channel": "UNVERIFIED-CHANNEL",
+      "clock_verified": false,
+      "observation_status": "unknown",
+      "hypothesis_questions": [
+        "Possible flow-path or return behaviour difference",
+        "Instrument/source mapping or reporting inconsistency"
+      ],
+      "discriminating_checks": [
+        "Reconcile separate rig and cement-unit source channels, rates, volumes and flow path",
+        "Review timestamped returns, losses and source-specific pump totals before interpretation"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-05-NORMAL-SYNTH",
+      "family_id": "liner-packer",
+      "family": "Liner-top packer setting",
+      "stage": "packer_setting",
+      "scenario_class": "normal",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Synthetic surface set-down and hookload response reported; packer element position unconfirmed",
+      "reported_log_summary": "Synthetic packer-setting attempt recorded without verified packoff state",
+      "observation_source_id": "SYNTHETIC-HOOKLOAD-CSV",
+      "observed_channel": "synthetic-surface-channel",
+      "clock_verified": true,
+      "observation_status": "measured",
+      "hypothesis_questions": [
+        "Packer set-down/load-transfer uncertainty",
+        "Drag, packoff or unstabbed-position alternative"
+      ],
+      "discriminating_checks": [
+        "Verify as-run packer configuration and source-backed expected stage sequence",
+        "Correlate actual string position and set-down surface load with independent evidence"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-05-ANOMALOUS-SYNTH",
+      "family_id": "liner-packer",
+      "family": "Liner-top packer setting",
+      "stage": "packer_setting",
+      "scenario_class": "anomalous",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Synthetic set-down response reported as unexpected; drag and element response cannot be distinguished",
+      "reported_log_summary": "Synthetic packer-setting attempt recorded without verified packoff state",
+      "observation_source_id": "SYNTHETIC-HOOKLOAD-CSV",
+      "observed_channel": "synthetic-surface-channel",
+      "clock_verified": true,
+      "observation_status": "measured",
+      "hypothesis_questions": [
+        "Packer set-down/load-transfer uncertainty",
+        "Drag, packoff or unstabbed-position alternative"
+      ],
+      "discriminating_checks": [
+        "Verify as-run packer configuration and source-backed expected stage sequence",
+        "Correlate actual string position and set-down surface load with independent evidence"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    },
+    {
+      "case_id": "LH017-05-AMBIGUOUS-SYNTH",
+      "family_id": "liner-packer",
+      "family": "Liner-top packer setting",
+      "stage": "packer_setting",
+      "scenario_class": "ambiguous",
+      "identity": {
+        "manufacturer_id": "baker_hughes",
+        "family": "SYNTHETIC-ONLY",
+        "model": null,
+        "size": null,
+        "revision": null,
+        "configuration_id": null,
+        "documentation_status": "mechanism_described_only"
+      },
+      "observed_surface_summary": "Available surface signals cannot be reliably placed or assigned to the required equipment/source domain; Synthetic surface set-down and hookload response reported; packer element position unconfirmed",
+      "reported_log_summary": "Synthetic packer-setting attempt recorded without verified packoff state",
+      "observation_source_id": "SYNTHETIC-HOOKLOAD-CSV",
+      "observed_channel": "UNVERIFIED-CHANNEL",
+      "clock_verified": false,
+      "observation_status": "unknown",
+      "hypothesis_questions": [
+        "Packer set-down/load-transfer uncertainty",
+        "Drag, packoff or unstabbed-position alternative"
+      ],
+      "discriminating_checks": [
+        "Verify as-run packer configuration and source-backed expected stage sequence",
+        "Correlate actual string position and set-down surface load with independent evidence"
+      ],
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+    }
+  ]
+}
