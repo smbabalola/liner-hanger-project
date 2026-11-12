@@ -100,7 +100,7 @@ Names are **proposed**, not implemented. `tenant_id` and `manufacturer_id` belon
 
 ## 6. Open risks and acceptance gates
 
-1. **User's local development/prototype files not directly accessible.** The personal Library contains `liner_hanger_v1_5_focused_well_setup.html`, `liner_hanger_v1_5_rig_csv_import.html` and related bundles. Their implementation and regression status were **not** tested in this audit. Do not assume features are production-ready.
+1. **Separate newer HTML prototypes: static evidence inspected, behaviour not yet tested.** Both personal-Library assets were retrieved and inspected as source text: `liner_hanger_v1_5_focused_well_setup.html` (477,680 bytes) and `liner_hanger_v1_5_rig_csv_import.html` (467,765 bytes). Both still identify themselves in `<title>` as `16B Casing-Running Investigation — Measured Telemetry`; source text contains BHA, directional, CSV, cementing and tally-related code/labels. These are **larger standalone HTML prototypes**, not proven modules of the v1.5 ZIP skill. No browser/runtime, calculation-accuracy, CSV import/mapping or BHA geometry tests were run on them during this audit. Do not equate keyword presence or UI controls with implemented, validated functionality. Their source rights and relationship to newer bundle ZIPs need confirmation before reuse.
 2. **Skill is not yet imported** into `liner-hanger-project`; tests ran against a separately extracted ZIP.
 3. **Source data provenance:** 16B is a casing run; string-depth proxy and timestamp zone not independently verified; no approved setting/job-procedure for that test case.
 4. **Manufacturer authority:** full BH tool-specific technical units/approved procedures remain to be acquired and reviewed.
