@@ -70,3 +70,18 @@ The v1 BHA needs a deterministic ordered as-run component list with independentl
 - **Completed here:** explicit first candidate shortlist; source-family matrix; qualitative investigation boundaries; per-entry source gate; SDD and SU/TU inconsistencies flagged.
 - **Not completed:** page-exact model/revision review of each candidate, approved Technical/Service Units, verified source licensing for broader distribution, reviewed numerical criteria, engineering sign-off and validation of geometry.
 - **LH-001A stays unchecked.** The next useful source request is **one known, actually run Baker Hughes configuration** (hanger + running tool + packoff/seat + packer + cementing components) with model/size/revision, as-run tally and permitted source documents. It is better to validate one full assembly than assume all catalog families are supported.
+
+
+## 2026-11-12 user decision — dual BHA tally intake
+
+**Approved:** support both **manual component-by-component entry** and **existing Excel tally import** from the outset of the BHA geometry work. This is an engineering data-intake requirement, not permission to start the deferred application UI.
+
+Both routes must produce one common validated BHA/tally data contract and identical deterministic calculations. Preserve separate **planned** and **as-run** assemblies. An import must not silently replace an existing manually entered or previously accepted tally; review differences and explicitly accept an import before it becomes the active as-run basis.
+
+**Manual input:** ordered components, unique component identifiers, equipment identity and actual measured length with units, attachment/reference points, source and revision metadata, known depth anchor/datum and orientation. Allow unknown/missing values without default lengths.
+
+**Excel intake:** accept .xlsx (and optionally .xls after an explicit safe conversion decision), inspect sheets/headers, permit user mapping for component description/ID, sequence, measured length, units, measured-depth anchor and relevant references; retain original row/sheet provenance. Reject ambiguous units, missing critical data and contradictory component order until reviewed. Never treat an arbitrary Excel column as manufacturer approval.
+
+**Validation before positions:** check duplicate sequence/identifiers, positive component lengths, segment order, unit consistency, datum, anchor direction and whether anchor is referenced to the assembly or well. Maintain clear differences between nominal tally MD, measured MD, TVD and any estimated effects of stretch or movement. No inferred manufacturer lengths or unsupported operating limits.
+
+**Acceptance tests to implement:** equivalent manual-and-Excel fixture yields identical computed reference depths; wrong units/missing lengths/unknown anchor return explicit unavailable or review-required; planned-vs-as-run stay separate; import differences cannot silently overwrite accepted components; duplicate/invalid rows produce source-linked errors. This item belongs to future BHA data contract implementation; **not yet implemented or tested**.
