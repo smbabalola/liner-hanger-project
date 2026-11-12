@@ -117,6 +117,7 @@ def compile_report(*, case_id: str, equipment: Mapping, timeline: Mapping,
              "reasons": list(e.get("reasons", ())),
              "source_sample_time": e.get("source_sample_time"),
              "screening_details": e.get("screening_details"),
+             "measurement_details": e.get("measurement_details"),
              "source_locations": e.get("source_locations") or {}}
             for e in records
         ],
@@ -131,8 +132,8 @@ def compile_report(*, case_id: str, equipment: Mapping, timeline: Mapping,
              "related_rule_id": e.get("related_rule_id"), "source_ids": list(e["source_ids"]),
              "screening_details": e.get("screening_details"),
              "source_locations": e.get("source_locations") or {}}
-            for e in records if e.get("kind") in {
-                "screening_candidate", "screening_context", "evidence_gap"}
+            for e in records if e.get("screening_status") in {
+                "outside_screening_bounds", "within_screening_bounds", "unverifiable"}
         ],
         "competing_hypotheses": [
             {"hypothesis_id": card["hypothesis_id"], "title": card["title"],
@@ -202,6 +203,12 @@ def render_markdown(report: Mapping) -> str:
                      f"{_text(e['summary'])} (sources: {_text(', '.join(e['source_ids']))}; "
                      f"review: {_text(e['review_status'])}; "
                      f"time basis: {_text(e.get('time_basis') or 'unverified')})")
+        measurement = e.get("measurement_details")
+        if measurement:
+            lines.append(f"  - Surface sample: {_text(measurement['parameter'])} = "
+                         f"{_text(measurement['value'])} {_text(measurement['unit'])}; "
+                         f"domain={_text(measurement['domain'])}; basis={_text(measurement['basis'])}; "
+                         f"measurement provenance: {_text(measurement['provenance'])}")
         if e.get("reasons"):
             lines.append(f"  - Unverifiable/review reasons: {_text('; '.join(e['reasons']))}")
         if e.get("source_sample_time") and e["time_state"] != "verified":
@@ -229,6 +236,8 @@ def render_markdown(report: Mapping) -> str:
                 lines.append("  - Comparison NOT authorised: reported values are shown for provenance only and are not comparable findings.")
         else:
             lines.append("  - Quantitative screening details unavailable in source record.")
+    if not report["screening_findings"]:
+        lines.append("- No configured and source-checked screening rule evaluated in this case.")
     earliest = report["chronology"]["earliest_screening_candidate_id"]
     lines.append(f"- Earliest eligible *screening candidate*: {_text(earliest) if earliest else 'none identified'}")
     lines.append(f"- {_text(report['chronology']['warning'])}")
@@ -256,6 +265,7 @@ def render_markdown(report: Mapping) -> str:
     lines += ["", "## 5. Evidence gaps and limitations"]
     for name, ids in report["evidence_gaps"].items():
         lines.append(f"- {_text(name)}: {_text(', '.join(ids)) if ids else 'none recorded'}")
+    lines.append("- Evidence-quality gaps are listed in the evidence register; they are not automatically screening-rule findings.")
     for warning in report["limitations"]:
         lines.append(f"- {_text(warning)}")
     lines += [
