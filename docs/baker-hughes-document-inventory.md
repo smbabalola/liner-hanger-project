@@ -27,6 +27,33 @@ The historical analysis identified equipment names and families including **Hyfl
 
 ---
 
+## 2026-11-12 follow-up — read-only LinerForge catalog inspection
+
+Read-only examined existing private repo `smbabalola/LinerForge`, source:
+- `src/features/liner-hanger-simulation/services/bakerToolCatalog.ts`
+- `src/features/liner-hanger-simulation/services/platformToolPackLibrary.ts`
+
+**Confirmed source-code inventory:** `bakerToolCatalog.ts` defines **38 named catalog templates** (some are tools, some are subassemblies/accessories), grouped here by the code's categories:
+
+| Category | Catalog entries |
+|---|---|
+| Hangers | Hyflo III; CMC; RCM II; FLEX-LOCK Mechanical; Hyflo II; HMC; HSR II; FLEX-LOCK Hydraulic; ControlSET FLEX-LOCK; SDD |
+| Packers / combinations | Hyflo III Packer; ZXP; ZXP Ultra; ZXHD; ZXPN; INLine; Z-Flex; ZXP with Integral FLEX-LOCK; UniFlex |
+| Running / setting tools | HRD-E; 2RH; Hydraulic Pusher Tool; Setting Sleeve; Setting Dog Sub |
+| Packoff | RS Packoff; PBR Packoff; Swab Cup Assembly; Drillable Packoff Bushing |
+| Ball-seat equipment | ST Landing Sub; DOBS |
+| Cementing accessories | Type I Landing Collar; Type II Landing Collar; LFC Landing Collar; COMPdril Landing Collar; COMPdril Solo / LF Plug System; Float Collar; Float Shoe; Pump-Down Plugs / Balls / Darts |
+
+**CRITICAL ENGINEERING FINDING:** The code's `operatingEnvelope: {}` is empty on **all 38 catalog records**. Many records list `requiresEngineeringInput` for pressure/load/temperature ratings. The same source contains generic `deriveRatingsForRole()` values for tensile, yield, burst and collapse, plus `inferredLength()` and `deriveInAirWeightForRole()`. These are **software heuristics / default estimates, NOT confirmed Baker Hughes product ratings or dimensions**. `deriveBakerToolProfileOverrides()` contains hardcoded simulated seat pressure gains and set-confirmation thresholds; none were backed by source/part/revision citations in the examined code. These numbers **must not be imported into the engineering skill as OEM specification or fault-finding thresholds**.
+
+`platformToolPackLibrary.ts` labels seed pack calibration `maturity: "planning_grade"` and `engineeringBasis: "Seeded from Baker Hughes system and hydraulics references."` It also marks certain seeded packs as application-`approved`; that is a **software workflow status**, not verified manufacturer technical approval.
+
+**Result:** We have a substantially richer **catalog/assembly taxonomy and simulation scaffold** than the skill ZIP alone showed. No source-verifiable exact model/size/revision specs or manufacturer-validated diagnostic thresholds were recovered from these files. Read-only LinerForge inspection only; no edits made there.
+
+**Original files:** prior conversation references `C:/Users/smbab/OneDrive/Documents/Projects/LinerForge` but this path is on the user's PC and not directly accessible from this cloud environment. Original PDFs still need to be reattached or located by the user.
+
+---
+
 ## Primary finding
 
 **The investigation framework exists; a manufacturer/model/revision-specific Baker Hughes troubleshooting knowledge base has NOT been verified.** No original Baker Hughes training PDF, full running/setting manual, engineering drawing, pressure/force specification sheet, troubleshooting matrix or revision-controlled operating procedure was found in the **inspected skill archives or current accessible Library filename search**. Historical March 2026 conversation evidence, now documented above, **does identify two previously uploaded original PDFs**; their actual file contents are not currently accessible for verification.
