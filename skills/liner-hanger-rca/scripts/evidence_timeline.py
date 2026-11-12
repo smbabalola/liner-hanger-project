@@ -7,6 +7,7 @@ day-level job-report events.
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
+from hashlib import sha256
 from datetime import datetime, timezone
 from typing import Mapping, Sequence
 
@@ -52,6 +53,9 @@ class EvidenceEvent:
     screening_status: str | None = None
     reasons: tuple[str, ...] = ()
     notes: str = ""
+    source_sample_time: str | None = None
+    screening_details: dict | None = None
+    source_locations: dict | None = None
 
     def validate(self):
         _required(self.event_id, "event_id")
@@ -109,8 +113,11 @@ def events_from_screen(case_id, limit, observation, result):
         timestamp = observation.timestamp
         basis = "Case-reviewed source clock alignment; explicit timezone offset"
     status = result["status"]
+    identity = "|".join((case_id, limit.rule_id, observation.source_id,
+                         observation.channel_id, observation.timestamp))
+    stable_id = sha256(identity.encode("utf-8")).hexdigest()[:16]
     event = EvidenceEvent(
-        event_id=f"screen:{case_id}:{limit.rule_id}:{observation.source_id}:{observation.channel_id}:{observation.timestamp}",
+        event_id=f"screen:{limit.rule_id}:{stable_id}",
         case_id=case_id,
         kind=category,
         summary=f"Retrospective {status.replace('_', ' ')} for {limit.parameter}; not a tool-state conclusion",
@@ -121,6 +128,28 @@ def events_from_screen(case_id, limit, observation, result):
         screening_status=status,
         reasons=tuple(result["reasons"]),
         notes=result["conclusion"],
+        source_sample_time=observation.timestamp,
+        screening_details={
+            "observed": str(observation.value),
+            "observed_unit": observation.unit,
+            "observed_domain": observation.measurement_domain,
+            "observed_pressure_basis": observation.pressure_basis,
+            "expected_domain": limit.measurement_domain,
+            "expected_pressure_basis": limit.pressure_basis,
+            "parameter": limit.parameter,
+            "stage": limit.stage,
+            "comparator": limit.comparator,
+            "lower": str(limit.lower) if limit.lower is not None else None,
+            "upper": str(limit.upper) if limit.upper is not None else None,
+            "limit_unit": limit.unit,
+            "comparison_permitted": result["status"] != "unverifiable",
+        },
+        source_locations={
+            limit.source_id: {"location": limit.source_location,
+                              "revision": limit.source_revision},
+            observation.source_id: {"channel": observation.channel_id,
+                                    "location": None, "revision": None},
+        },
     )
     return event.validate()
 
