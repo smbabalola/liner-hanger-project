@@ -223,6 +223,11 @@ def export_batch(output_dir):
             "class":case["scenario_class"], "status":report["status"],
             "conclusion":report["conclusion"]["status"],
             "hypothesis_count":len(report["competing_hypotheses"]),
+            "surface_sample_count":sum(
+                e["measurement_details"] is not None for e in report["evidence_register"]),
+            "verified_event_count":len(report["chronology"]["ordered_event_ids"]),
+            "unplaced_event_count":len(report["chronology"]["unplaced_event_ids"]),
+            "screening_rules_evaluated":len(report["screening_findings"]),
             "source_ids":sorted({s for e in report["evidence_register"] for s in e["source_ids"]}),
             "review_status":"not_completed",
             "documentation_status":"mechanism_described_only",
