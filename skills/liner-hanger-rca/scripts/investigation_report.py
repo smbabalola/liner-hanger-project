@@ -5,7 +5,6 @@ a physical failure, upgrades review flags or authorises a field operation.
 """
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Mapping
 
 class ReportError(ValueError):
@@ -39,9 +38,6 @@ def _event_index(case_id, timeline):
             raise ReportError("each event requires real source references")
         if eid in seen:
             raise ReportError("duplicate event IDs")
-        if event.get("time_state") != "verified" and event.get("timestamp") is not None:
-            # A reported approximate time must never render as a verified event time.
-            pass
         seen[eid] = event
     earliest = timeline.get("earliest_screening_candidate_id")
     if earliest is not None and (earliest not in seen or seen[earliest].get("kind") != "screening_candidate"
@@ -113,6 +109,7 @@ def compile_report(*, case_id: str, equipment: Mapping, timeline: Mapping,
             {"event_id": e["event_id"], "kind": e["kind"],
              "summary": e["summary"], "source_ids": list(e["source_ids"]),
              "time_state": e["time_state"],
+             "time_basis": e.get("time_basis"),
              "timestamp": e["timestamp"] if e["time_state"] == "verified" else None,
              "review_status": e["review_status"],
              "related_rule_id": e.get("related_rule_id"),
@@ -188,7 +185,11 @@ def render_markdown(report: Mapping) -> str:
         when = e["timestamp"] if e["time_state"] == "verified" else "time unverified/unplaced"
         lines.append(f"- [{_text(e['event_id'])}] {_text(when)} — {_text(e['kind'])}: "
                      f"{_text(e['summary'])} (sources: {_text(', '.join(e['source_ids']))}; "
-                     f"review: {_text(e['review_status'])})")
+                     f"review: {_text(e['review_status'])}; "
+                     f"time basis: {_text(e.get('time_basis') or 'unverified')})")
+        if e.get("reasons"):
+            lines.append(f"  - Unverifiable/review reasons: {_text('; '.join(e['reasons']))}")
+    lines.append("- Events with unknown or approximate times are listed after the verified timeline; their order is not inferred.")
     lines += ["", "## 3. Screening findings and first candidate"]
     for f in report["screening_findings"]:
         lines.append(f"- [{_text(f['event_id'])}] {_text(f['status'])}; "
