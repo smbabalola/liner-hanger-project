@@ -27,6 +27,60 @@ The historical analysis identified equipment names and families including **Hyfl
 
 ---
 
+## 2026-11-12 verified update — original Baker Hughes PDFs supplied and inspected
+
+**This section supersedes the earlier 'not found' statements above.** Original file contents have now been provided directly in this conversation and inspected. Do **not** commit the copyrighted PDFs to the repository.
+
+### Source identities and duplicate check
+
+| ID | Actual PDF | Pages | SHA-256 | Source status |
+|---|---|---:|---|---|
+| BH-SYS-2016 | `Liner Hanger Systems.pdf` — *Introduction to Wellbore Construction - Liner Hanger Systems* | 132 | `6ecb23760a3036207eed11e71b784adca1d5a03268bae104eaf9a5e699c47c8c` | Original user-supplied Baker Hughes 2016 self-study guide |
+| BH-HYD-2020 | `Liner Hanger Hydraulics.pdf` — *Liner Hanger Calculations and Hydraulics - Theory* | 99 | `ad123443c94d987d48d604f5f5ff46307e40a7b17ffd0ca27af34f14188d5df9` | Original user-supplied Baker Hughes 2020 self-study guide |
+| Duplicate | `Liner Hanger Calculations and Hydraulics-Theory - Copy.pdf` | 99 | Same SHA-256 as BH-HYD-2020 | **Exact duplicate**, not independent evidence |
+
+### BH-SYS-2016 equipment coverage and source pages (PDF 1-indexed)
+
+| Category | Equipment | PDF page(s) | Source-reported product family / referenced further unit |
+|---|---|---:|---|
+| Mechanical hangers | Hyflo III; CMC; RCM II; FLEX-LOCK | 28–31 | H29222 / SU 4364; H29210 / SU 4268; H29226 / SU 10018; H29413 / TU 4669 |
+| Hydraulic hangers | Hyflo II; HMC; HSR II; FLEX-LOCK; ControlSET FLEX-LOCK; SDD | 33–39 | H29233 / TU 4300; H29223 / SU 4269; H29227 / SU 10008; H29410 / SU 10124; H29416 / SU 100935; H29262 / text SU 4793 vs URL 4739_TU discrepancy |
+| Liner-top packers | Hyflo III, ZXP, ZXP Ultra, ZXHD, ZXPN, ZXP-D | 42–47 | Multiple model/variant identifiers; see original pages |
+| Integrated combos | INLine, Z-Flex, ZXP with integral FLEX-LOCK, UniFlex, SLZXP, SLP-R, 3D | 53–59 | Family-level explanation and several identifiers |
+| Cementing hardware | Landing collars, floats, cementing heads, plugs and darts | 63–85 | Family overviews and variants |
+| Rental tools | HRD-E, 2RH, C-2; packoffs and ball seats | 87–104 | HRD-E H26693 (p89), 2RH H26523 (p90), C-2 H26521 (p91) |
+| TORXS | Completion/tool system | 107–110 | Introductory coverage |
+
+**Important correction to prior code audit:** LinerForge classified SDD as mechanical, but **BH-SYS-2016 explicitly calls SDD a hydraulic-set liner hanger** on PDF p38. The original manufacturer document takes priority; flag catalog value for later correction, **do not modify LinerForge automatically**.
+
+### BH-HYD-2020 engineering and investigative coverage
+
+- PDF pp9–19: RS, PBR, swab-cup sealing and ball-seat arrangements, including single and dual packoff configuration.
+- PDF pp26–80: capacity, buoyancy, string weight, stretch, tensile and overpull, torque/turns, hydrostatic/differential pressure, piston force, pipe strength, circulation and liner-top testing, reversing cement. **Exercises and assumed values are not universal product ratings.**
+- PDF pp82–96: dedicated troubleshooting module:
+  - p82: ball drop / water hammer and premature seat shear.
+  - pp83–85: setting hanger forces, light liner, drag/tagging, load indications.
+  - pp86–90: hydraulic sequence, running-tool release and differing internal/external fluid columns.
+  - pp91–94: cement displacement, loss/plug/packoff problems and circulating-pressure interpretation.
+  - pp95–96: liner-top packer load and packoff unstabbed conditions.
+
+These guides support **structured, equipment-aware retrospective troubleshooting and source-backed hypotheses**, **not** verified exact model/size/revision actuation pressures or definitive physical failure conclusions. Source BH-SYS-2016 repeatedly refers engineers to its Service Units / Technical Units for additional tool detail. The training examples and LinerForge generated ratings must never be loaded as universal field limits.
+
+**Source risk:** Each PDF contains Baker Hughes copyright; keep source bytes private and do not publish or commit them. Derived metadata, short source abstracts and original citations may be tracked; check use permissions before distribution.
+
+### Updated inventory deliverable
+
+The companion workbook `Liner_Hanger_Multi_OEM_Inventory_Source_Verified.xlsx` extends the prior multi-OEM workbook and adds:
+- `Original PDF Register` — source names, hashes, rights considerations.
+- `BH Source-Cited Coverage` — 36 directly mapped tool/group entries with PDF page references, product IDs, further OEM unit requests and status **Partial - guide only**.
+- `Troubleshooting Evidence` — nine source-cited concern areas, not live operational instructions.
+
+The workbook was generated as a conversation artifact; **not** yet committed to GitHub. The manufacturer-extensible backend decision is unchanged; only BH has reviewed sources to date. Halliburton remains future/unverified.
+
+**LH-001A status:** **In progress, substantial document recovery completed**. Still requires tool-by-tool review of exact technical-unit content and an engineering sign-off criteria decision. Do not mark full OEM troubleshooting coverage complete.
+
+---
+
 ## 2026-11-12 follow-up — read-only LinerForge catalog inspection
 
 Read-only examined existing private repo `smbabalola/LinerForge`, source:
