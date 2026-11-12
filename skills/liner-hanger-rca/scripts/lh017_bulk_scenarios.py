@@ -54,6 +54,25 @@ def load_cases():
             raise BatchError("hypotheses must differ")
         if not c["observation_source_id"].startswith("SYNTHETIC-"):
             raise BatchError("unexpected synthetic observation source")
+        samples = c.get("surface_samples")
+        if not isinstance(samples, list) or len(samples) != 6:
+            raise BatchError("each case needs six typed synthetic surface samples")
+        if len({(x["source_id"], x["source_row"]) for x in samples}) != 6:
+            raise BatchError("duplicate sample source and row")
+        if len({x["source_id"] for x in samples}) != 2:
+            raise BatchError("each case needs two distinct surface channels")
+        if len(c.get("assessment_rationales", [])) != 2 or len(c.get("required_evidence", [])) != 2:
+            raise BatchError("family-specific rationale/evidence missing")
+        for sample in samples:
+            if not sample["source_id"].startswith("SYNTHETIC-") or not sample["channel_id"]:
+                raise BatchError("sample source identity missing")
+            if not isinstance(sample["value"], (int, float)) or isinstance(sample["value"], bool):
+                raise BatchError("synthetic sample numeric value required")
+            if not sample["unit"] or not sample["domain"] or not sample["source_revision"]:
+                raise BatchError("sample units, domain and revision required")
+            if sample["clock_verified"] != c["clock_verified"]:
+                raise BatchError("sample clock quality inconsistent with case")
+
     return cases
 
 def run_case(case):
@@ -74,55 +93,81 @@ def run_case(case):
         raise BatchError("ambiguous synthetic case cannot claim verified alignment")
     if kind != "ambiguous" and not case["clock_verified"]:
         raise BatchError("case requires verified fixture clock")
-    base = timeline_engine.EvidenceEvent(
-        event_id=case_id + "-SURFACE", case_id=case_id,
-        kind="evidence_gap" if kind == "ambiguous" else "measured_observation",
-        summary=case["observed_surface_summary"],
-        source_ids=(case["observation_source_id"],),
-        time_state="unknown" if kind == "ambiguous" else "verified",
-        timestamp=None if kind == "ambiguous" else "2026-01-01T08:10:00Z",
-        source_sample_time="2026-01-01T08:10:00Z",
-        time_basis=None if kind == "ambiguous" else "Synthetic offset-aware clock, fictional alignment flag",
-        related_channel_id=case["observed_channel"],
-        reasons=("source/channel identity and event timing unverified",) if kind == "ambiguous" else (),
-        source_locations={case["observation_source_id"]: {
-            "channel":case["observed_channel"], "location":None, "revision":None,
-        }},
-    ).validate()
+    samples = case.get("surface_samples")
+    if not isinstance(samples, list) or len(samples) != 6:
+        raise BatchError("six typed samples required for case")
+    events = []
+    for n, sample in enumerate(samples):
+        if sample["clock_verified"] != case["clock_verified"]:
+            raise BatchError("sample clock quality inconsistent with case")
+        if not sample["source_id"].startswith("SYNTHETIC-"):
+            raise BatchError("non-synthetic sample rejected")
+        if not isinstance(sample["value"], (int, float)) or isinstance(sample["value"], bool):
+            raise BatchError("sample must have a numeric recorded value")
+        usable = (sample["clock_verified"] and sample["channel_mapping_verified"]
+                  and sample["units_verified"])
+        if usable != (kind != "ambiguous"):
+            raise BatchError("case quality state does not match sample provenance")
+        event = timeline_engine.EvidenceEvent(
+            event_id=case_id + "-S" + str(n+1), case_id=case_id,
+            kind="measured_observation" if usable else "evidence_gap",
+            summary=("Synthetic recorded " if usable else "Unverified raw synthetic source record for ")
+                    + sample["parameter"] + "; no tool-state inference",
+            source_ids=(sample["source_id"],),
+            time_state="verified" if usable else "unknown",
+            timestamp=sample["source_sample_time"] if usable else None,
+            source_sample_time=sample["source_sample_time"],
+            time_basis="Fictional aligned UTC source clocks" if usable else None,
+            related_channel_id=sample["channel_id"],
+            reasons=() if usable else ("source clock, channel identity and units not independently verified",),
+            source_locations={sample["source_id"]: {
+                "channel":sample["channel_id"], "location":"fictional CSV row " + str(sample["source_row"]),
+                "revision":sample["source_revision"]}},
+            measurement_details={
+                "parameter":sample["parameter"], "value":str(sample["value"]),
+                "unit":sample["unit"], "domain":sample["domain"],
+                "basis":sample["basis"],
+                "provenance":"fictional-aligned-sample" if usable else "unverified-raw-sample",
+            },
+        ).validate()
+        events.append(event)
     reported = timeline_engine.EvidenceEvent(
         event_id=case_id + "-DAILY", case_id=case_id, kind="reported_event",
         summary=case["reported_log_summary"],
         source_ids=("SYNTHETIC-DAILY-LOG",), time_state="reported_approximate",
         time_basis="Date only — cannot position among verified events",
     ).validate()
-    events = [base, reported]
+    events.append(reported)
     if kind == "anomalous":
         events.append(timeline_engine.EvidenceEvent(
             event_id=case_id + "-ALTERNATIVE", case_id=case_id,
             kind="engineer_annotation",
-            summary="Fictional assessor flags an alternative surface-data interpretation; no physical state inferred",
-            source_ids=(case["observation_source_id"], "SYNTHETIC-ASSESSMENT-NOTE"),
-            time_state="verified", timestamp="2026-01-01T08:10:00Z",
-            time_basis="Synthetic same-clock tie; order cannot be inferred",
+            summary="Synthetic competing interpretation: " + case["assessment_rationales"][1],
+            source_ids=(samples[0]["source_id"], samples[1]["source_id"],
+                        "SYNTHETIC-ASSESSMENT-NOTE"),
+            time_state="reported_approximate", timestamp=None,
+            time_basis="Assessor annotation time not independently established",
         ).validate())
     hypotheses = []
     if kind != "normal":
         for i, question in enumerate(case["hypothesis_questions"]):
             assessments = []
             if kind == "anomalous":
+                # These are context links. No supported mechanism or contradiction
+                # can be established without authorised tool-specific evidence.
                 assessments.append(hypothesis_engine.EvidenceAssessment(
-                    event_id=base.event_id,
-                    relation="supports" if i == 0 else "contradicts",
-                    rationale="Fictional assessor requests correlation; surface signal alone does not prove or disprove this mechanism",
+                    event_id=events[2+i].event_id, relation="context",
+                    rationale=case["assessment_rationales"][i],
                     assessor="synthetic assessor", review_status="draft"))
                 assessments.append(hypothesis_engine.EvidenceAssessment(
-                    event_id=events[2].event_id, relation="context",
-                    rationale="Alternative interpretation has not been independently verified",
+                    event_id=reported.event_id, relation="unresolved",
+                    rationale="Job note is date-only and cannot prove the claimed mechanism",
                     assessor="synthetic assessor", review_status="draft"))
             else:
                 assessments.append(hypothesis_engine.EvidenceAssessment(
-                    event_id=base.event_id, relation="unresolved",
-                    rationale="Source and clock provenance insufficient to distinguish this mechanism",
+                    event_id=events[i].event_id, relation="unresolved",
+                    rationale=case["assessment_rationales"][i]
+                    + " Clock, mapping and unit provenance is not verified.",
                     assessor="synthetic assessor", review_status="draft"))
             hypotheses.append(hypothesis_engine.Hypothesis(
                 hypothesis_id=case_id + "-H" + str(i+1),
@@ -134,7 +179,7 @@ def run_case(case):
                 checks=(hypothesis_engine.DiscriminatingCheck(
                     check_id=case_id + "-CHECK" + str(i+1),
                     question=case["discriminating_checks"][i] + "?",
-                    required_evidence="Historical source records and exact as-run configuration, where available"),),
+                    required_evidence=case["required_evidence"][i]),),
             ))
     mode = "normal_operation_review" if kind == "normal" else "fault_investigation"
     ordered = timeline_engine.build_timeline(case_id, events)
