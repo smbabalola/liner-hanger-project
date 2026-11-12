@@ -13,6 +13,13 @@ Finish a reusable, tested liner-hanger engineering skill before building an app 
 
 The skill is **not** a live operations controller, OEM instruction substitute, well-control decision system, or certified root-cause investigator.
 
+
+## Manufacturer-extensible design (agreed)
+
+The eventual application and underlying skill use **one shared backend** supporting multiple equipment companies. The case selects `manufacturer_id → tool family → model/size → revision/configuration`; only that manufacturer's approved rule/knowledge pack can be applied. **Baker Hughes is first**. Halliburton and others are future additions and must not be represented as supported before source and test validation. The same generic telemetry, evidence, timeline and report engines remain shared. See [docs/multi-manufacturer-architecture.md](docs/multi-manufacturer-architecture.md).
+
+**Important scope distinction:** Multi-manufacturer *architecture* is agreed, but the first product release's breadth (**fault-finding only** versus full engineering workflow) is **still awaiting a final decision**. Do not silently implement both or rewrite the active TODO until this decision is recorded.
+
 ## Current state — what is known, not assumed
 
 Earlier work is **outside this new repository until inventoried and imported**. Do not describe it as implemented here until its source files and tests have been examined.
