@@ -11,6 +11,15 @@
 - Each task completion must include: changed file paths, tests run and outputs, engineering evidence checked, limitations, commit SHA, and reviewer/approval if applicable.
 - Keep new suggestions in **Deferred / change requests** until explicitly prioritised.
 
+
+## Architecture decision and documentation recovery (recorded 2026-11-12)
+
+- **Agreed:** One multi-OEM backend, manufacturer/tool/model/revision selection, Baker Hughes first, Halliburton and others later. See [docs/multi-manufacturer-architecture.md](docs/multi-manufacturer-architecture.md).
+- **Pending:** Final confirmation whether the *first release* is Baker Hughes-specific retrospective fault finding or the broader engineering skill. Keep the existing tasks as provisional until that decision; don't begin feature implementation while requirements are unresolved.
+- [ ] **LH-001A — Recover the original BH training PDFs and rate each tool.** Historical references: `Liner Hanger Systems.pdf` and `Liner Hanger Hydraulics.pdf`. Confirm authorization, page-level coverage, operating details, specs, revisions and diagnostic evidence. Record a sufficient/partial/insufficient decision per tool. The working workbook is `Liner_Hanger_Multi_OEM_Inventory.xlsx`, supplied separately, not yet committed.
+- [ ] **LH-001B — Confirm initial-release product scope.** Present documented coverage, agree fault-finding-only vs comprehensive engineering, then update these governance files and priorities without losing prior work.
+- [ ] **LH-004A — OEM identity and knowledge pack contract (after LH-001B).** Manufacturer registry and tool/model/revision selectors in backend records, rule isolation and explicit unavailable states. No app UI work.
+
 ## Release gates and task sequence
 
 ### Gate A — Recover and audit (P0)
