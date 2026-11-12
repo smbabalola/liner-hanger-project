@@ -64,6 +64,10 @@ def run_case(case):
         raise BatchError("case manufacturer not enabled")
     if case["identity"]["documentation_status"] != "mechanism_described_only":
         raise BatchError("source-gate status mismatch")
+    if any(case["identity"][field] is not None for field in ("model", "size", "revision", "configuration_id")):
+        raise BatchError("synthetic case cannot claim an approved OEM configuration")
+    if not case["observation_source_id"].startswith("SYNTHETIC-"):
+        raise BatchError("synthetic case requires synthetic source identity")
     if kind not in KINDS:
         raise BatchError("invalid scenario class")
     if kind == "ambiguous" and case["clock_verified"]:
