@@ -66,7 +66,7 @@ The user **explicitly approved** expanding beyond fault-only v1 for the *shared 
 
 **Current boundary:** the existing LH-017 **201 passing tests and 15 synthetic report pairs** remain an accepted software investigation baseline. None of the above physical model families is yet independently validated. Keep LH-017 engineering acceptance open; do not infer a real KHRM fault.
 
-## Current checkpoint
+- [ ] **LH-SKILL-UIREADY — Self-contained, portable skill as sole source for future interface [REQUIREMENT RECORDED; NOT YET IMPLEMENTED].** User-approved 2026-11-12: the future UI coding assistant must be able to work from the installed `skills/liner-hanger-rca/` package alone, with its callable calculation/investigation modules, schemas/API, workflow instructions, UI screen/chart/report contract, examples, dependencies and clean-install acceptance tests. The mandatory package requirement and current gaps are now **embedded directly in `skills/liner-hanger-rca/SKILL.md`**, not only in top-level project documents. The 219 passing tests establish current regression, not physical-model/UI-ready acceptance. **Accept when:** a fresh-environment skill-only install and minimal interface integration succeed without external repo docs and with honest unavailable/unsupported states. No UI implementation tonight.\n\n## Current checkpoint
 
 **Active:** `LH-001` / `LH-001A` documentary and artifact audit. First archive/code audit and 14-test regression are recorded in `docs/asset-audit.md` (2026-11-12); not yet a full acceptance. **Scope:** confirmed; **no v1 skill implementation or test completion claimed**.
 **Decision complete:** `LH-001B`.
