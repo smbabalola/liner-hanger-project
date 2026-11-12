@@ -107,9 +107,21 @@ def test_no_authorized_signoff_can_be_rendered_by_input_mutation():
     with pytest.raises(reports.ReportError):
         reports.render_markdown(report)
 
-def test_case_mismatch_rejected():
+def test_timeline_case_mismatch_rejected():
     result = scenarios.exercise(cases["LH003-NORMAL-SYNTH"])
+    # Keep the hypothesis packet case correct so the independent timeline
+    # provenance gate is the one exercised.
+    packet = deepcopy(result["assessment"])
+    packet["case_id"] = "OTHER-CASE"
     with pytest.raises(reports.ReportError, match="timeline case mismatch"):
+        reports.compile_report(
+            case_id="OTHER-CASE", report_id="R", authored_by="engineer",
+            equipment={}, timeline=result["timeline"], hypothesis_review=packet)
+
+
+def test_hypothesis_review_case_mismatch_rejected():
+    result = scenarios.exercise(cases["LH003-NORMAL-SYNTH"])
+    with pytest.raises(reports.ReportError, match="hypothesis review case mismatch"):
         reports.compile_report(
             case_id="OTHER-CASE", report_id="R", authored_by="engineer",
             equipment={}, timeline=result["timeline"], hypothesis_review=result["assessment"])
