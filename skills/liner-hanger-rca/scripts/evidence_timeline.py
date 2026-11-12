@@ -56,6 +56,7 @@ class EvidenceEvent:
     source_sample_time: str | None = None
     screening_details: dict | None = None
     source_locations: dict | None = None
+    measurement_details: dict | None = None
 
     def validate(self):
         _required(self.event_id, "event_id")
