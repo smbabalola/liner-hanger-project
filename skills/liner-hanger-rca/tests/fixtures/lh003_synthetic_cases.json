@@ -1,0 +1,293 @@
+{
+  "fixture_version": "1.0",
+  "disclaimer": "ENTIRELY SYNTHETIC. Not a Baker Hughes setting procedure, tool rating, job record, sensor validation or downhole state.",
+  "cases": [
+    {
+      "case_id": "LH003-NORMAL-SYNTH",
+      "mode": "normal_operation_review",
+      "expected_screen_statuses": [
+        "within_screening_bounds",
+        "within_screening_bounds"
+      ],
+      "expected_candidate": null,
+      "component_rows": [
+        {
+          "component_id": "LH-TEST",
+          "sequence": 1,
+          "role": "fictional liner hanger",
+          "length": "3.5",
+          "length_unit": "m",
+          "source_ref": "SYNTHETIC-TALLY"
+        },
+        {
+          "component_id": "LC-TEST",
+          "sequence": 2,
+          "role": "fictional landing collar",
+          "length": "1.0",
+          "length_unit": "m",
+          "source_ref": "SYNTHETIC-TALLY"
+        }
+      ],
+      "anchor": {
+        "component_id": "LH-TEST",
+        "end": "top",
+        "measured_depth": "1500",
+        "depth_unit": "m",
+        "datum": "SYNTHETIC-RKB",
+        "source_ref": "SYNTHETIC-ANCHOR"
+      },
+      "internal_reference": {
+        "component_id": "LH-TEST",
+        "label": "fictional_slip_reference",
+        "offset": "1.2",
+        "unit": "m",
+        "source_id": "SYNTHETIC-DRAWING",
+        "source_location": "fictional:2",
+        "status": "reviewed",
+        "reviewed_by": "synthetic reviewer",
+        "reviewed_at": "2026-01-01T00:00:00Z"
+      },
+      "rules": [
+        {
+          "rule_id": "N-01",
+          "stage": "circulation",
+          "parameter": "synthetic_standpipe_reading",
+          "quantity": "pressure",
+          "unit": "psi",
+          "pressure_basis": "gauge",
+          "measurement_domain": "rig_standpipe",
+          "comparator": "maximum",
+          "lower": null,
+          "upper": 200
+        },
+        {
+          "rule_id": "N-02",
+          "stage": "hanger_setting",
+          "parameter": "synthetic_standpipe_reading",
+          "quantity": "pressure",
+          "unit": "psi",
+          "pressure_basis": "gauge",
+          "measurement_domain": "rig_standpipe",
+          "comparator": "maximum",
+          "lower": null,
+          "upper": 200
+        }
+      ],
+      "observations": [
+        {
+          "rule_id": "N-01",
+          "value": 160,
+          "timestamp": "2026-01-01T08:00:00Z"
+        },
+        {
+          "rule_id": "N-02",
+          "value": 180,
+          "timestamp": "2026-01-01T08:10:00Z"
+        }
+      ],
+      "reported_events": [
+        {
+          "event_id": "N-REPORT",
+          "kind": "reported_event",
+          "summary": "Fictional daily note says job completed; not proof of hanger setting",
+          "source_ids": [
+            "SYNTHETIC-DAILY-REPORT"
+          ],
+          "time_state": "reported_approximate",
+          "timestamp": null,
+          "time_basis": "Date only"
+        }
+      ],
+      "hypotheses": []
+    },
+    {
+      "case_id": "LH003-ANOMALOUS-SYNTH",
+      "mode": "fault_investigation",
+      "expected_screen_statuses": [
+        "within_screening_bounds",
+        "outside_screening_bounds",
+        "unverifiable"
+      ],
+      "expected_candidate": "A-02",
+      "component_rows": [
+        {
+          "component_id": "LH-TEST",
+          "sequence": 1,
+          "role": "fictional liner hanger",
+          "length": null,
+          "length_unit": null,
+          "source_ref": "SYNTHETIC-TALLY"
+        }
+      ],
+      "anchor": {
+        "component_id": "LH-TEST",
+        "end": "top",
+        "measured_depth": "1550",
+        "depth_unit": "m",
+        "datum": "SYNTHETIC-RKB",
+        "source_ref": "SYNTHETIC-ANCHOR"
+      },
+      "internal_reference": {
+        "component_id": "LH-TEST",
+        "label": "fictional_slip_reference",
+        "offset": "1.2",
+        "unit": "m",
+        "source_id": "SYNTHETIC-DRAWING",
+        "source_location": "fictional:2",
+        "status": "unreviewed"
+      },
+      "rules": [
+        {
+          "rule_id": "A-01",
+          "stage": "circulation",
+          "parameter": "synthetic_standpipe_reading",
+          "quantity": "pressure",
+          "unit": "psi",
+          "pressure_basis": "gauge",
+          "measurement_domain": "rig_standpipe",
+          "comparator": "maximum",
+          "lower": null,
+          "upper": 200
+        },
+        {
+          "rule_id": "A-02",
+          "stage": "hanger_setting",
+          "parameter": "synthetic_standpipe_reading",
+          "quantity": "pressure",
+          "unit": "psi",
+          "pressure_basis": "gauge",
+          "measurement_domain": "rig_standpipe",
+          "comparator": "maximum",
+          "lower": null,
+          "upper": 200
+        },
+        {
+          "rule_id": "A-03",
+          "stage": "cementing",
+          "parameter": "synthetic_cement_unit_discharge",
+          "quantity": "pressure",
+          "unit": "psi",
+          "pressure_basis": "gauge",
+          "measurement_domain": "cement_unit_discharge",
+          "comparator": "maximum",
+          "lower": null,
+          "upper": 200
+        }
+      ],
+      "observations": [
+        {
+          "rule_id": "A-01",
+          "value": 185,
+          "timestamp": "2026-01-01T08:00:00Z"
+        },
+        {
+          "rule_id": "A-02",
+          "value": 215,
+          "timestamp": "2026-01-01T08:10:00Z"
+        },
+        {
+          "rule_id": "A-03",
+          "value": 220,
+          "timestamp": "2026-01-01T08:20:00Z",
+          "measurement_domain": "rig_standpipe",
+          "channel_mapping_verified": false,
+          "measurement_equivalence_verified": false
+        }
+      ],
+      "reported_events": [
+        {
+          "event_id": "A-REPORT",
+          "kind": "reported_event",
+          "summary": "Daily report alleges hanger did not set; actual state not verified",
+          "source_ids": [
+            "SYNTHETIC-DAILY-REPORT"
+          ],
+          "time_state": "reported_approximate",
+          "timestamp": null,
+          "time_basis": "Date only"
+        },
+        {
+          "event_id": "A-OBS",
+          "kind": "measured_observation",
+          "summary": "Fictional surface hookload changed; no tool-state inference",
+          "source_ids": [
+            "SYNTHETIC-HOOKLOAD-CSV"
+          ],
+          "time_state": "verified",
+          "timestamp": "2026-01-01T08:12:00Z",
+          "time_basis": "Synthetic verified rig clock"
+        },
+        {
+          "event_id": "A-ANNOT",
+          "kind": "engineer_annotation",
+          "summary": "Engineer notes alternative surface interpretation of hookload change",
+          "source_ids": [
+            "SYNTHETIC-HOOKLOAD-CSV",
+            "SYNTHETIC-ENGINEER-ANNOTATION"
+          ],
+          "time_state": "verified",
+          "timestamp": "2026-01-01T08:12:00Z",
+          "time_basis": "Synthetic verified rig clock"
+        }
+      ],
+      "hypotheses": [
+        {
+          "hypothesis_id": "H-SEAT",
+          "title": "Fictional ball seating uncertainty",
+          "mechanism_question": "Could incomplete ball seating contribute to the reported anomaly?",
+          "stage": "hanger_setting",
+          "source_ref": "SYNTHETIC-HYPOTHESIS",
+          "assessments": [
+            {
+              "event_id": "A-OBS",
+              "relation": "supports",
+              "rationale": "Engineer requests correlation review; not confirmation",
+              "assessor": "synthetic engineer"
+            },
+            {
+              "event_id": "A-ANNOT",
+              "relation": "contradicts",
+              "rationale": "Alternative reading of surface signal needs checking",
+              "assessor": "synthetic engineer"
+            }
+          ],
+          "checks": [
+            {
+              "check_id": "CHECK-SEAT",
+              "question": "Do available historical pump and pressure records substantiate the seating sequence?",
+              "required_evidence": "Verified pump-source identity, job log and matching time history"
+            }
+          ]
+        },
+        {
+          "hypothesis_id": "H-SETTING",
+          "title": "Fictional setting-system uncertainty",
+          "mechanism_question": "Could a setting-system issue contribute to the reported anomaly?",
+          "stage": "hanger_setting",
+          "source_ref": "SYNTHETIC-HYPOTHESIS",
+          "assessments": [
+            {
+              "event_id": "A-OBS",
+              "relation": "contradicts",
+              "rationale": "Competing explanation of hookload needs review",
+              "assessor": "synthetic engineer"
+            },
+            {
+              "event_id": "A-REPORT",
+              "relation": "unresolved",
+              "rationale": "Daily report has uncertain timing and no downhole confirmation",
+              "assessor": "synthetic engineer"
+            }
+          ],
+          "checks": [
+            {
+              "check_id": "CHECK-SETTING",
+              "question": "Do historical data show the expected sequence for this documented tool configuration?",
+              "required_evidence": "Exact model revision, approved job program, source-linked telemetry"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
