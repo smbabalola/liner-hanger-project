@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-12
 **Status:** AGREED — manufacturer-extensible backend architecture.
-**Product scope still under discussion:** a dedicated fault-finding first release versus the broader engineering skill. Do not assume this architectural decision resolves that separate scope question.
+**First release scope agreed (2026-11-12):** Baker Hughes-only retrospective fault finding. The multi-OEM design remains extensible, but the application UI and other OEM packs are future phases. See [first-release-scope.md](first-release-scope.md).
 
 ## User-facing concept
 
@@ -57,9 +57,9 @@ Historical March 2026 LinerForge chat identified `Liner Hanger Systems.pdf` and 
 
 ## Development order
 
-1. Recover, verify and classify BH documents and tool coverage (`LH-001`).
-2. Decide the first release scope (BH-only fault-finding or broader skill) explicitly with the user.
-3. Add the manufacturer registry and shared case model without UI work.
+1. Complete the BH technical-source and existing-skill audit (`LH-001` / `LH-001A`); two source manuals have now been supplied.
+2. Develop and validate the Baker Hughes-only retrospective fault-finding skill as release v1 (decision confirmed 2026-11-12).
+3. Add the manufacturer registry and shared case model **internally only**, without UI work.
 4. Activate only reviewed BH model/revision packs with test cases.
 5. Add Halliburton/other providers via the same audited onboarding method later.
 6. Only after skill sign-off, create the app interface and manufacturer selector.
