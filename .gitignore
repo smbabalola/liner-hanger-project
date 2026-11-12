@@ -8,3 +8,6 @@ __pycache__/
 __pycache__/
 *.pyc
 *.pyo
+
+# Historical demonstration replay pending redistribution review
+skills/liner-hanger-rca/examples/utah_forge_16B_78_32/replay.html
