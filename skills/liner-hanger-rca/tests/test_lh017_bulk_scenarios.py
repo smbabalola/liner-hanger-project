@@ -92,6 +92,17 @@ def test_fifteen_report_pairs_and_manifest(tmp_path):
         assert item["status"] == "draft_unapproved"
         assert item["conclusion"] == "undetermined"
         assert item["review_status"] == "not_completed"
+        assert item["surface_sample_count"] == 6
+        assert item["screening_rules_evaluated"] == 0
+        if item["class"] == "ambiguous":
+            assert item["verified_event_count"] == 0
+            assert item["unplaced_event_count"] == 7
+        elif item["class"] == "anomalous":
+            assert item["verified_event_count"] == 6
+            assert item["unplaced_event_count"] == 2
+        else:
+            assert item["verified_event_count"] == 6
+            assert item["unplaced_event_count"] == 1
         json_report = json.loads((tmp_path / (item["case_id"].lower()+".json")).read_text(encoding="utf-8"))
         md_report = (tmp_path / (item["case_id"].lower()+".md")).read_text(encoding="utf-8")
         assert item["case_id"] in md_report
