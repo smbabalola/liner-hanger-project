@@ -31,7 +31,107 @@
         "Review historical pump output, source clock and pressure transient shape",
         "Verify actual ball/seat configuration and distinguish line/transient effects"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 110,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-RATE-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 430,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 165,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-RATE-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 430,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 125,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-RATE-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 430,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        }
+      ],
+      "assessment_rationales": [
+        "A short-lived rig SPP increase is documented while pump-rate samples remain available; ball/seat interaction is an unconfirmed possibility and requires verified ball type and seating history.",
+        "Rig SPP responds at the same time as the pumping sequence; transient/line effects remain plausible without validated source characteristics."
+      ],
+      "required_evidence": [
+        "SYNTHETIC-RIG-SPP-CSV row references and SYNTHETIC-RIG-PUMP-RATE-CSV timing, ball size/seat identity and as-run job log",
+        "Pressure shape, pump-rate changes, line isolation and rig clock records to distinguish transient from seating"
+      ]
     },
     {
       "case_id": "LH017-01-ANOMALOUS-SYNTH",
@@ -62,7 +162,107 @@
         "Review historical pump output, source clock and pressure transient shape",
         "Verify actual ball/seat configuration and distinguish line/transient effects"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 110,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-RATE-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 430,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 245,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-RATE-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 420,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 135,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-RATE-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 430,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        }
+      ],
+      "assessment_rationales": [
+        "A short-lived rig SPP increase is documented while pump-rate samples remain available; ball/seat interaction is an unconfirmed possibility and requires verified ball type and seating history.",
+        "Rig SPP responds at the same time as the pumping sequence; transient/line effects remain plausible without validated source characteristics."
+      ],
+      "required_evidence": [
+        "SYNTHETIC-RIG-SPP-CSV row references and SYNTHETIC-RIG-PUMP-RATE-CSV timing, ball size/seat identity and as-run job log",
+        "Pressure shape, pump-rate changes, line isolation and rig clock records to distinguish transient from seating"
+      ]
     },
     {
       "case_id": "LH017-01-AMBIGUOUS-SYNTH",
@@ -93,7 +293,107 @@
         "Review historical pump output, source clock and pressure transient shape",
         "Verify actual ball/seat configuration and distinguish line/transient effects"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 110,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-RATE-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 430,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 245,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-RATE-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 420,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 135,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-RATE-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 430,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        }
+      ],
+      "assessment_rationales": [
+        "A short-lived rig SPP increase is documented while pump-rate samples remain available; ball/seat interaction is an unconfirmed possibility and requires verified ball type and seating history.",
+        "Rig SPP responds at the same time as the pumping sequence; transient/line effects remain plausible without validated source characteristics."
+      ],
+      "required_evidence": [
+        "SYNTHETIC-RIG-SPP-CSV row references and SYNTHETIC-RIG-PUMP-RATE-CSV timing, ball size/seat identity and as-run job log",
+        "Pressure shape, pump-rate changes, line isolation and rig clock records to distinguish transient from seating"
+      ]
     },
     {
       "case_id": "LH017-02-NORMAL-SYNTH",
@@ -124,7 +424,107 @@
         "Reconstruct rig standpipe, hookload and string movement using verified alignment",
         "Review as-run hanger variant and competing drag/load-transfer effects"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 365,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 115,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 349,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 178,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 351,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 129,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        }
+      ],
+      "assessment_rationales": [
+        "A recorded hookload reduction and rig SPP change coexist, but these are surface observations; slip engagement remains unknown without verified string movement and tool-specific evidence.",
+        "Surface load recovery following a pressure change can be affected by drag, friction and support transfer; exact as-run position and movement are missing."
+      ],
+      "required_evidence": [
+        "Correlated SPP/hookload source rows, actual string displacement and independently reviewed hanger-set mechanism",
+        "String movement, drag estimates grounded in as-run geometry and measured pickup/slackoff sequence"
+      ]
     },
     {
       "case_id": "LH017-02-ANOMALOUS-SYNTH",
@@ -155,7 +555,107 @@
         "Reconstruct rig standpipe, hookload and string movement using verified alignment",
         "Review as-run hanger variant and competing drag/load-transfer effects"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 365,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 115,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 330,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 235,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 363,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 122,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        }
+      ],
+      "assessment_rationales": [
+        "A recorded hookload reduction and rig SPP change coexist, but these are surface observations; slip engagement remains unknown without verified string movement and tool-specific evidence.",
+        "Surface load recovery following a pressure change can be affected by drag, friction and support transfer; exact as-run position and movement are missing."
+      ],
+      "required_evidence": [
+        "Correlated SPP/hookload source rows, actual string displacement and independently reviewed hanger-set mechanism",
+        "String movement, drag estimates grounded in as-run geometry and measured pickup/slackoff sequence"
+      ]
     },
     {
       "case_id": "LH017-02-AMBIGUOUS-SYNTH",
@@ -186,7 +686,107 @@
         "Reconstruct rig standpipe, hookload and string movement using verified alignment",
         "Review as-run hanger variant and competing drag/load-transfer effects"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 365,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 115,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 330,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 235,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 363,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-SPP-CSV",
+          "channel_id": "rig_standpipe_pressure",
+          "parameter": "rig_standpipe_pressure",
+          "value": 122,
+          "unit": "psi",
+          "domain": "rig_standpipe",
+          "basis": "gauge",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        }
+      ],
+      "assessment_rationales": [
+        "A recorded hookload reduction and rig SPP change coexist, but these are surface observations; slip engagement remains unknown without verified string movement and tool-specific evidence.",
+        "Surface load recovery following a pressure change can be affected by drag, friction and support transfer; exact as-run position and movement are missing."
+      ],
+      "required_evidence": [
+        "Correlated SPP/hookload source rows, actual string displacement and independently reviewed hanger-set mechanism",
+        "String movement, drag estimates grounded in as-run geometry and measured pickup/slackoff sequence"
+      ]
     },
     {
       "case_id": "LH017-03-NORMAL-SYNTH",
@@ -217,7 +817,107 @@
         "Verify running-tool exact type and documented release sequence",
         "Correlate historical torque, hookload, movement and pump records without assuming disengagement"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-TORQUE-CSV",
+          "channel_id": "surface_torque",
+          "parameter": "surface_torque",
+          "value": 2200,
+          "unit": "ft-lbf",
+          "domain": "top_drive",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 348,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-TORQUE-CSV",
+          "channel_id": "surface_torque",
+          "parameter": "surface_torque",
+          "value": 2400,
+          "unit": "ft-lbf",
+          "domain": "top_drive",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 347,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-TORQUE-CSV",
+          "channel_id": "surface_torque",
+          "parameter": "surface_torque",
+          "value": 2250,
+          "unit": "ft-lbf",
+          "domain": "top_drive",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 347,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        }
+      ],
+      "assessment_rationales": [
+        "A torque excursion is recorded during the stated release attempt but cannot establish internal tool disengagement; hydraulic versus mechanical configuration is unknown.",
+        "Coincident hookload variation and torque response may reflect drag or surface string interaction rather than running-tool release."
+      ],
+      "required_evidence": [
+        "As-run running-tool model/release variant with verified torque/hookload/RPM sequence and tool procedure",
+        "Surface movement, torque direction, pickup/slackoff changes and independently sourced downhole release indication"
+      ]
     },
     {
       "case_id": "LH017-03-ANOMALOUS-SYNTH",
@@ -248,7 +948,107 @@
         "Verify running-tool exact type and documented release sequence",
         "Correlate historical torque, hookload, movement and pump records without assuming disengagement"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-TORQUE-CSV",
+          "channel_id": "surface_torque",
+          "parameter": "surface_torque",
+          "value": 2200,
+          "unit": "ft-lbf",
+          "domain": "top_drive",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 348,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-TORQUE-CSV",
+          "channel_id": "surface_torque",
+          "parameter": "surface_torque",
+          "value": 3150,
+          "unit": "ft-lbf",
+          "domain": "top_drive",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 334,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-TORQUE-CSV",
+          "channel_id": "surface_torque",
+          "parameter": "surface_torque",
+          "value": 2300,
+          "unit": "ft-lbf",
+          "domain": "top_drive",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 346,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        }
+      ],
+      "assessment_rationales": [
+        "A torque excursion is recorded during the stated release attempt but cannot establish internal tool disengagement; hydraulic versus mechanical configuration is unknown.",
+        "Coincident hookload variation and torque response may reflect drag or surface string interaction rather than running-tool release."
+      ],
+      "required_evidence": [
+        "As-run running-tool model/release variant with verified torque/hookload/RPM sequence and tool procedure",
+        "Surface movement, torque direction, pickup/slackoff changes and independently sourced downhole release indication"
+      ]
     },
     {
       "case_id": "LH017-03-AMBIGUOUS-SYNTH",
@@ -279,7 +1079,107 @@
         "Verify running-tool exact type and documented release sequence",
         "Correlate historical torque, hookload, movement and pump records without assuming disengagement"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-TORQUE-CSV",
+          "channel_id": "surface_torque",
+          "parameter": "surface_torque",
+          "value": 2200,
+          "unit": "ft-lbf",
+          "domain": "top_drive",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 348,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-TORQUE-CSV",
+          "channel_id": "surface_torque",
+          "parameter": "surface_torque",
+          "value": 3150,
+          "unit": "ft-lbf",
+          "domain": "top_drive",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 334,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-TORQUE-CSV",
+          "channel_id": "surface_torque",
+          "parameter": "surface_torque",
+          "value": 2300,
+          "unit": "ft-lbf",
+          "domain": "top_drive",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 346,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        }
+      ],
+      "assessment_rationales": [
+        "A torque excursion is recorded during the stated release attempt but cannot establish internal tool disengagement; hydraulic versus mechanical configuration is unknown.",
+        "Coincident hookload variation and torque response may reflect drag or surface string interaction rather than running-tool release."
+      ],
+      "required_evidence": [
+        "As-run running-tool model/release variant with verified torque/hookload/RPM sequence and tool procedure",
+        "Surface movement, torque direction, pickup/slackoff changes and independently sourced downhole release indication"
+      ]
     },
     {
       "case_id": "LH017-04-NORMAL-SYNTH",
@@ -310,7 +1210,107 @@
         "Reconcile separate rig and cement-unit source channels, rates, volumes and flow path",
         "Review timestamped returns, losses and source-specific pump totals before interpretation"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 460,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-RETURNS-CSV",
+          "channel_id": "rig_returns_rate",
+          "parameter": "rig_returns_rate",
+          "value": 430,
+          "unit": "L/min",
+          "domain": "rig_returns",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 465,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-RETURNS-CSV",
+          "channel_id": "rig_returns_rate",
+          "parameter": "rig_returns_rate",
+          "value": 425,
+          "unit": "L/min",
+          "domain": "rig_returns",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 455,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-RETURNS-CSV",
+          "channel_id": "rig_returns_rate",
+          "parameter": "rig_returns_rate",
+          "value": 420,
+          "unit": "L/min",
+          "domain": "rig_returns",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        }
+      ],
+      "assessment_rationales": [
+        "A rig pump-rate change and reduced returns are reported together; source-tagged rig observations alone cannot prove the cementing flow path or placement.",
+        "A return-flow difference could reflect losses, lag or observation uncertainty; separate cement-unit pressure/rate/volume evidence is absent."
+      ],
+      "required_evidence": [
+        "Verified pump-source routing, rig/cement-unit separation, returns and stage-linked time history",
+        "Time-matched returns measurements, losses records and separately sourced cement-unit rates and total volumes"
+      ]
     },
     {
       "case_id": "LH017-04-ANOMALOUS-SYNTH",
@@ -341,7 +1341,107 @@
         "Reconcile separate rig and cement-unit source channels, rates, volumes and flow path",
         "Review timestamped returns, losses and source-specific pump totals before interpretation"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 460,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-RETURNS-CSV",
+          "channel_id": "rig_returns_rate",
+          "parameter": "rig_returns_rate",
+          "value": 420,
+          "unit": "L/min",
+          "domain": "rig_returns",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 330,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-RETURNS-CSV",
+          "channel_id": "rig_returns_rate",
+          "parameter": "rig_returns_rate",
+          "value": 170,
+          "unit": "L/min",
+          "domain": "rig_returns",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 450,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-RETURNS-CSV",
+          "channel_id": "rig_returns_rate",
+          "parameter": "rig_returns_rate",
+          "value": 235,
+          "unit": "L/min",
+          "domain": "rig_returns",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        }
+      ],
+      "assessment_rationales": [
+        "A rig pump-rate change and reduced returns are reported together; source-tagged rig observations alone cannot prove the cementing flow path or placement.",
+        "A return-flow difference could reflect losses, lag or observation uncertainty; separate cement-unit pressure/rate/volume evidence is absent."
+      ],
+      "required_evidence": [
+        "Verified pump-source routing, rig/cement-unit separation, returns and stage-linked time history",
+        "Time-matched returns measurements, losses records and separately sourced cement-unit rates and total volumes"
+      ]
     },
     {
       "case_id": "LH017-04-AMBIGUOUS-SYNTH",
@@ -372,7 +1472,107 @@
         "Reconcile separate rig and cement-unit source channels, rates, volumes and flow path",
         "Review timestamped returns, losses and source-specific pump totals before interpretation"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 460,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-RETURNS-CSV",
+          "channel_id": "rig_returns_rate",
+          "parameter": "rig_returns_rate",
+          "value": 420,
+          "unit": "L/min",
+          "domain": "rig_returns",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 330,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-RETURNS-CSV",
+          "channel_id": "rig_returns_rate",
+          "parameter": "rig_returns_rate",
+          "value": 170,
+          "unit": "L/min",
+          "domain": "rig_returns",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-PUMP-CSV",
+          "channel_id": "rig_pump_rate",
+          "parameter": "rig_pump_rate",
+          "value": 450,
+          "unit": "L/min",
+          "domain": "rig_pump",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-RIG-RETURNS-CSV",
+          "channel_id": "rig_returns_rate",
+          "parameter": "rig_returns_rate",
+          "value": 235,
+          "unit": "L/min",
+          "domain": "rig_returns",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        }
+      ],
+      "assessment_rationales": [
+        "A rig pump-rate change and reduced returns are reported together; source-tagged rig observations alone cannot prove the cementing flow path or placement.",
+        "A return-flow difference could reflect losses, lag or observation uncertainty; separate cement-unit pressure/rate/volume evidence is absent."
+      ],
+      "required_evidence": [
+        "Verified pump-source routing, rig/cement-unit separation, returns and stage-linked time history",
+        "Time-matched returns measurements, losses records and separately sourced cement-unit rates and total volumes"
+      ]
     },
     {
       "case_id": "LH017-05-NORMAL-SYNTH",
@@ -403,7 +1603,107 @@
         "Verify as-run packer configuration and source-backed expected stage sequence",
         "Correlate actual string position and set-down surface load with independent evidence"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 352,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-STRING-MOVEMENT-CSV",
+          "channel_id": "surface_string_movement",
+          "parameter": "surface_string_movement",
+          "value": 0,
+          "unit": "m",
+          "domain": "surface_string",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 333,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-STRING-MOVEMENT-CSV",
+          "channel_id": "surface_string_movement",
+          "parameter": "surface_string_movement",
+          "value": 0.15,
+          "unit": "m",
+          "domain": "surface_string",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 340,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-STRING-MOVEMENT-CSV",
+          "channel_id": "surface_string_movement",
+          "parameter": "surface_string_movement",
+          "value": 0.18,
+          "unit": "m",
+          "domain": "surface_string",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        }
+      ],
+      "assessment_rationales": [
+        "Set-down hookload and surface string movement were recorded, but no independent packer element/packoff indication exists.",
+        "The load-change and movement combination can be influenced by drag, spacing or unstabbed position; actual packer position is not verified."
+      ],
+      "required_evidence": [
+        "As-run packer variant, surface movement rows, applied set-down load and depth reference",
+        "Independent movement/load-transfer evidence, sting-in/position checks and packoff response linked to approved as-run configuration"
+      ]
     },
     {
       "case_id": "LH017-05-ANOMALOUS-SYNTH",
@@ -434,7 +1734,107 @@
         "Verify as-run packer configuration and source-backed expected stage sequence",
         "Correlate actual string position and set-down surface load with independent evidence"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 352,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-STRING-MOVEMENT-CSV",
+          "channel_id": "surface_string_movement",
+          "parameter": "surface_string_movement",
+          "value": 0,
+          "unit": "m",
+          "domain": "surface_string",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 302,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-STRING-MOVEMENT-CSV",
+          "channel_id": "surface_string_movement",
+          "parameter": "surface_string_movement",
+          "value": 0.07,
+          "unit": "m",
+          "domain": "surface_string",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 349,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        },
+        {
+          "source_id": "SYNTHETIC-STRING-MOVEMENT-CSV",
+          "channel_id": "surface_string_movement",
+          "parameter": "surface_string_movement",
+          "value": 0.08,
+          "unit": "m",
+          "domain": "surface_string",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": true,
+          "channel_mapping_verified": true,
+          "units_verified": true
+        }
+      ],
+      "assessment_rationales": [
+        "Set-down hookload and surface string movement were recorded, but no independent packer element/packoff indication exists.",
+        "The load-change and movement combination can be influenced by drag, spacing or unstabbed position; actual packer position is not verified."
+      ],
+      "required_evidence": [
+        "As-run packer variant, surface movement rows, applied set-down load and depth reference",
+        "Independent movement/load-transfer evidence, sting-in/position checks and packoff response linked to approved as-run configuration"
+      ]
     },
     {
       "case_id": "LH017-05-AMBIGUOUS-SYNTH",
@@ -465,7 +1865,107 @@
         "Verify as-run packer configuration and source-backed expected stage sequence",
         "Correlate actual string position and set-down surface load with independent evidence"
       ],
-      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval."
+      "source_basis": "Entirely fictional source IDs and mechanism questions; no model-specific BH limits, physical result or authenticated engineer approval. Synthetic sample values are *illustrative*, not baseline thresholds, pressure ratings, or modeled physics.",
+      "surface_samples": [
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 352,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-STRING-MOVEMENT-CSV",
+          "channel_id": "surface_string_movement",
+          "parameter": "surface_string_movement",
+          "value": 0,
+          "unit": "m",
+          "domain": "surface_string",
+          "basis": "not_applicable",
+          "source_row": 11,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:00:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 302,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-STRING-MOVEMENT-CSV",
+          "channel_id": "surface_string_movement",
+          "parameter": "surface_string_movement",
+          "value": 0.07,
+          "unit": "m",
+          "domain": "surface_string",
+          "basis": "not_applicable",
+          "source_row": 12,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:10:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-HOOKLOAD-CSV",
+          "channel_id": "surface_hookload",
+          "parameter": "surface_hookload",
+          "value": 349,
+          "unit": "klbf",
+          "domain": "hookload",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        },
+        {
+          "source_id": "SYNTHETIC-STRING-MOVEMENT-CSV",
+          "channel_id": "surface_string_movement",
+          "parameter": "surface_string_movement",
+          "value": 0.08,
+          "unit": "m",
+          "domain": "surface_string",
+          "basis": "not_applicable",
+          "source_row": 13,
+          "source_revision": "fictional-csv-rev-1",
+          "source_sample_time": "2026-01-01T08:12:00Z",
+          "clock_verified": false,
+          "channel_mapping_verified": false,
+          "units_verified": false
+        }
+      ],
+      "assessment_rationales": [
+        "Set-down hookload and surface string movement were recorded, but no independent packer element/packoff indication exists.",
+        "The load-change and movement combination can be influenced by drag, spacing or unstabbed position; actual packer position is not verified."
+      ],
+      "required_evidence": [
+        "As-run packer variant, surface movement rows, applied set-down load and depth reference",
+        "Independent movement/load-transfer evidence, sting-in/position checks and packoff response linked to approved as-run configuration"
+      ]
     }
   ]
 }
