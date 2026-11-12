@@ -80,3 +80,14 @@ Only after the skill-release gate passes do we begin app architecture/UI integra
 The original prototype work must be preserved as evidence/reference; it should not be promoted to production code by copying the entire HTML file into `SKILL.md`. Consolidate reusable engineering functionality behind testable interfaces.
 
 **Next action:** `LH-001` / `LH-001A` — finish asset and Baker Hughes source coverage audit, reconcile source-backed equipment families against LinerForge templates, and identify the supported v1 scenario subset. Do not automatically promote course worked-example values or LinerForge simulated ratings to operating criteria.
+
+## 2026-11-12 approved scope expansion — planned engineering baseline and fault reconstruction
+
+The user explicitly clarified and approved the integrated **planned design/verification → observed rig data → retrospective fault investigation** workflow. This is a new tracked workstream alongside the existing accepted synthetic fault-reporting milestone. It **supersedes the earlier blanket deferral of all design calculations** for this specific, approved workstream; UI, other manufacturers and unvalidated OEM rules remain deferred.
+
+- **Before job execution:** the KHRM-299510 execution pack is a *planned* engineering benchmark (not proof of actual job execution or failure). Independently reproduce justified torque/drag pickup/slackoff loads, circulation hydraulics, surge/swab and documented tool force comparisons when inputs and authorized model-specific sources are sufficient.
+- **After a reported problem:** ingest historical rig surface CSV and job chronology, identify where actual stage/depth/time measurements differ from the vetted planned envelope, distinguish a prediction difference from an approved-limit breach, and review competing causes. Do not assume a preset or ball-seat shear state from isolated pressure/velocity signals.
+- **Cross-cutting:** all results retain input page/cell/row provenance, model assumptions, units, approved-tool/revision status and reviewer decisions. Original design output is a comparison target, not an independent physical truth.
+- **Implementation order:** planned data/benchmark contract, independently checked physical solvers, case-specific comparisons, then planned-to-actual fault integration. Read `docs/planned-design-and-fault-investigation-architecture.md`. No numerical solver or KHRM benchmark is yet validated.
+
+The prior statement that all engineering calculations are deferred is retained in historical context, **but no longer applies to this explicitly approved scope**. Track the actual work in `TODO.md`; do not silently tick pending BH engineering gates.
