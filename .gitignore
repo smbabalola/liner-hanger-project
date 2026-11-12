@@ -11,3 +11,6 @@ __pycache__/
 
 # Historical demonstration replay pending redistribution review
 skills/liner-hanger-rca/examples/utah_forge_16B_78_32/replay.html
+
+# Generated retrospective investigation artifacts (keep local; never commit real-well exports)
+skills/liner-hanger-rca/reports/
