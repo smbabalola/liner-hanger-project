@@ -63,5 +63,5 @@ def test_source_revision_location_and_missing_sample_locator_explicit(tmp_path):
     assert locs["SYNTHETIC-RIG-CSV"]["location"] is None
     text = (tmp_path / "lh003-anomalous-synth.md").read_text(encoding="utf-8")
     assert "location=not supplied" in text
-    assert "revision=FICTIONAL-REV-1" in text
+    assert "revision=synthetic-rev" in text
     assert "listing order is NOT evidence" in text
