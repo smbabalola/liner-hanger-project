@@ -1,6 +1,6 @@
 # TODO — Master Skill Development Register
 
-**Purpose:** The single authoritative execution backlog for the skill-first phase. Read [START_HERE.md](START_HERE.md) and [AGENTS.md](AGENTS.md) before work.
+**Purpose:** The authoritative backlog for **Baker Hughes-only retrospective fault-finding skill v1**. The earlier broad engineering tasks are preserved below as a deferred record, not release blockers. Read [START_HERE.md](START_HERE.md) and [AGENTS.md](AGENTS.md) before work.
 
 ## Status and task discipline
 
@@ -12,15 +12,54 @@
 - Keep new suggestions in **Deferred / change requests** until explicitly prioritised.
 
 
-## Architecture decision and documentation recovery (recorded 2026-11-12)
+## First-release decision (approved 2026-11-12)
 
-- **Agreed:** One multi-OEM backend, manufacturer/tool/model/revision selection, Baker Hughes first, Halliburton and others later. See [docs/multi-manufacturer-architecture.md](docs/multi-manufacturer-architecture.md).
-- **Pending:** Final confirmation whether the *first release* is Baker Hughes-specific retrospective fault finding or the broader engineering skill. Keep the existing tasks as provisional until that decision; don't begin feature implementation while requirements are unresolved.
-- [ ] **LH-001A — Recover the original BH training PDFs and rate each tool. [IN PROGRESS]** Two unique original Baker Hughes training guides have now been uploaded and reviewed (132-page Systems, 99-page Calculations/Hydraulics; third PDF is an identical duplicate). Source-linked tool-family coverage and troubleshooting topics have been logged in `docs/baker-hughes-document-inventory.md` and the separate `Liner_Hanger_Multi_OEM_Inventory_Source_Verified.xlsx` workbook. **Remaining:** obtain/check exact Technical Units/Service Units, model/revision/size operating data and independent engineering review; no tool yet passed the full tool-specific diagnostic gate. Do not commit copyrighted PDF originals.
-- [ ] **LH-001B — Confirm initial-release product scope.** Present documented coverage, agree fault-finding-only vs comprehensive engineering, then update these governance files and priorities without losing prior work.
-- [ ] **LH-004A — OEM identity and knowledge pack contract (after LH-001B).** Manufacturer registry and tool/model/revision selectors in backend records, rule isolation and explicit unavailable states. No app UI work.
+- **Locked v1:** Baker Hughes retrospective fault finding, supported by actual BH-SYS-2016 and BH-HYD-2020 training guides. See [first-release scope](docs/first-release-scope.md).
+- **Architecture:** one manufacturer-extensible backend, **Baker Hughes only activated** in v1. Halliburton and other manufacturers later, after documentation review.
+- **Original sources:** 132-page Systems guide + 99-page Calculations/Hydraulics guide; third provided PDF was an identical copy. These are copyrighted; do not publish the PDFs.
+- **Do not assume** all BH models are supported. A 38-entry pre-existing catalog is only an inventory/simulation reference; its placeholder pressure/load/dimension numbers are not verified OEM ratings.
 
-## Release gates and task sequence
+## v1 development gates — CURRENT AUTHORITATIVE TASK ORDER
+
+### Gate A — Recover, audit and baseline
+
+- [ ] **LH-001 — Complete source and asset inventory [IN PROGRESS].** Audit existing investigation-skill ZIP v1.5 and previous versions, references, scripts, tests, source-register coverage and separate HTML prototypes; classify actual reusable software versus reference/prototype. Produce `docs/asset-audit.md`. **Accept when:** version/contents reconciled, asset paths and permissions registered, no heuristic presented as validated.
+- [ ] **LH-001A — Review the two recovered Baker Hughes training guides [IN PROGRESS].** Original documents recovered, duplicate identified; source/page matrix drafted in `docs/baker-hughes-document-inventory.md`. **Remaining:** per-tool family/model/revision coverage, needed Service/Technical Units, rights, conflicting classifications and supporting evidence required for quantitative rules. **Accept when:** each candidate v1 tool is rated inventory-only / mechanism-described / model-specific-reviewed / unavailable and a **specific subset** is selected for the skill. No need to collect every OEM unit before beginning general fault-analysis coding.
+- [x] **LH-001B — Confirm v1 scope.** User explicitly approved Baker Hughes retrospective fault-finding as first skill release on 2026-11-12. Decision and deferrals documented in `docs/first-release-scope.md`. Acceptance: scope documented and signed off by user.
+- [ ] **LH-002 — Baseline existing investigation skill.** Import the newest actually verified package into `skills/liner-hanger-rca/` or another explicitly agreed package directory without losing prior tests/references. Do not copy proprietary BH manuals. **Accept when:** original methodology retained, references resolve, original smoke tests pass, source hashes recorded.
+- [ ] **LH-003 — Baseline normal and anomalous cases.** Use synthetic or authorized cases to demonstrate investigative paths without inventing telemetry or a failure. **Accept when:** evidence expected results and prohibited claims are documented and reproducible.
+
+### Gate B — Baker Hughes equipment and evidence model
+
+- [ ] **LH-004A — Multi-OEM backend identity and source-gated BH knowledge packs.** Manufacturer, BH tool family/model/revision, accessory/ball-seat/packoff configuration and exact source IDs. Other vendors **unavailable**, not inherited from BH. **Accept when:** source-traceability and cross-manufacturer isolation/revision mismatch tests pass.
+- [ ] **LH-004 — Minimum retrospective case contract.** Case/well data needed to interpret the five failure families; tool setup, planned stage, rig channels, job log, time base, fluid properties as needed; explicit unknowns. **Accept when:** all fields round-trip and validation rejects unsupported assumptions.
+- [ ] **LH-005 — Unit and evidence provenance.** Validated unit conversion, raw measurement preservation, sensor/channel identification and time alignment with uncertainty. **Accept when:** known-answer conversions and negative tests pass.
+- [ ] **LH-006 — Historical CSV and chronological log ingestion.** Reuse previous processing scripts and preserve original sample cadence; robust matching of rig logs to reported events. **Accept when:** input/quality reports and an end-to-end time alignment fixture pass.
+- [ ] **LH-007 — Investigation chronology and first supported deviation.** Plan-versus-observed timeline, annotated evidence events and uncertainties. **Accept when:** event citations resolve, no fabricated event times or unsupported event order.
+
+### Gate C — Five documentary investigation workflows
+
+- [ ] **LH-BH-101 — Ball drop / water hammer and seating questions.** BH-HYD-2020 lesson; distinguish water hammer, seating and evidence insufficiency. **Accept when:** worked synthetic test identifies alternatives and evidence gaps without treating timing as proof.
+- [ ] **LH-BH-102 — Hanger setting questions.** Compare available load/pressure/string movement evidence with documented expected event **for selected config**. **Accept when:** supported/contradicted hypotheses and configuration limits are stated.
+- [ ] **LH-BH-103 — Running-tool release questions.** Work across applicable documented hydraulic or mechanical release families; distinguish tool response from surface sensor ambiguity. **Accept when:** both scenario test and unsupported-model test pass.
+- [ ] **LH-BH-104 — Cementing-stage fault questions.** Compare stage logs with available rig or cement-unit data; enforce sensor/source separation, losses and float/packoff alternatives. **Accept when:** rig-only and missing-cementer cases never invent cement pressures or volume.
+- [ ] **LH-BH-105 — Liner-top packer setting questions.** Compare reported set-down/transferred load, packoff position and alternative causes. **Accept when:** synthetic evidence-led findings are reviewable and fail closed on missing specs.
+- [ ] **LH-BH-106 — Source-gated supporting calculations.** Implement only essential deterministic, tested checks for the five investigations (capacity, basic hydrostatics/force/weight as supported). **Accept when:** each calculation passes independent source-linked examples; universal tool ratings are forbidden.
+
+### Gate D — Report, validation and release
+
+- [ ] **LH-015 — Competing-hypothesis/evidence engine.** Retain previous RCA method and clear status of possible/probable/undetermined with falsification checks. **Accept when:** normal cases do not force a failure and anomalous cases do not assert internal cause without validation.
+- [ ] **LH-016 — Retrospective fault-finding report.** Evidence register, timeline, first deviation, alternatives, contradictions, calculated checks where validated, gaps, conclusions and engineering sign-off. **Accept when:** every claim is traceable to evidence or marked interpretation.
+- [ ] **LH-017 — Scenario regression and engineering review.** Source/units/timestamp tests, five fault-family scenarios, normal control, cross-OEM rejection, unsupported BH variant rejection and independent review of model-dependent interpretations. **Accept when:** all release blockers resolved.
+- [ ] **LH-018 — Skill v1 release gate.** Portable skill layout, clean installation, references, permission review, scenario tests, documentation and known limitations. **Accept when:** reviewed and tagged; UI is still a separate approval.
+
+## Current checkpoint
+
+**Active:** `LH-001` / `LH-001A` documentary and artifact audit. **Scope:** confirmed; **no v1 skill implementation or test completion claimed**.
+**Decision complete:** `LH-001B`.
+**Source files:** original BH PDFs available only as user-provided conversation sources; the GitHub source register contains metadata/notes, not the copyrighted PDFs.
+
+## Deferred original broad-engineering backlog (preserved for later)
 
 ### Gate A — Recover and audit (P0)
 
@@ -52,7 +91,7 @@
 - [ ] **LH-017 — Regression and engineering validation.** Automated tests for all critical parsers/contracts/calculations, historical job replay cases and insufficient-data safeguards. Populate a validation register with unvalidated items. **Accept when:** clean environment reproduces tests and all release-blocking failures are resolved.
 - [ ] **LH-018 — Skill quality/release gate.** Check portability (`SKILL.md`, reference links, script invocations), run full skill scenario evaluations, documentation, sourcing/licensing, and independent engineering review on model-dependent conclusions. Tag a first skill release only after sign-off. **Accept when:** release checklist is complete and remaining caveats are documented.
 
-## Current checkpoint
+## Historical checkpoint (superseded by v1 checkpoint above)
 
 **Active task:** `LH-001` (pending).  
 **Confirmed in this repository:** Initial README and project governance files only.  
@@ -75,7 +114,7 @@ Ending commit SHA:
 Next task:
 ```
 
-## Deferred / change requests (outside current skill gate)
+## Additional future change requests (outside current skill gate)
 
 - Full app/UI development using the completed skill APIs, guided by established UI/UX skill.
 - Real-time WITSML/ETP integration and live shadow mode; no live field guidance without separate safety case.
