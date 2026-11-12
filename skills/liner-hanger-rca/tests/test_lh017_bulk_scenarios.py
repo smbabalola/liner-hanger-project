@@ -39,10 +39,10 @@ def test_fifteen_end_to_end_source_gated_cases(case):
     assert all(e["review_status"] == "unreviewed" for e in report["evidence_register"])
     if kind == "normal":
         assert len(report["competing_hypotheses"]) == 0
-        assert len(report["chronology"]["ordered_event_ids"]) == 1
+        assert len(report["chronology"]["ordered_event_ids"]) == 6
     elif kind == "anomalous":
         assert len(report["competing_hypotheses"]) == 2
-        assert len(report["chronology"]["ordered_event_ids"]) == 2
+        assert len(report["chronology"]["ordered_event_ids"]) == 6
         assert all(h["evidence_assessments"] for h in report["competing_hypotheses"])
         assert all(h["discriminating_checks"] for h in report["competing_hypotheses"])
         assert "Identical verified timestamps are ties" in batch.report_engine.render_markdown(report)
@@ -52,7 +52,7 @@ def test_fifteen_end_to_end_source_gated_cases(case):
         gap = next(e for e in report["evidence_register"] if e["kind"] == "evidence_gap")
         assert gap["time_state"] == "unknown"
         assert gap["timestamp"] is None
-        assert gap["source_sample_time"] == "2026-01-01T08:10:00Z"
+        assert gap["source_sample_time"] == "2026-01-01T08:00:00Z"
         assert all(not h["evidence_for"] and not h["evidence_against"]
                    for h in report["competing_hypotheses"])
         assert all(h["unknowns"] for h in report["competing_hypotheses"])
@@ -120,3 +120,67 @@ def test_cementing_never_equates_rig_pump_with_cement_unit():
     assert any("SYNTHETIC-RIG-PUMP-CSV" in e["source_ids"] for e in evidence)
     assert not any("CEMENT-UNIT-MEASURED" in e["source_ids"] for e in evidence)
     assert all(not h["evidence_for"] for h in report["competing_hypotheses"])
+
+
+@pytest.mark.parametrize("case", CASES, ids=[c["case_id"] for c in CASES])
+def test_six_source_localized_multi_channel_measurements(case):
+    result = batch.run_case(case)
+    report = result["report"]
+    numbered = [e for e in report["evidence_register"]
+                if e["event_id"].startswith(case["case_id"] + "-S")]
+    assert len(numbered) == 6
+    assert len({e["source_ids"][0] for e in numbered}) == 2
+    assert all(e["measurement_details"] is not None for e in numbered)
+    assert all(e["source_locations"][e["source_ids"][0]]["location"].startswith("fictional CSV row ")
+               for e in numbered)
+    assert all(e["measurement_details"]["provenance"].startswith(
+        "unverified" if case["scenario_class"] == "ambiguous" else "fictional")
+        for e in numbered)
+    if case["scenario_class"] == "ambiguous":
+        assert all(e["kind"] == "evidence_gap" for e in numbered)
+        assert all(e["timestamp"] is None for e in numbered)
+        assert len(report["screening_findings"]) == 0
+    else:
+        assert all(e["kind"] == "measured_observation" for e in numbered)
+        assert all(e["timestamp"] is not None for e in numbered)
+    text = batch.report_engine.render_markdown(report)
+    assert "Surface sample:" in text
+    assert "fictional CSV row 11" in text
+    assert "None; rule: None" not in text
+    assert "No configured and source-checked screening rule evaluated" in text
+
+@pytest.mark.parametrize("family_id", batch.FAMILIES)
+def test_five_anomalous_families_have_distinct_noncausal_rationale(family_id):
+    case = next(c for c in CASES if c["family_id"] == family_id
+                and c["scenario_class"] == "anomalous")
+    report = batch.run_case(case)["report"]
+    assert len(report["competing_hypotheses"]) == 2
+    assert len({x["source_ids"][0] for x in report["evidence_register"]
+                if x["kind"] == "measured_observation"}) == 2
+    assert all(h["evidence_for"] == [] and h["evidence_against"] == []
+               for h in report["competing_hypotheses"])
+    assert all(h["context"] for h in report["competing_hypotheses"])
+    assert all(h["unknowns"] for h in report["competing_hypotheses"])
+    rationale = [h["evidence_assessments"][0]["rationale"]
+                 for h in report["competing_hypotheses"]]
+    assert rationale == case["assessment_rationales"]
+    assert rationale[0] != rationale[1]
+    assert all(h["discriminating_checks"][0]["required_evidence"]
+               in case["required_evidence"] for h in report["competing_hypotheses"])
+
+def test_bad_case_sample_misreported_as_verified_rejected():
+    case = deepcopy(next(c for c in CASES if c["scenario_class"] == "ambiguous"))
+    case["surface_samples"][0]["clock_verified"] = True
+    with pytest.raises(batch.BatchError, match="sample clock quality"):
+        batch.run_case(case)
+
+def test_fake_measured_sample_without_numeric_value_rejected():
+    case = deepcopy(CASES[0])
+    case["surface_samples"][0]["value"] = None
+    with pytest.raises(batch.BatchError, match="numeric recorded value"):
+        batch.run_case(case)
+
+def test_five_anomaly_patterns_have_distinct_measurement_sequences():
+    anomalous = [c for c in CASES if c["scenario_class"] == "anomalous"]
+    assert len({tuple((x["parameter"], x["unit"], x["value"])
+                      for x in c["surface_samples"]) for c in anomalous}) == 5
