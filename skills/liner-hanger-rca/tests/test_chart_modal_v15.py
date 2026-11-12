@@ -3,9 +3,10 @@ from pathlib import Path
 import importlib.util
 import shutil
 import pytest
+from synthetic_replay_fixture import synthetic_replay_html
 
 ROOT=Path(__file__).resolve().parents[1]
-HTML=ROOT/'examples/utah_forge_16B_78_32/replay.html'
+HTML=synthetic_replay_html()
 
 
 def _injector():
@@ -17,7 +18,7 @@ def _injector():
 
 
 def test_contextual_editor_and_notebook_are_in_one_skill():
-    html=HTML.read_text(encoding='utf-8')
+    html=HTML
     for tag in ['id="iw-modal"','id="iw-dialog"','id="iw-sidebar"','id="iw-hover"',
                 'id="iw-playNotice"','id="iw-point"','id="iw-mark"','id="iw-replayAnnotations"',
                 'id="iw-filter"','id="iw-export"','id="iw-report"']:
@@ -42,7 +43,7 @@ def test_modal_chart_range_and_hover_reopen():
         try:
             page=browser.new_page(viewport={'width':1360,'height':850})
             errors=[];page.on('pageerror',lambda error:errors.append(str(error)))
-            page.set_content(HTML.read_text(encoding='utf-8'))
+            page.set_content(HTML)
             page.locator('#scrub').fill('950')
             page.locator('#zoom').select_option('60')
             page.locator('#iw-mark').click()
@@ -73,7 +74,7 @@ def test_playback_cue_does_not_force_a_modal():
         browser=driver.chromium.launch(headless=True,executable_path=executable,args=['--no-sandbox'])
         try:
             page=browser.new_page(viewport={'width':1200,'height':800})
-            page.set_content(HTML.read_text(encoding='utf-8'))
+            page.set_content(HTML)
             page.locator('#scrub').fill('140');page.locator('#iw-point').click()
             page.locator('#iw-title').fill('Check drill pipe event')
             page.locator('#iw-notes').fill('No assumption about cause or equipment capability.')
