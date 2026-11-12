@@ -13,9 +13,23 @@ Examined **actual ZIP member inventories and reference text** of these existing 
 
 Also searched accessible current Project and personal Library file names/content for Baker Hughes manuals/specifications, and reviewed project source-register statements. **Search scope is limited to accessible materials.** Documents in other ChatGPT conversations/projects, local Windows folders or external accounts may not be surfaced here. No conclusion that such documents do not exist elsewhere.
 
+## 2026-11-12 addendum — original documents recovered in historical conversation record
+
+A separate search of prior ChatGPT discussion found that **on 19 March 2026**, during **LinerForge** tool-template work, the user and assistant worked with uploaded Baker Hughes PDFs reportedly titled:
+- `Liner Hanger Systems.pdf`
+- `Liner Hanger Hydraulics.pdf` (also referred to as `Liner Hanger Calculations and Hydraulics`).
+
+The historical analysis identified equipment names and families including **Hyflo III, Hyflo II, CMC, RCM II, FLEX-LOCK, HMC, HSR II, ControlSET FLEX-LOCK, SDD, ZXP / ZXP Ultra / ZXHD / ZXPN, HRD-E, 2RH**, and components such as **RS/PBR, landing collars, plugs, darts, balls, floats and shoes**. Additional names in that discussion: **ZXP-D, INLine, Z-Flex, UniFlex, C2, COMPdril / COMPdril Solo, SureFlow, Bullet seal, JMZX and SISOSR**. These are **historically discussed names, not presently verified tool-by-tool manual coverage**.
+
+**Critical provenance distinction:** The original PDF bytes, page ranges and revisions were **not retrieved** in the present Library/Project search. This addendum corrects the earlier implication that no original manuals had ever been uploaded: the March conversation indicates that they **were** uploaded and used there. However, their technical coverage, operating limits and suitability for troubleshooting **cannot be independently certified** until the PDFs are re-accessed. The earlier discussion described their content as adequate for **family-level structure, component functions, hydraulic/packoff concepts, sequence modeling and planning-grade rule-based simulation**, not full certified diagnostic rules/curves for every tool.
+
+**Follow-up:** Locate the March 19, 2026 LinerForge chat attachment copies or reattach PDFs in this Project; inventory their pages/model references and only then re-rate specific tools. The prior chat title and folder name are not yet known.
+
+---
+
 ## Primary finding
 
-**The investigation framework exists; a manufacturer/model/revision-specific Baker Hughes troubleshooting knowledge base has NOT been verified.** No original Baker Hughes training PDF, full running/setting manual, engineering drawing, pressure/force specification sheet, troubleshooting matrix or revision-controlled operating procedure was found in the inspected skill archives or in the accessible Library filename search.
+**The investigation framework exists; a manufacturer/model/revision-specific Baker Hughes troubleshooting knowledge base has NOT been verified.** No original Baker Hughes training PDF, full running/setting manual, engineering drawing, pressure/force specification sheet, troubleshooting matrix or revision-controlled operating procedure was found in the **inspected skill archives or current accessible Library filename search**. Historical March 2026 conversation evidence, now documented above, **does identify two previously uploaded original PDFs**; their actual file contents are not currently accessible for verification.
 
 The v1.5 skill package does contain:
 - `SKILL.md`, `references/KNOWLEDGE_BASE.md`, `references/SOURCE_REGISTER.md`, `references/INGESTION_AND_RULES.md`
