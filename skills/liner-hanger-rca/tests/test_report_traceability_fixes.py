@@ -58,8 +58,8 @@ def test_source_revision_location_and_missing_sample_locator_explicit(tmp_path):
     case = json.loads((tmp_path / "lh003-anomalous-synth.json").read_text(encoding="utf-8"))
     e = next(e for e in case["evidence_register"] if e["kind"] == "screening_candidate")
     locs = e["source_locations"]
-    assert locs["SYNTHETIC-JOB-PROGRAM"]["revision"] == "FICTIONAL-REV-1"
-    assert locs["SYNTHETIC-JOB-PROGRAM"]["location"] == "synthetic-rule-page"
+    assert locs["SYNTHETIC-JOB-PROGRAM"]["revision"] == "synthetic-rev"
+    assert locs["SYNTHETIC-JOB-PROGRAM"]["location"] == "fictional-reference"
     assert locs["SYNTHETIC-RIG-CSV"]["location"] is None
     text = (tmp_path / "lh003-anomalous-synth.md").read_text(encoding="utf-8")
     assert "location=not supplied" in text
