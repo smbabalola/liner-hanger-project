@@ -51,9 +51,9 @@ All vendor-specific fields are namespaced by manufacturer and model/revision. Th
 
 ## Document inventory
 
-The current working Excel spreadsheet is **`Liner_Hanger_Multi_OEM_Inventory.xlsx`**, created separately as a conversation artifact. It has tabs **READ ME, OEM Registry, Baker Hughes Tools, Source Register, Coverage Criteria, Work Queue**. The working copy must be placed under `docs/inventory/` after confirming confidentiality and permissions. Until then, the existing [Baker Hughes inventory](baker-hughes-document-inventory.md) is the repo-resident audit.
+The current source-reviewed Excel spreadsheet is **`Liner_Hanger_Multi_OEM_Inventory_Source_Verified.xlsx`**, created separately as a conversation artifact. Earlier unverified drafts remain historical references. It has tabs **READ ME, OEM Registry, Baker Hughes Tools, Source Register, Coverage Criteria, Work Queue**. The working copy must be placed under `docs/inventory/` after confirming confidentiality and permissions. Until then, the existing [Baker Hughes inventory](baker-hughes-document-inventory.md) is the repo-resident audit.
 
-Historical March 2026 LinerForge chat identified `Liner Hanger Systems.pdf` and `Liner Hanger Hydraulics.pdf` / `Liner Hanger Calculations and Hydraulics`, but **actual original PDF bytes and page-level tool coverage have not been retrieved in the current inventory**. Do not mark any exact model/revision 'diagnostically supported' on chat recollection alone.
+The two unique original Baker Hughes PDF guides were subsequently **provided and inspected**; the third PDF was an exact duplicate. Coverage and page references are recorded in [baker-hughes-document-inventory.md](baker-hughes-document-inventory.md). The source guides do **not** independently validate numerical limits for every model/size/revision. Keep copyrighted source bytes out of GitHub.
 
 ## Development order
 
