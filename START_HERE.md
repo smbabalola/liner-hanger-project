@@ -1,6 +1,6 @@
 # START HERE — Liner Hanger Project
 
-**Project:** Liner Hanger Engineering Skill  
+**Project:** Liner Hanger Project — Baker Hughes Retrospective Fault-Finding Skill (first release)  
 **Phase:** Skill-first development; application/UI work deferred  
 **Canonical repository:** `smbabalola/liner-hanger-project`  
 **Canonical local checkout:** `C:\dev\liner-hanger-project`  
@@ -9,7 +9,7 @@
 
 ## Mission
 
-Finish a reusable, tested liner-hanger engineering skill before building an app interface. It should help qualified engineers prepare, reconstruct, evaluate, explain, and report **historical** liner-hanger operations, including successful jobs and jobs requiring investigation. It must distinguish facts, calculations, interpretations, hypotheses, and verified conclusions.
+Finish a reusable, tested **Baker Hughes-only retrospective fault-finding skill** as the first release, before developing the application UI or broader engineering capabilities. Its job is to reconstruct historical liner-hanger operations from surface data and job records, identify the first supported deviation, evaluate alternatives, and draft evidence-linked investigation findings for competent engineering review. It must distinguish facts, calculations, interpretations, hypotheses, and verified conclusions.
 
 The skill is **not** a live operations controller, OEM instruction substitute, well-control decision system, or certified root-cause investigator.
 
@@ -18,34 +18,34 @@ The skill is **not** a live operations controller, OEM instruction substitute, w
 
 The eventual application and underlying skill use **one shared backend** supporting multiple equipment companies. The case selects `manufacturer_id → tool family → model/size → revision/configuration`; only that manufacturer's approved rule/knowledge pack can be applied. **Baker Hughes is first**. Halliburton and others are future additions and must not be represented as supported before source and test validation. The same generic telemetry, evidence, timeline and report engines remain shared. See [docs/multi-manufacturer-architecture.md](docs/multi-manufacturer-architecture.md).
 
-**Important scope distinction:** Multi-manufacturer *architecture* is agreed, but the first product release's breadth (**fault-finding only** versus full engineering workflow) is **still awaiting a final decision**. Do not silently implement both or rewrite the active TODO until this decision is recorded.
+**Release scope LOCKED on 2026-11-12:** first deliverable is **Baker Hughes retrospective fault finding**, not the broader well-planning/cementing simulator. Core investigation infrastructure must remain manufacturer-extensible. Halliburton and other knowledge packs are deferred. See [docs/first-release-scope.md](docs/first-release-scope.md).
 
 ## Current state — what is known, not assumed
 
 Earlier work is **outside this new repository until inventoried and imported**. Do not describe it as implemented here until its source files and tests have been examined.
 
-Known prior assets to inspect:
+Known prior assets to inspect (do not recode from scratch):
 - RCA skill `SKILL.md` packages (v1.0/v1.2 located); supporting references, timeline scripts, schemas, and examples may exist in older packages.
 - v1.5 **annotated HTML replay** with historical rig channels, case-specific schematic, in-chart annotations, and evidence review.
 - Later **HTML prototype extensions** for menu navigation, well setup, fluids, cementing, rig/cement pumps, units, report drafts, and CSV rig import.
 - Historical Pason and case material; a Utah FORGE investigation example; synthetic test files.
 - `WellOptix` as a reference for the *well data model*, not a project to copy or alter.
 
-**Important:** `v1.5` is a verified label for the *playback/annotation prototype*, **not evidence that a consolidated skill v1.5 package exists**. Audit actual artifacts before assigning skill versions or completion status. Prototype features are not automatically backend modules or validated engineering models.
+**Version note:** A ZIP titled `liner-hanger-investigation-skill-v1.5.zip` has been located and inspected for its file members; v1.5 is also used for the annotated HTML prototype. The ZIP's internal functions must still be tested and accepted before calling them validated. Prototype features are not automatically backend modules or engineering-validated models.
 
-## Locked scope — skill release first
+## Locked scope — Baker Hughes retrospective fault-finding skill v1
 
-The skill release covers:
-1. Job, well, geometry, directional survey, BHA/running tool, fluid and procedure data contracts; missing-data and unit management.
-2. Historical rig CSV ingestion and high-resolution time-series preservation, provenance, channel mapping, time alignment and quality checks.
-3. Chronological operational reconstruction and evidence-linked engineer annotations, for both successful and unsuccessful operations.
-4. Verified deterministic core calculations (well/string volumes and hydraulics/placement **only when inputs and independently checked methods suffice**).
-5. Separate rig-pump and cement-unit data sources; planned cement stages; rig-only response interpretation when cementer data is missing.
-6. Planned-versus-observed comparisons with explicitly identified measurement sources and uncertainties.
-7. Optional structured hypothesis/failure investigation; do not force a failure outcome.
-8. Field service and engineering analysis report generation with traceable evidence and human review.
+The first release covers:
+1. **Manufacturer/equipment identity:** Baker Hughes family/model, running tool, packoff/ball-seat/packer configuration, revision if available; reject cross-OEM assumptions.
+2. **Source-aware equipment knowledge:** the original Baker Hughes 2016 Systems and 2020 Hydraulics self-study guides, page-cited; model-specific rules gated pending exact Technical/Service Units and approved job procedures.
+3. **Evidence intake:** historical surface rig CSV (high-resolution preserved), job programme/log, equipment and fluid information, timestamps, units and source quality.
+4. **Chronological reconstruction:** running, circulation, ball drop, setting, running-tool release, cementing, packer setting as the available evidence supports.
+5. **Fault-finding investigations:** deviations, observed signatures, competing hypotheses, contradictions, additional evidence needed; optional light-weight supporting calculations only where independently validated.
+6. **Reports:** an auditable retrospective troubleshooting report with limitations and human review.
 
-Not for this release: production UI redesign, LLM driller, voice training simulator, live WITSML, real-time field commands, manufacturer certification, or automated equipment-specific root-cause certainty. Capture ideas in the deferred backlog; do not silently change scope.
+The initial five investigative families are ball drop/water hammer, hanger setting, running-tool release, cementing, and liner-top packer setting. Only a **document-supported subset of tools/scenarios** may be marked supported in the first release. A source guide does not make every model/revision fully diagnostically supported.
+
+Deferred until after v1: broad job planning, full hydraulics and placement simulation, field-service operations report, full-featured cementing model, app UI, Halliburton/other OEM packs, voice driller, live WITSML, real-time commands, manufacturer certification, or claims of automatic definitive root cause. Preserve the earlier work as a future backlog. Capture ideas in the deferred backlog; do not silently change scope.
 
 ## Mandatory workflow — resume here
 
@@ -71,7 +71,7 @@ Not for this release: production UI redesign, LLM driller, voice training simula
 
 ## Definition of done: skill v1 release
 
-The release is eligible only when all **P0 / release-gate** items in `TODO.md` are accepted, their tests run, the source and validation registers exist, a clean-install instruction works, and **at least one successful and one anomalous historical/synthetic case** produce auditable outputs without invented facts. Known engineering limitations must be documented.
+The release is eligible only when all **v1 release-gate** items in `TODO.md` are accepted, the imported skill passes regression tests, its allowed Baker Hughes rules have page/model provenance, and a clean install processes **at least one normal and one anomalous synthetic/authorized case** without inventing measurements or model-specific limits. Exact models with inadequate source coverage must explicitly return 'insufficient documentation'. Known engineering limitations must be documented.
 
 Only after the skill-release gate passes do we begin app architecture/UI integration as a **new, explicitly approved** workstream.
 
@@ -79,4 +79,4 @@ Only after the skill-release gate passes do we begin app architecture/UI integra
 
 The original prototype work must be preserved as evidence/reference; it should not be promoted to production code by copying the entire HTML file into `SKILL.md`. Consolidate reusable engineering functionality behind testable interfaces.
 
-**Next action:** `LH-001` — audit/inventory the existing skill packages, prototype files, scripts and representative datasets; record located files, versions, dependencies and test evidence before importing them.
+**Next action:** `LH-001` / `LH-001A` — finish asset and Baker Hughes source coverage audit, reconcile source-backed equipment families against LinerForge templates, and identify the supported v1 scenario subset. Do not automatically promote course worked-example values or LinerForge simulated ratings to operating criteria.
