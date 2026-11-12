@@ -25,18 +25,18 @@ Start by stating the chosen task ID, the verified existing implementation, the m
 - **One shared engineering backend**, with source-controlled manufacturer → tool family → exact model/size → revision/configuration selection. Baker Hughes is the initial inventory target; Halliburton and others are future provider packs, not current verified support.
 - Keep generic data processing independent of manufacturer. Vendor-specific rules are isolated, gated by provenance/engineering review and must never leak across manufacturers.
 - Never silently fall back from an unsupported Halliburton/other tool to Baker Hughes parameters.
-- First-release functional scope remains **unresolved** (BH-only retrospective fault finding versus broader engineering skill); do not treat the existing TODO as permission for indiscriminate full implementation before user confirmation.
+- **First-release functional scope is confirmed:** Baker Hughes-only **retrospective fault-finding skill**. Broad engineering simulations and other OEM packs are deferred. Read [docs/first-release-scope.md](docs/first-release-scope.md).
 
 ## Core product boundary
 
-**Complete and validate the reusable Liner Hanger Engineering Skill first.**
+**Complete and validate the Baker Hughes Retrospective Fault-Finding Skill v1 first.**
 During this phase, deliver:
 - A portable skill package with clear instructions, references, provenance and scenario checks.
 - Testable deterministic Python engineering functions, not hidden calculations inside an LLM prompt.
-- Historical data ingestion and chronological evidence-based analysis.
-- Clear, reviewable field service and engineering reports.
+- Historical surface rig-data ingestion and chronological evidence-based investigation of Baker Hughes operations.
+- Clear, reviewable retrospective troubleshooting reports; full field-service reports are deferred.
 
-**Do not implement or redesign the application UI** until `LH-018` is accepted and the user explicitly starts that workstream. Existing HTML prototypes are reference artifacts, not current development targets.
+**Do not implement or redesign the application UI** until the BH-only fault-finding v1 gate is accepted and the user explicitly starts that workstream. Do not implement broad well planning, hydraulics, cement placement simulation or other manufacturers during v1. Existing HTML prototypes are reference artifacts, not current development targets.
 
 ## Strict task loop
 
@@ -78,6 +78,13 @@ A checkbox can be set to `[x]` only if:
 - Use source-defined OEM tool/model/revision constraints; no generic setting/release thresholds presented as approved.
 - A successful operation needs a coherent positive review, not a forced anomaly or RCA report.
 - Diagnosis is optional and hypothesis-led; always include alternatives, contradictory evidence and what would resolve uncertainty.
+
+## Scope and source fidelity
+
+- Baker Hughes 2016 *Liner Hanger Systems* and 2020 *Liner Hanger Calculations and Hydraulics - Theory* have been provided and reviewed. Their copyrights remain Baker Hughes'. **Do not commit raw PDF bytes to GitHub.**
+- Cite page-level evidence in the source register. Training examples are not general approved setpoints; exact tool variant/size/revision must be verified before numerical diagnostic rules are enabled.
+- Do not transfer placeholder dimensions/ratings or synthetic thresholds from the read-only LinerForge catalog into the verified BH rules.
+- The user agreed to narrow **release v1**, not to abandon earlier UI and broader engineering work. Keep it archived as reference and deferred backlog.
 
 ## Confidentiality, external references, and AI
 
