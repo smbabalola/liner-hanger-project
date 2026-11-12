@@ -19,6 +19,14 @@ Start by stating the chosen task ID, the verified existing implementation, the m
 - Never force-push, rewrite history, delete branches, or replace the known v1.5 annotated reference.
 - Keep potentially large test datasets and proprietary documents outside Git until provenance, permissions and size are checked.
 
+## Manufacturer-selection architecture (confirmed)
+
+- Follow [docs/multi-manufacturer-architecture.md](docs/multi-manufacturer-architecture.md).
+- **One shared engineering backend**, with source-controlled manufacturer → tool family → exact model/size → revision/configuration selection. Baker Hughes is the initial inventory target; Halliburton and others are future provider packs, not current verified support.
+- Keep generic data processing independent of manufacturer. Vendor-specific rules are isolated, gated by provenance/engineering review and must never leak across manufacturers.
+- Never silently fall back from an unsupported Halliburton/other tool to Baker Hughes parameters.
+- First-release functional scope remains **unresolved** (BH-only retrospective fault finding versus broader engineering skill); do not treat the existing TODO as permission for indiscriminate full implementation before user confirmation.
+
 ## Core product boundary
 
 **Complete and validate the reusable Liner Hanger Engineering Skill first.**
