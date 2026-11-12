@@ -23,7 +23,7 @@
 
 ### Gate A — Recover, audit and baseline
 
-- [ ] **LH-001 — Complete source and asset inventory [IN PROGRESS].** Audit existing investigation-skill ZIP v1.5 and previous versions, references, scripts, tests, source-register coverage and separate HTML prototypes; classify actual reusable software versus reference/prototype. Produce `docs/asset-audit.md`. **Accept when:** version/contents reconciled, asset paths and permissions registered, no heuristic presented as validated.
+- [ ] **LH-001 — Complete source and asset inventory [IN PROGRESS; initial audit 2026-11-12].** The v1.5 archive (46 files), v1.4 (45 files) and v1.2 knowledge package (14 files) were inspected; the v1.5 pytest suite passed **14/14** in a separate cloud workspace. LinerForge BH catalogue/profile source reviewed read-only; placeholder lengths/ratings identified and excluded from engineering rules. Initial deliverable **`docs/asset-audit.md`** committed. **Remaining before acceptance:** audit newer separate HTML prototypes and source rights, confirm local artifact paths and repeat tests locally. **Accept when:** versions/contents reconciled, assets and permissions registered, no heuristic presented as validated.
 - [ ] **LH-001A — Review the two recovered Baker Hughes training guides [IN PROGRESS].** Original documents recovered, duplicate identified; source/page matrix drafted in `docs/baker-hughes-document-inventory.md`. **Remaining:** per-tool family/model/revision coverage, needed Service/Technical Units, rights, conflicting classifications and supporting evidence required for quantitative rules. **Accept when:** each candidate v1 tool is rated inventory-only / mechanism-described / model-specific-reviewed / unavailable and a **specific subset** is selected for the skill. No need to collect every OEM unit before beginning general fault-analysis coding.
 - [x] **LH-001B — Confirm v1 scope.** User explicitly approved Baker Hughes retrospective fault-finding as first skill release on 2026-11-12. Decision and deferrals documented in `docs/first-release-scope.md`. Acceptance: scope documented and signed off by user.
 - [ ] **LH-002 — Baseline existing investigation skill.** Import the newest actually verified package into `skills/liner-hanger-rca/` or another explicitly agreed package directory without losing prior tests/references. Do not copy proprietary BH manuals. **Accept when:** original methodology retained, references resolve, original smoke tests pass, source hashes recorded.
@@ -55,7 +55,7 @@
 
 ## Current checkpoint
 
-**Active:** `LH-001` / `LH-001A` documentary and artifact audit. **Scope:** confirmed; **no v1 skill implementation or test completion claimed**.
+**Active:** `LH-001` / `LH-001A` documentary and artifact audit. First archive/code audit and 14-test regression are recorded in `docs/asset-audit.md` (2026-11-12); not yet a full acceptance. **Scope:** confirmed; **no v1 skill implementation or test completion claimed**.
 **Decision complete:** `LH-001B`.
 **Source files:** original BH PDFs available only as user-provided conversation sources; the GitHub source register contains metadata/notes, not the copyrighted PDFs.
 
