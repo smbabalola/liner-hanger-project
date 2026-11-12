@@ -114,7 +114,10 @@ def compile_report(*, case_id: str, equipment: Mapping, timeline: Mapping,
              "review_status": e["review_status"],
              "related_rule_id": e.get("related_rule_id"),
              "related_channel_id": e.get("related_channel_id"),
-             "reasons": list(e.get("reasons", ()))}
+             "reasons": list(e.get("reasons", ())),
+             "source_sample_time": e.get("source_sample_time"),
+             "screening_details": e.get("screening_details"),
+             "source_locations": e.get("source_locations") or {}}
             for e in records
         ],
         "chronology": {
@@ -125,7 +128,9 @@ def compile_report(*, case_id: str, equipment: Mapping, timeline: Mapping,
         },
         "screening_findings": [
             {"event_id": e["event_id"], "status": e.get("screening_status"),
-             "related_rule_id": e.get("related_rule_id"), "source_ids": list(e["source_ids"])}
+             "related_rule_id": e.get("related_rule_id"), "source_ids": list(e["source_ids"]),
+             "screening_details": e.get("screening_details"),
+             "source_locations": e.get("source_locations") or {}}
             for e in records if e.get("kind") in {
                 "screening_candidate", "screening_context", "evidence_gap"}
         ],
@@ -137,6 +142,16 @@ def compile_report(*, case_id: str, equipment: Mapping, timeline: Mapping,
              "evidence_against": [x["event_id"] for x in card["evidence_against"]],
              "context": [x["event_id"] for x in card["context"]],
              "unknowns": [x["event_id"] for x in card["unknowns"]],
+             "evidence_assessments": [
+                 {"event_id": x["event_id"], "relation": relation,
+                  "rationale": x["assessment"]["rationale"],
+                  "assessor": x["assessment"]["assessor"],
+                  "review_status": x["assessment"]["review_status"],
+                  "source_ids": list(x["source_ids"])}
+                 for relation, key in (("supports", "evidence_for"),
+                                       ("contradicts", "evidence_against"),
+                                       ("context", "context"), ("unresolved", "unknowns"))
+                 for x in card[key]],
              "discriminating_checks": list(card["discriminating_checks"])}
             for card in cards
         ],
@@ -189,11 +204,31 @@ def render_markdown(report: Mapping) -> str:
                      f"time basis: {_text(e.get('time_basis') or 'unverified')})")
         if e.get("reasons"):
             lines.append(f"  - Unverifiable/review reasons: {_text('; '.join(e['reasons']))}")
+        if e.get("source_sample_time") and e["time_state"] != "verified":
+            lines.append(f"  - Raw source sample time (NOT independently verified event time): {_text(e['source_sample_time'])}")
+        for source_id, loc in e.get("source_locations", {}).items():
+            if isinstance(loc, dict):
+                location = loc.get("location") or "not supplied"
+                revision = loc.get("revision") or "not supplied"
+                channel = loc.get("channel") or "not supplied"
+                lines.append(f"  - Source locator {_text(source_id)}: location={_text(location)}; revision={_text(revision)}; channel={_text(channel)}")
     lines.append("- Events with unknown or approximate times are listed after the verified timeline; their order is not inferred.")
+    lines.append("- Identical verified timestamps are ties: listing order is NOT evidence that one event preceded another.")
     lines += ["", "## 3. Screening findings and first candidate"]
     for f in report["screening_findings"]:
+        details = f.get("screening_details") or {}
         lines.append(f"- [{_text(f['event_id'])}] {_text(f['status'])}; "
                      f"rule: {_text(f['related_rule_id'])}")
+        if details:
+            observed = f"{details.get('observed', 'unavailable')} {details.get('observed_unit', 'unit unknown')}"
+            bounds = f"{details.get('comparator')}: {details.get('lower') or '—'} to {details.get('upper') or '—'} {details.get('limit_unit')}"
+            lines.append(f"  - Observed (as reported): {_text(observed)}; configured bound: {_text(bounds)}")
+            lines.append(f"  - Expected sensor: {_text(details.get('expected_domain'))}, pressure basis {_text(details.get('expected_pressure_basis'))}; "
+                         f"observed sensor: {_text(details.get('observed_domain'))}, pressure basis {_text(details.get('observed_pressure_basis'))}")
+            if not details.get("comparison_permitted"):
+                lines.append("  - Comparison NOT authorised: reported values are shown for provenance only and are not comparable findings.")
+        else:
+            lines.append("  - Quantitative screening details unavailable in source record.")
     earliest = report["chronology"]["earliest_screening_candidate_id"]
     lines.append(f"- Earliest eligible *screening candidate*: {_text(earliest) if earliest else 'none identified'}")
     lines.append(f"- {_text(report['chronology']['warning'])}")
@@ -210,6 +245,11 @@ def render_markdown(report: Mapping) -> str:
             f"- Context: {_text(', '.join(h['context'])) or 'none'}",
             f"- Unresolved: {_text(', '.join(h['unknowns'])) or 'none'}",
         ]
+        for assessment in h.get("evidence_assessments", []):
+            lines.append(f"- Assessment [{_text(assessment['relation'])}] {_text(assessment['event_id'])}: "
+                         f"{_text(assessment['rationale'])} "
+                         f"(assessor: {_text(assessment['assessor'])}; review: {_text(assessment['review_status'])}; "
+                         f"sources: {_text(', '.join(assessment['source_ids']))})")
         for check in h["discriminating_checks"]:
             lines.append(f"- Further check: {_text(check['question'])} — "
                          f"required: {_text(check['required_evidence'])}")
