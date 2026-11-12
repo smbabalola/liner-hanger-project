@@ -69,13 +69,11 @@ def test_source_gate_rejects_wrong_oem_even_for_synthetic_case():
     with pytest.raises(batch.BatchError, match="manufacturer"):
         batch.run_case(case)
 
-def test_no_fake_approved_model_allowed_in_fixture(monkeypatch):
+def test_no_fake_approved_model_allowed_at_runtime():
     case = deepcopy(CASES[0])
     case["identity"]["model"] = "pretend-reviewed"
-    monkeypatch.setattr(batch, "FIXTURES", Path("/not-an-actual-fixture"))
-    # Exercise the per-case runtime guard separately; fixture validation is
-    # tested with the actual complete matrix and cannot be bypassed silently.
-    assert case["identity"]["model"] != CASES[0]["identity"]["model"]
+    with pytest.raises(batch.BatchError, match="approved OEM configuration"):
+        batch.run_case(case)
 
 def test_ambiguous_fixture_cannot_claim_verified_clock():
     case = deepcopy(next(c for c in CASES if c["scenario_class"] == "ambiguous"))
