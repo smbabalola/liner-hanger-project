@@ -3,6 +3,7 @@ from pathlib import Path
 import importlib.util
 import subprocess
 import shutil
+from synthetic_replay_fixture import synthetic_replay_html
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -48,9 +49,9 @@ def test_javascript_has_valid_syntax_if_node_available():
 
 
 def test_example_contains_one_self_contained_notebook():
-    s=(ROOT/'examples'/'utah_forge_16B_78_32'/'replay.html').read_text(encoding='utf-8')
+    s=synthetic_replay_html()
     assert s.count('id="iw-workspace"')==1
     assert s.count('id="caseData"')==1
     assert s.count('id="iw-mark"')==1
     assert 'id="iw-legacy" hidden' in s
-    assert 'Unverified' in s or 'unverified' in s
+    assert 'SYNTHETIC TEST ONLY' in s
