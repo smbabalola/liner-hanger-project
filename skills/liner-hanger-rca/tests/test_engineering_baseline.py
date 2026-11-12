@@ -49,8 +49,8 @@ def test_observed_vs_predicted_is_just_difference_not_failure_verdict():
     ({"domain": "tool_hydraulic_force"}, "mismatched domain"),
     ({"location": "tool_mandrel"}, "mismatched location"),
     ({"parameter": "slackoff_load"}, "mismatched parameter"),
-    ({"measured_depth_m": 1001}, "different MD"),
-    ({"measured_depth_m": None}, "depth basis missing"),
+    ({"measured_depth_m": 1001}, "different MD; no silent interpolation"),
+    ({"measured_depth_m": None}, "depth basis missing on one side"),
 ])
 def test_incompatible_design_results_fail_closed(change, reason):
     modeled = make("independently_calculated")
