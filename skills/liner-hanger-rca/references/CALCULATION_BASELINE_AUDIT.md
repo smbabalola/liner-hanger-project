@@ -1,7 +1,7 @@
 # LH-CALC-00 — Calculation baseline, gap ledger and validation intake
 
 **Audit date:** 2026-11-14  
-**Status:** IN PROGRESS — source code inspected through repository GitHub API; Windows checkout and HEAD/test rerun remain unverified in this session.  
+**Status:** BASELINE AUDIT ACCEPTED on 2026-11-14, subject to source rights and future job-specific evidence. This is **not** validation of any physical model.  
 **Current steering:** repo-root `STEERING.md`. This reference stays **inside the transferable skill** to provide UI/application developers and future Codex sessions a durable engineering capability map.
 
 ## Observed implementation — inspectable repository source
@@ -15,7 +15,7 @@
 | `scripts/evidence_timeline.py` | Existing time-series/evidence chronology infrastructure | Actual verified as-run rig CSV clocks, true string depth mapping, numerical model link and independent RCA review |
 | `tests/test_engineering_baseline.py` | Synthetic source/MD/pressure-basis compatibility and negative tests | Not a torque/drag, fluids or hydraulics numerical benchmark |
 
-**Test baseline:** User independently ran `py -m pytest -rs -q tests` inside `skills/liner-hanger-rca` after pulling commit `43fe431` and reported **219 passed in 11.73 s**, no failures, on **2026-11-12**. This is a **previously observed** software regression, not a new run in this audit. The current Windows `C:\dev\liner-hanger-project` working tree, HEAD and new test run are **not accessible through the GitHub API**. GitHub source review does not substitute for local tests.
+**Previous test baseline:** User independently ran `py -m pytest -rs -q tests` inside `skills/liner-hanger-rca` after pulling commit `43fe431` and reported **219 passed in 11.73 s**, no failures, on **2026-11-12**. This is a **previously observed** software regression, not a new run in this audit. The current Windows `C:\dev\liner-hanger-project` working tree, HEAD and new test run are **not accessible through the GitHub API**. GitHub source review does not substitute for local tests.
 
 ## Planned KHRM-299510 design package — not engineering evidence yet
 
@@ -53,9 +53,9 @@ User previously named a well sketch, 7-inch ZXPN/2RH work breakdown, 7-inch sche
 - [x] Read canonical steering/TODO and verify the latest GitHub skill source contents by API.
 - [x] Audit reused BHA tally, equipment specs, baseline comparisons, limit screen and evidence timeline.
 - [x] Record missing case-specific source inputs and a bounded benchmark/validation plan in the skill package.
-- [ ] Confirm local Windows HEAD and clean/dirty state **without discarding user changes**.
-- [ ] Rerun complete local `py -m pytest -rs -q tests` and record its actual result after pulling the audit commit.
-- [ ] Extract exact KHRM source pages/cells *if authorized readable attachments become accessible*; otherwise formally label the case-specific benchmark BLOCKED and proceed only with independent public/synthetic model fixtures.
-- [ ] Accept the gate after local regression and documented source-availability decision; until then it stays open.
+- [x] Confirm local Windows HEAD and clean/dirty state **without discarding user changes**; HEAD `eaa75da`, one untracked ZIP preserved.
+- [x] Rerun complete local `py -m pytest -rs -q tests`: **219 passed in 13.97 s** at `eaa75da`.
+- [x] Formal source-availability decision: **KHRM case-specific numerical benchmark BLOCKED** because named source contents were not available during audit. Proceed to `LH-CALC-01` **only with clearly labelled synthetic/public independent analytical reference examples**, not fabricated KHRM values. Keep original-case extraction separately pending under LH-PLAN-002.
+- [x] Audit gate accepted based on code inventory, local Windows regression, explicit source gap ledger, and benchmark plan. **Engineering model acceptance remains unstarted.**
 
-**Progress bookkeeping:** LH-CALC-00 checkable audit actions **3/7 completed (~43%)**; full engineering programme **0 of 9 stage acceptance gates completed (0%)**. The percentages use explicit item/gate counting, not subjective confidence or a claim about how much actual physics has been completed.
+**Progress bookkeeping:** LH-CALC-00 audit actions **7/7 complete (100%)**; full engineering programme **1 of 9 stage acceptance gates completed (~11%)**. This measures **audit/process milestones**, not validated engineering-calculation functionality, which remains **0 accepted physical calculation modules**. The percentages use explicit item/gate counting, not subjective confidence or a claim about how much actual physics has been completed.
