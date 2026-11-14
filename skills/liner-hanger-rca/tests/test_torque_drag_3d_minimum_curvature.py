@@ -149,3 +149,16 @@ def test_invalid_inputs_fail_closed(bad):
 def test_upstream_180_degree_survey_dogleg_fails_closed():
     with pytest.raises((TorqueDragError,ValueError)):
         calculate(fixture(90,90,0,180))
+
+def test_signed_planar_wall_transfer_is_not_silently_integrated():
+    d=fixture(30,60,0,0)
+    d["bottom_tension"]["value"]=5000
+    with pytest.raises(TorqueDragError,match="contact side transition|near-zero contact"):
+        calculate(d)
+
+
+def test_true_3d_weighted_model_not_approved_as_rig_hookload():
+    r=calculate(fixture())
+    assert r["status"]=="unreviewed_inputs"
+    assert "no liner hanger load" in r["warning"]
+    assert "minimum_curvature_delta_tvd_m" in r
