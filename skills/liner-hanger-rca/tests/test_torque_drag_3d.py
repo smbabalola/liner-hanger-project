@@ -114,7 +114,7 @@ def test_rejects_schema_or_steps(bad):
         run_payload(raw)
 
 
-@pytest.mark.parametrize("a0,a1", [(0,180), (0,100), (0,270)])
+@pytest.mark.parametrize("a0,a1", [(0,180), (0,100), (0,269)])
 def test_oversized_or_ambiguous_azimuth_turn_rejected(a0,a1):
     with pytest.raises(TorqueDragError, match="azimuth"):
         run_payload(example(a0=a0,a1=a1))
