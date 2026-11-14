@@ -120,6 +120,13 @@ def test_oversized_or_ambiguous_azimuth_turn_rejected(a0,a1):
         run_payload(example(a0=a0,a1=a1))
 
 
+def test_180_degree_survey_error_retains_actionable_dogleg_reason():
+    # Survey validation happens before the 3D model's own azimuth guard.
+    # Never turn this unsupported geometry into a vague input-schema error.
+    with pytest.raises(TorqueDragError, match="azimuth/inclination survey: minimum curvature undefined"):
+        run_payload(example(a0=0, a1=180))
+
+
 def test_compressive_slackoff_fails():
     raw = example(inc=30)
     raw["bottom_tension"]["value"]=1
