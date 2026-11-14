@@ -1,5 +1,6 @@
 """Standalone JSON runner and contract-negative tests (all data synthetic)."""
 import json
+from decimal import Decimal
 import subprocess
 import sys
 from pathlib import Path
@@ -20,7 +21,7 @@ def test_bundled_example_calculates_candidate_with_unreviewed_sources():
     result = run_payload(example())
     assert result["case_id"] == "SYNTHETIC-CALC01-NOT-A-REAL-WELL"
     assert result["status"] == "unreviewed_inputs"
-    assert result["results"]["hydrostatic_difference_pa"] == "980665.0000000"
+    assert Decimal(result["results"]["hydrostatic_difference_pa"]) == Decimal("980665")
     assert "No OEM approval" in result["warning"]
 
 
