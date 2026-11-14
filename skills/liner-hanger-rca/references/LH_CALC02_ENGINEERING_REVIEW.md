@@ -36,6 +36,14 @@ A source-gated `torque_drag_weighted_profile.py` module and JSON CLI now **imple
 
 **Software regression verified:** user pulled through `7f7e741`, running the full skill Windows suite: **460 passed in 14.44 s, zero failures**, including 28 connected planar-profile checks. The model is still **not an independently validated multi-station 3D directional-well**. External published job/profile comparison and qualified engineering sign-off remain acceptance blockers.
 
+## Experimental 3D research batch — additional unverified code
+
+An **experimental 3D inclination-and-azimuth soft-string interval model** and **tangent-continuous multi-interval spatial profile** have now been committed. The model uses separate gravity/curvature normal components and the existing source-qualified geometry framework; its primary independent exact tests use weightless pure-azimuth capstan limits, `sin(inclination)` scaling, planar identity, wraparound, split invariance, boundary continuity and rejection of unsupported 3D turns. Strict offline JSON runners and fictional examples are documented in `TORQUE_DRAG_3D_VALIDATION.md`.
+
+**Engineering limitation:** The 3D algorithm uses piecewise linear inclination and unwrapped azimuth, and does not physically resolve the 3D contact-transfer state or interpolate the trajectory exactly as the minimum-curvature TVD calculation does. No independent real-well data matching, published complete 3D benchmark, verified Baker Hughes tool forces or qualified engineering sign-off are available. This is not proof that the model is safe or predictive in an actual well.
+
+**New tests unverified:** the user last confirmed **460 passing in 14.44 s** at `7f7e741`. The 3D batch adds **44 expected test cases** for a projected **504 total**, but this estimate is **not verification**. Preserve `LH-CALC-02` open at 6/7 (~86%), overall stages 2/9 (~22%).
+
 ## Acceptance gate — next bounded sequence
 
 - [x] Basic straight, co-linear, exact weightless bend and planar weighted module implemented, with full updated user Windows regression of **432 passed in 13.82 s** at `bf7838e`.
@@ -43,7 +51,7 @@ A source-gated `torque_drag_weighted_profile.py` module and JSON CLI now **imple
 - [x] Unsupported sampled contact-side changes fail closed; refinement differences exposed without numeric self-certification.
 - [x] **Full regression after bulk validation changes:** user pulled `bf7838e` and ran `py -m pytest -rs -q tests` inside the skill on Windows: **432 passed in 13.82 s**, no failures. No separate focused run is claimed.
 - [ ] Independently reproduce an authorized/published **nontrivial full weighted directional well profile** or verified original engineering comparison, including physical signs, assumptions and tolerances.
-- [x] **Connected planar weighted intervals implemented and full software regression verified (460 passed).** MD/TVD/heading/survey provenance checks and mode-wise load/torque propagation have new synthetic tests; **3D dogleg physics and authoritative full-well benchmarks remain missing**. Obtain external validation or explicitly approve a narrower research-only scope without claiming full P2 acceptance.
+- [x] **Connected planar weighted intervals implemented and full software regression verified (460 passed).** MD/TVD/heading/survey provenance checks and mode-wise load/torque propagation have new synthetic tests; **experimental 3D soft-string code exists but is not yet regression-verified or field benchmarked**. Obtain external validation or explicitly approve a narrower research-only scope without claiming full P2 acceptance.
 - [ ] Complete suitably qualified human review of physical applicability and operational exclusion before any real-well use. These conditions cannot be self-certified by the AI.
 
 **Decision today:** Keep `LH-CALC-02` at **6/7 (~86%) IN PROGRESS**; overall **2/9 (~22%)** stages accepted. Do not advance to `LH-CALC-03` on the basis of software tests alone. The next batch should target either the supported multi-interval 3D model plus independently authenticated evidence, or a documented scope decision by the project owner and qualified reviewer.
