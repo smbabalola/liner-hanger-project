@@ -35,7 +35,8 @@ def _derived(tension, ident, mode):
                          "experimental-3d-profile-v0.1", "unreviewed")
 
 
-def predict_spatial_profile(profile: SpatialProfile) -> dict:
+def predict_spatial_profile(profile: SpatialProfile, *,
+                            segment_predictor=predict_spatial_curve) -> dict:
     if not isinstance(profile, SpatialProfile):
         raise TorqueDragError("SpatialProfile required")
     rows = profile.intervals_top_to_bottom
@@ -99,7 +100,7 @@ def predict_spatial_profile(profile: SpatialProfile) -> dict:
         item={"section_id":s.section_id,"modes":{}}
         for mode in ("pickup","slackoff","rotation"):
             bottom=state[mode]
-            calc=predict_spatial_curve(SpatialCurveInputs(
+            calc=segment_predictor(SpatialCurveInputs(
                 s,row.axial_friction,row.rotational_friction,row.contact_radius,
                 _derived(bottom,s.section_id,mode),row.integration_steps))
             result=calc["results"][mode]
@@ -139,3 +140,26 @@ def predict_spatial_profile(profile: SpatialProfile) -> dict:
         ],
         "warning":"Experimental 3D soft-string profile only: NOT field-calibrated, rig hookload, liner hanger setting force, OEM limit or operating guidance.",
     }
+
+
+def predict_minimum_curvature_profile(profile: SpatialProfile) -> dict:
+    """Same strict sourced joint checks, using great-circle geometry in forces.
+
+    Deliberately distinct from the original linear-angle spatial-profile
+    result. This is a research calculation, not field-approved loads.
+    """
+    from torque_drag_3d_minimum_curvature import predict_minimum_curvature_curve
+
+    result=predict_spatial_profile(
+        profile,segment_predictor=predict_minimum_curvature_curve)
+    result["model"]="experimental-contiguous-3d-minimum-curvature-soft-string-v0.1"
+    result["assumptions"]=[
+        "MD/TVD/source/tangent-continuous source-qualified intervals",
+        "great-circle minimum-curvature tangent and normal in each segment",
+        "separate pickup, slackoff and pure rotation bottom-up",
+        "no combined motion, stiffness, tool/joint forces or contact-state solver",
+    ]
+    result["warning"]=(
+        "Research-only minimum-curvature 3D profile: no qualified field "
+        "validation, rig hookload, liner hanger setting force or OEM approval.")
+    return result
