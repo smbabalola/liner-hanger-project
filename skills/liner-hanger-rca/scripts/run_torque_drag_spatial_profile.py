@@ -27,7 +27,7 @@ def _source(r, name):
         raise TorqueDragError(f"{name}: malformed sourced number") from exc
 
 
-def run_payload(raw):
+def run_payload(raw, *, calculator=predict_spatial_profile):
     if not isinstance(raw,dict) or set(raw)!=TOP:
         raise TorqueDragError("3D profile exact root schema required")
     rows=raw["intervals_top_to_bottom"]
@@ -45,7 +45,7 @@ def run_payload(raw):
         parsed.append(SpatialProfileInterval(
             s,values["axial_friction"],values["rotational_friction"],
             values["contact_radius"],row["integration_steps"]))
-    return predict_spatial_profile(SpatialProfile(
+    return calculator(SpatialProfile(
         tuple(parsed),_source(raw["bottom_tension"],"bottom_tension")))
 
 
