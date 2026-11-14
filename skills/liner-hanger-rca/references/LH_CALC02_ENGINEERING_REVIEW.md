@@ -50,6 +50,14 @@ An **experimental 3D inclination-and-azimuth soft-string interval model** and **
 
 **Engineering acceptance remains OPEN:** software-regression success is not an independently reproduced full 3D weighted well survey calculation, not a field comparison, and not a qualified physical or OEM sign-off. The spatial model still uses constant angular gradients rather than identical trajectory interpolation to the minimum-curvature TVD procedure; contact transfer and stiffness remain unmodelled. Maintain `LH-CALC-02` **6/7 (~86%)** and programme **2/9 (~22%)**.
 
+## Versioned minimum-curvature 3D model and source-evidence update — 2026-11-14
+
+A **separate** `scripts/torque_drag_3d_minimum_curvature.py` now uses one great-circle minimum-curvature tangent for sourced station TVD, projected buoyed gravity, curvature wall contact and three distinct movement modes. `scripts/torque_drag_spatial_profile.py` includes `predict_minimum_curvature_profile`; separate one-section/profile JSON CLIs and **38 new expected** independent/negative/CLI cases are committed. The prior 25-test isolated geometry-audit group and new 38 cases produce **568 expected total**, versus last confirmed full Windows suite of **505 passed in 13.10s** at `6e79693`. **The new full regression has NOT been run or certified**, and CI results remain unconfirmed.
+
+Independent mathematical limiting evidence includes exact weightless great-circle capstan, zero axial-friction MC-TVD gravity integral, planar/horizontal old solver limits, true nontrivial great-circle midpoint split invariance, and a separate **DOP853 high-precision numerical calculation of the same fictional nonzero-weight vector ODE**. See `LH_CALC02_MINIMUM_CURVATURE_3D_MODEL.md`. This does not independently validate contact physics for a drilled well.
+
+External public material has been inspected and classified in `LH_CALC02_EXTERNAL_BENCHMARK_REGISTER.md`: published planar numerical references (including an unsupported-compression case), a reproducible but planar open-source example, and a published 3D commercial-software comparison **without the complete source inputs/results needed for a valid apples-to-apples numerical check**. **No nonzero-weight 3D independent published or actual-well benchmark reproduced; no qualified engineer/OEM acceptance.** `LH-CALC-02` remains **6/7 (~86%) OPEN**, programme accepted stages **2/9 (~22%)**. The next step is 568-case actual full regression and physically equivalent external benchmark; do not advance to hydraulics stage prematurely.
+
 ## Acceptance gate — next bounded sequence
 
 - [x] Basic straight, co-linear, exact weightless bend and planar weighted module implemented, with full updated user Windows regression of **432 passed in 13.82 s** at `bf7838e`.
