@@ -66,10 +66,11 @@ def _dynamics(T, s, *, L, w, t0, t1, beta, mu, mu_rot, radius, mode):
     return dT, dN, dM, n, reaction
 
 
-def _integrate(bottom, L, w, t0, t1, beta, mu, mu_rot, radius, mode, steps):
+def _integrate(bottom, L, w, t0, t1, beta, mu, mu_rot, radius, mode, steps,
+               planar_i_bottom=None, planar_k=None):
     h = L/steps
     T, N, M = bottom, 0., 0.
-    neutral = False
+    side = 0
     for j in range(steps):
         s = j*h
         stages = []
@@ -90,6 +91,19 @@ def _integrate(bottom, L, w, t0, t1, beta, mu, mu_rot, radius, mode, steps):
         stages.append(d)
         if min(T, bT, cT, dT) <= 0:
             raise TorqueDragError("compression or zero tensile state unsupported")
+        # Planar signed wall contact: preserve the original fail-closed side
+        # transition guard (including across adjacent RK4 steps). No wall
+        # transfer is silently approved by switching vector signs.
+        if planar_i_bottom is not None and w > 0 and beta > 1e-10:
+            for stage_s, stage_T in ((s,T),(s+h/2,bT),(s+h/2,cT),(s+h,dT)):
+                signed = w*sin(planar_i_bottom-planar_k*stage_s)-stage_T*planar_k
+                threshold = 1e-10*max(1.,w,abs(stage_T*planar_k))
+                current = (1 if signed>threshold else
+                           -1 if signed < -threshold else 0)
+                if current:
+                    if side and current != side:
+                        raise TorqueDragError("contact side transition unsupported")
+                    side = current
         # A nonstraight, weighted arc with vanishing contact is an unknown
         # contact-loss / wall transfer event, not permission to carry on.
         if beta > 1e-10 and w > 0:
@@ -160,8 +174,12 @@ def predict_minimum_curvature_curve(inputs: SpatialCurveInputs) -> dict:
         raise TorqueDragError("minimum-curvature TVD inconsistent with sourced survey")
     outputs = {}
     for mode,label in ((1,"pickup"),(-1,"slackoff"),(0,"rotation")):
-        T,N,M = _integrate(bottom,L,w,t0,t1,beta,mu,mu_rot,radius,
-                           mode,inputs.integration_steps)
+        planar = (abs(turn) < 1e-12)
+        T,N,M = _integrate(
+            bottom,L,w,t0,t1,beta,mu,mu_rot,radius,mode,inputs.integration_steps,
+            planar_i_bottom=radians(i1) if planar else None,
+            planar_k=radians(i1-i0)/L if planar else None,
+        )
         outputs[label] = {
             "top_tension_n":str(T), "integrated_wall_contact_n":str(N)
         }
