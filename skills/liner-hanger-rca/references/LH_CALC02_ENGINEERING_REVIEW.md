@@ -30,6 +30,12 @@ The independent mathematical check is the **new exact integrating-factor solutio
 6. A source ID and `reviewed` field only track input provenance, not authenticity or OEM engineering approval.
 7. Step-size refinement measures numerical discretization only and **does not validate the physical equations**; field deviations and uncertainty envelopes require different evidence.
 
+## Connected weighted planar profile implementation (new unverified code)
+
+A source-gated `torque_drag_weighted_profile.py` module and JSON CLI now **implement a research-only string of continuously joined planar weighted intervals**. Separate pure-motion tensile modes are propagated bottom-to-top, and rotational friction torque is accumulated. It rejects unsupported 3D azimuth turns, MD/TVD mismatches, survey revision mismatches, discrete angle kinks, compression and within-interval sampled wall-side transfers. Synthetic two-interval calculations are cross-checked against one 100m uniform planar interval with the same source-labelled physical inputs, preserving separate bottom-to-top tensile boundaries and summed pure-rotation friction.
+
+**New software regression is pending:** the last user-confirmed full suite is **432 passing tests**; this new batch introduces **28 expected** test cases (**460 expected total**), which are not yet verified. The model is still **not an independently validated multi-station 3D directional-well**. External published job/profile comparison and qualified engineering sign-off remain acceptance blockers.
+
 ## Acceptance gate — next bounded sequence
 
 - [x] Basic straight, co-linear, exact weightless bend and planar weighted module implemented, with full updated user Windows regression of **432 passed in 13.82 s** at `bf7838e`.
@@ -37,7 +43,7 @@ The independent mathematical check is the **new exact integrating-factor solutio
 - [x] Unsupported sampled contact-side changes fail closed; refinement differences exposed without numeric self-certification.
 - [x] **Full regression after bulk validation changes:** user pulled `bf7838e` and ran `py -m pytest -rs -q tests` inside the skill on Windows: **432 passed in 13.82 s**, no failures. No separate focused run is claimed.
 - [ ] Independently reproduce an authorized/published **nontrivial full weighted directional well profile** or verified original engineering comparison, including physical signs, assumptions and tolerances.
-- [ ] Verify continuous multi-interval weight/force/contact transfer, MD/TVD, source revisions and 3D azimuth doglegs; or formally approve a much narrower planar-only scope **without** claiming a full P2 engine.
+- [ ] **Connected planar weighted intervals are implemented but await new regression.** MD/TVD/heading/survey provenance checks and mode-wise load/torque propagation have new synthetic tests; **3D dogleg physics and authoritative full-well benchmarks remain missing**. Obtain external validation or explicitly approve a narrower research-only scope without claiming full P2 acceptance.
 - [ ] Complete suitably qualified human review of physical applicability and operational exclusion before any real-well use. These conditions cannot be self-certified by the AI.
 
 **Decision today:** Keep `LH-CALC-02` at **6/7 (~86%) IN PROGRESS**; overall **2/9 (~22%)** stages accepted. Do not advance to `LH-CALC-03` on the basis of software tests alone. The next batch should target either the supported multi-interval 3D model plus independently authenticated evidence, or a documented scope decision by the project owner and qualified reviewer.
