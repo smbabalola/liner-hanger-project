@@ -21,6 +21,14 @@ def run_payload(data):
     try:
         section = from_payload(data["planned_section"])
     except (TypeError, PlannedSectionError) as exc:
+        # PlannedSection validates survey geometry before the spatial model
+        # runs. Preserve the precise 180-degree dogleg rejection: obscuring
+        # it as a generic input error breaks actionable azimuth diagnostics.
+        if "minimum curvature undefined at 180-degree dogleg" in str(exc):
+            raise TorqueDragError(
+                "azimuth/inclination survey: minimum curvature undefined at "
+                "180-degree dogleg"
+            ) from exc
         raise TorqueDragError("invalid sourced planned section") from exc
     vals = {"section": section, "integration_steps": data["integration_steps"]}
     for name in NUMBERS:
