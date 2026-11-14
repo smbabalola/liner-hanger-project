@@ -64,6 +64,10 @@ An independent local Python/SciPy `solve_ivp(method="DOP853", rtol=1e-12, atol=1
 
 A new independent numeric known-answer test compares the versioned RK4 solver's four outputs with these values at `rel=2e-9`. **This test is committed but has not yet been verified in the full Windows suite.** The computation verifies consistency of numerical integration **under the same idealized ODE**; it is **not** a separately published field-well torque/drag comparison or an independent validation of the ODE's physical applicability.
 
+## Independently published comparison-source intake
+
+The separate `LH_CALC02_EXTERNAL_BENCHMARK_REGISTER.md` now records a source-inspected Texas A&M dissertation (Prurapark 2009, Chapter VIII) with published **planar** known-force/torque comparisons and an explicit **negative-tension/compression** example our software must not silently accept; a reproducible `welleng` public example which simplifies the trajectory to constant azimuth; and a 2025 published 3D comparison to WELLPLAN that **does not yet expose enough comparable numerical source inputs**. These improve benchmark provenance but **none has been exactly reproduced on the skill's source/weight/contact basis**. No publication is counted as a pass merely by listing it.
+
 ## What is not independently validated
 
 - No authentic published **nonzero-weight full 3D** benchmark has been reproduced. The previously listed SPE/IADC 163477 example is a potential external **planar** comparison but lacks a fully authenticated independent source-input crosswalk for this solver.
