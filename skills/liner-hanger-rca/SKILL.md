@@ -88,6 +88,12 @@ Continue to use the v1.4 evidence schema and original timestamp/sensor caution, 
 
 The scene's running-string position must remain source-qualified and synchronized with the telemetry playback cursor, and all existing evidence and procedure-verification safeguards must survive UI updates. For offline examples, preserve the complete evidence bundle by explicit export; do not imply cloud backup or automatic file persistence. The implementation is `assets/annotation_workspace.{js,css}` embedded by `scripts/add_annotation_workspace.py`, which can upgrade v1.4 16B-style HTML to v1.5 without creating a second application or developer folder. See `references/ENGINEER_ANNOTATIONS.md`.
 
+## Active planned-engineering development entrypoint (2026-11-14)
+
+For requests to **design or verify a planned liner-hanger job**, not a reported failure, read `references/CALCULATION_BASELINE_AUDIT.md` first and use source-gated `scripts/bha_tally.py`, `scripts/equipment_specs.py` and `scripts/engineering_baseline.py` only for the functions they currently implement. These modules do **not** yet calculate validated torque/drag, hydraulics, surge/swab, or BH tool-setting pressures. Never mislabel an input/output comparison as an independent physical prediction.
+
+Implementation and validation must follow the canonical workstream `LH-CALC-00` through `LH-CALC-08` specified by the repository steering instructions. The skill-local audit contains a standalone capability, evidence-gap and engineering benchmark inventory for future skill-only installation. Maintain this local reference as real calculations are implemented; do not require an application/UI or repo-root documents to execute a calculation once it is accepted. Preserve the retrospective RCA path above for **genuinely historical** rig evidence.
+
 ## Product requirement — self-contained, UI-ready skill (approved 2026-11-12)
 
 **Single source of truth:** This directory, `skills/liner-hanger-rca/`, must ultimately be an independently installable, versioned engineering skill package. A coding assistant building the future interface should need only this **installed skill package** and case-specific licensed inputs—not a separate explanation of engineering requirements or undocumented files elsewhere in the repository. This is a **future acceptance requirement**, not a claim that the current v1.5 skill already meets it.
