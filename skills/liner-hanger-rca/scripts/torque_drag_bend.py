@@ -63,8 +63,12 @@ def predict_ideal_bend(bend: IdealBendInputs) -> dict:
     mu_rot = _sourced(bend.rotational_friction, COEFFICIENT,
                       "rotational_friction", positive=False)
     radius = _sourced(bend.contact_radius, LENGTH_M, "contact_radius")
-    if angle < 0 or angle > PI:
+    # Decimal degree-to-radian multiplication may place exactly 180 degrees
+    # one last digit above pi; allow only a conversion-rounding tolerance.
+    if angle < 0 or angle > PI + Decimal("1e-27"):
         raise TorqueDragError("bend_angle must be 0..pi radians")
+    if angle > PI:
+        angle = PI
     if mu < 0 or mu_rot < 0:
         raise TorqueDragError("friction coefficients must be nonnegative")
     try:
