@@ -44,6 +44,12 @@ An **experimental 3D inclination-and-azimuth soft-string interval model** and **
 
 **New tests unverified:** the user last confirmed **460 passing in 14.44 s** at `7f7e741`. The 3D batch adds **44 expected test cases** for a projected **504 total**, but this estimate is **not verification**. Preserve `LH-CALC-02` open at 6/7 (~86%), overall stages 2/9 (~22%).
 
+## Latest verified experimental 3D regression — 2026-11-14
+
+**User-run Windows verification:** After updating from `f584cbf` through `6e79693`, the user ran `py -m pytest -rs -q tests` from `skills/liner-hanger-rca`: **505 passed in 13.10 s, zero failures**. This includes the experimental 3D section/profile test families and the additional error-handling check for an undefined 180-degree survey dogleg. The original run (503 passed, 1 failed) identified a masked survey error, not a successful unsupported-geometry calculation; the runner fix preserved fail-closed rejection without changing physics.
+
+**Engineering acceptance remains OPEN:** software-regression success is not an independently reproduced full 3D weighted well survey calculation, not a field comparison, and not a qualified physical or OEM sign-off. The spatial model still uses constant angular gradients rather than identical trajectory interpolation to the minimum-curvature TVD procedure; contact transfer and stiffness remain unmodelled. Maintain `LH-CALC-02` **6/7 (~86%)** and programme **2/9 (~22%)**.
+
 ## Acceptance gate — next bounded sequence
 
 - [x] Basic straight, co-linear, exact weightless bend and planar weighted module implemented, with full updated user Windows regression of **432 passed in 13.82 s** at `bf7838e`.
