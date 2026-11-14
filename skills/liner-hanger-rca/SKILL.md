@@ -88,6 +88,12 @@ Continue to use the v1.4 evidence schema and original timestamp/sensor caution, 
 
 The scene's running-string position must remain source-qualified and synchronized with the telemetry playback cursor, and all existing evidence and procedure-verification safeguards must survive UI updates. For offline examples, preserve the complete evidence bundle by explicit export; do not imply cloud backup or automatic file persistence. The implementation is `assets/annotation_workspace.{js,css}` embedded by `scripts/add_annotation_workspace.py`, which can upgrade v1.4 16B-style HTML to v1.5 without creating a second application or developer folder. See `references/ENGINEER_ANNOTATIONS.md`.
 
+## LH-CALC-02 — Independent 3D survey interpolation mismatch audit
+
+For **research-only** comparison of survey interpolation conventions, import `audit_two_station_trajectory` from `scripts/trajectory_interpolation_audit.py` with explicit `length_m`, `top_inclination_deg`, `bottom_inclination_deg`, `top_azimuth_deg`, `bottom_azimuth_deg` and optional `steps` (multiple of four). This standalone numerical audit returns positions in **north/east/down metres**, endpoint TVD/position differences and sampled tangent differences for linear-in-MD angle interpolation versus great-circle minimum-curvature interpolation. It uses **no OEM or well data** and never returns a load, a safe deviation threshold, or a field-validated trajectory.
+
+A fictional 100m 30°→60° inclination, 0°→60° azimuth combined turn differs by approximately **8.15076m at the endpoint**, demonstrating that the spatial force solver's assumed interpolant is not generally equivalent to the minimum-curvature survey validator. See `references/LH_CALC02_3D_TRAJECTORY_RECONCILIATION.md`. The **25 new geometry tests passed only in an isolated local run**; the full skill suite including them is **not yet verified** (530 expected vs latest user-run 505). Do not promote 3D torque/drag results to operational use or present the two trajectories as interchangeable.
+
 ## LH-CALC-02 — Experimental 3D azimuth/inclination soft-string, bounded research
 
 `scripts/torque_drag_3d.py` now exposes `SpatialCurveInputs` / `predict_spatial_curve` for a sourced **single 3D interval** with independently integrated pickup/slackoff/pure-rotation loads. `scripts/torque_drag_spatial_profile.py` exposes `SpatialProfile` / `SpatialProfileInterval` / `predict_spatial_profile` to carry **three separate tensile modes** across surveyed tangent-continuous intervals and total rotating contact torque. Strict offline examples:
