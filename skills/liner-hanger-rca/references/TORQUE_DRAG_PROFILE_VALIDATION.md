@@ -1,6 +1,6 @@
 # LH-CALC-02 — co-linear multi-section load propagation (v0.1)
 
-**Status (2026-11-14):** Implementation and analytical test cases committed; **new full Windows regression NOT YET RUN**. Latest user-confirmed Windows regression is **310 passed in 16.15 s** at commit `fd0e1c5`, preceding this new implementation.
+**Status (2026-11-14):** User independently ran the full Windows regression after pulling through commit `a7e1822`: **334 passed in 12.85 s, zero failures**. This verifies the initial co-linear multi-section implementation against the unit/integration suite. It does not provide curved-well/dogleg model validation, Baker Hughes job-specific validation or operational sign-off.
 
 ## Why the first profile model is deliberately co-linear
 
@@ -43,6 +43,6 @@ These are analytic Newtonian statics limiting-case benchmarks, not a published d
 
 ## Verification gates
 
-**New Python tests expected:** 15 profile calculations + 9 JSON/CLI = **24 additional tests**; with 310 prior user-verified tests, expect **334 total** if all collect. **Not a pass claim.** Full Windows regression and CI execution status remain unverified for these commits.
+**Software-verification gate PASSED:** the 15 profile calculations and 9 JSON/CLI checks were included in the user's full Windows regression: **334 passed in 12.85 s** at checked-out commit `a7e1822`. GitHub Actions CI execution status remains independently unverified.
 
 Further independent applicability review and curved/dogleg tension-induced wall-contact calculations are necessary **before LH-CALC-02 full acceptance**. Preserve the source data/uncertainty and never call section-top tension the rig hookload or equipment-setting force.
