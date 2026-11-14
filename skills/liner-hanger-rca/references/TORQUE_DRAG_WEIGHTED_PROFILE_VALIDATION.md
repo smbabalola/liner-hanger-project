@@ -1,7 +1,7 @@
 # LH-CALC-02 — connected weighted planar intervals (research v0.1)
 
-**Status (2026-11-14): IMPLEMENTED; NEW WINDOWS REGRESSION NOT YET VERIFIED.**
-Last actual user-confirmed full skill regression: **432 passed in 13.82 s** at code commit `bf7838e`. This module is **not a qualified field model** and does not implement 3D directional-well torque/drag.
+**Status (2026-11-14): IMPLEMENTED; FULL WINDOWS REGRESSION VERIFIED.**
+User pulled through code commit `7f7e741` and independently ran `py -m pytest -rs -q tests` in the skill directory: **460 passed in 14.44 s, zero failures**, including 28 new planar-profile cases. This module is **not a qualified field model** and does not implement 3D directional-well torque/drag.
 
 ## Exact scope and data contract
 
@@ -45,4 +45,4 @@ These numerical totals use the **same known mathematical planar assumptions** as
 
 **Not implemented:** 3D inclination-and-azimuth changes, multi-station 3D trajectory curvature, real string stiffness, wall-side transfer/contact loss, casing coupling, dynamic motion, pressure area effects, tool joint/BHA forces or true rig hookload. A real Baker Hughes liner-hanger job remains unavailable for source-verified engineering comparison. Source IDs are metadata, not authenticity proof. The model must never present surface loads as certified equipment setting or running limits.
 
-**Pending:** user-run **full Windows regression** of the new code and 28 expected test cases (previously 432; **460 expected total**), independent external full-well torque-and-drag benchmark, qualified engineer review and explicit owner-approved scope decision. Keep `LH-CALC-02` **6/7 (~86%) IN PROGRESS** and overall accepted stages **2/9 (~22%)**, no false acceptance claim.
+**Completed software verification:** the 28 new cases are included in the user-run full Windows suite, **460 passed in 14.44 s at `7f7e741`**. **Still pending:** independent external full-well torque-and-drag benchmark, qualified engineer review and explicit owner-approved scope decision. Keep `LH-CALC-02` **6/7 (~86%) IN PROGRESS** and overall accepted stages **2/9 (~22%)**, no false acceptance claim.
