@@ -1,6 +1,6 @@
 # LH-CALC-02 — weightless curved-contact analytical benchmark
 
-**Status:** Implemented as a *separate, exact limiting case*, **not** a weighted directional-well solver. New tests and the full Windows regression are **not yet confirmed**. Prior user-confirmed suite: **334 passed in 12.85 s** on `a7e1822`.
+**Status (2026-11-14):** User independently pulled through commit `3b3b120` and ran the full Windows regression: **367 passed in 14.87 s, zero failures**. The exact weightless capstan limiting case is software-tested; it remains **separate from and not equivalent to a weighted directional-well model**.
 
 ## Physical derivation and engineering validity
 
@@ -48,4 +48,4 @@ py scripts/run_torque_drag_bend.py examples/synthetic_torque_drag_bend.json
 
 **Critical limitation:** The actual running string has distributed buoyed weight, inclination/azimuth variation, local dogleg radius, contact pressure, torsional stiffness, tool-joints and perhaps frictional contact loss. **DO NOT add the weightless capstan results to the earlier weighted co-linear straight-profile engine to claim a full curved-well solution.** A real directional-well solver must integrate `T` and the vector wall reaction with both gravity and curvature; those equations, combined axial/rotation states, discretization convergence, signed dogleg geometry and model applicability still need separate benchmarks and engineering review.
 
-**New regression gate:** 25 new analytical/negative tests and eight CLI tests **expected**, making **367 total** when collected with the 334 user-verified baseline. This is an estimate, **not evidence of passing tests**. Professional, source-specific and OEM field validation are still unavailable. `LH-CALC-02` stays open at 6/7 (~86%) until the weighted-curvature model and final review are accepted.
+**Regression gate PASSED for exact weightless bend slice:** all 25 new analytical/negative tests and eight CLI tests were included in the user's complete Windows regression: **367 passed in 14.87 s at `3b3b120`**. GitHub Actions execution and professional source-specific/OEM field validation remain unverified. `LH-CALC-02` stays open at 6/7 (~86%) until the **weighted-curvature model** and final engineering applicability review are accepted.
