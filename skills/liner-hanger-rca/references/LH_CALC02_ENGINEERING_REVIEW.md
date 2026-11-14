@@ -10,7 +10,7 @@
 | One straight uniform section | `torque_drag_straight.py` | Inclined-plane free-body equilibrium, vertical/horizontal/zero-friction limits | Independently analytic, software tests passed; **not rig hookload** |
 | Multiple co-linear straight sections | `torque_drag_profile.py` | Split-invariance, force/torque conservation, independent 100 m hand result | Software tests passed; refuses changes in orientation between sections |
 | One ideal weightless bend | `torque_drag_bend.py` | Exact capstan exponential and mode-dependent normal integrals | Software tests passed; **weightless limiting case**, not weighted dogleg |
-| One uniform **weighted planar** arc | `torque_drag_weighted_curve.py` | Exact zero-curvature, weightless, zero-friction limits; *new* independently integrated **constant-side weighted build/drop exact solution**; refinement audit | Prior 410-test Windows suite passed before new review tests; **new analytical and transition tests pending actual regression**. One uniform planar interval only |
+| One uniform **weighted planar** arc | `torque_drag_weighted_curve.py` | Exact zero-curvature, weightless, zero-friction limits; *new* independently integrated **constant-side weighted build/drop exact solution**; refinement audit | **User verified the full updated Windows suite: 432 passed in 13.82 s at `bf7838e`**, including the new analytical and transition checks. One uniform planar interval only |
 
 ## Published engineering basis — independently located
 
@@ -32,10 +32,10 @@ The independent mathematical check is the **new exact integrating-factor solutio
 
 ## Acceptance gate — next bounded sequence
 
-- [x] Basic straight, co-linear, exact weightless bend and planar weighted module implemented, with earlier complete user Windows regression of **410 passed in 17.08 s** at `c6e44b3`.
+- [x] Basic straight, co-linear, exact weightless bend and planar weighted module implemented, with full updated user Windows regression of **432 passed in 13.82 s** at `bf7838e`.
 - [x] Published contact-law sources located and separately derived weighted **constant-contact-side** analytical solution documented.
 - [x] Unsupported sampled contact-side changes fail closed; refinement differences exposed without numeric self-certification.
-- [ ] **Run new focused and full regressions** after latest code and tests (historical 410 passing is NOT proof of these changes).
+- [x] **Full regression after bulk validation changes:** user pulled `bf7838e` and ran `py -m pytest -rs -q tests` inside the skill on Windows: **432 passed in 13.82 s**, no failures. No separate focused run is claimed.
 - [ ] Independently reproduce an authorized/published **nontrivial full weighted directional well profile** or verified original engineering comparison, including physical signs, assumptions and tolerances.
 - [ ] Verify continuous multi-interval weight/force/contact transfer, MD/TVD, source revisions and 3D azimuth doglegs; or formally approve a much narrower planar-only scope **without** claiming a full P2 engine.
 - [ ] Complete suitably qualified human review of physical applicability and operational exclusion before any real-well use. These conditions cannot be self-certified by the AI.
