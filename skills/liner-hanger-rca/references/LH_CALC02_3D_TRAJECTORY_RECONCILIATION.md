@@ -40,6 +40,12 @@ The two interpolations agree to numerical accuracy in the straight, constant-hea
 6. Independently check signs of the two normal-reaction components and the limiting case where contact approaches zero. Keep unmodelled contact loss, side transfer, stiffness, buckling and compression unsupported unless validated.
 7. Run focused negative and limiting tests, then the full skill test suite after code changes. Record actual outputs and any failures; compare a separate published/qualified **nonzero-weight 3D directional-well benchmark** when available. A synthetic self-check is not a field benchmark.
 
+## External benchmark candidate found — not reproduced or accepted
+
+Mitchell, Bjørset and Grindhaug (2013), *Drillstring Analysis With a Discrete Torque/Drag Model*, **SPE/IADC 163477** (DOI `10.2118/163477-MS`), provides a publicly described **idealized build-and-hold** example based loosely on a Johancsik well. Reported inputs include a **2,400 ft KOP**, **5°/100ft** build to **44°**, a mixed drillstring (372ft drill collar at 100lbf/ft, 840ft heavy-weight pipe at 50lbf/ft, 10,988ft drillpipe at 19.5lbf/ft) and **9.8 lbm/gal** drilling fluid. Its **zero-friction** comparison reports **193,395lbf by hand**, **193,396lbf conventional model** and **193,397lbf discrete model** surface-load values. Sources: [paper metadata and mathematical example](https://www.researchgate.net/publication/266670783_Drillstring_Analysis_With_a_Discrete_TorqueDrag_Model) and [publicly visible result excerpt](https://www.scribd.com/document/738026090/Drillstring-Analysis-with-Discrete-Torque-Drag-Model). **Do not copy the proprietary paper/PDF into public Git**.
+
+This is a **credible external reference candidate**, not a model validation result. It is **planar rather than a nontrivial 3D combined build-and-turn**, gives a **surface** value rather than a single-section downhole force, and its publication excerpt does not give the complete sourced inner/outer dimensions, section-to-survey matching, boundary conditions or all buoyancy inputs required to reconstruct exactly the reported example within the skill. Do **not** assume a missing pipe ID, fluid-displacement convention or boundary tension to force a match. A full data crosswalk and independent numerical reproduction are required before any benchmark checkbox can be accepted.
+
 ## Acceptance evidence still missing
 
 - A source-qualified **nonzero-weight force-profile** comparison using a geometrically consistent trajectory (the fictional geometry-only comparison above does not meet this).
