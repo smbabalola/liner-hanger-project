@@ -11,7 +11,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from run_planned_section import from_payload
-from planned_job_section import SourcedNumber
+from planned_job_section import SourcedNumber, PlannedSectionError
 from torque_drag_straight import (
     StraightTorqueDragInputs, TorqueDragError,
     friction_sensitivity, predict_straight_section,
@@ -152,8 +152,23 @@ def test_invalid_friction_and_boundaries_rejected(alter):
 
 @pytest.mark.parametrize("inc", [-1, 91, 100])
 def test_unsupported_inclinations_fail_closed(inc):
-    with pytest.raises(TorqueDragError):
-        predict_straight_section(case(inc))
+    # Build a valid sourced section first. The source-intake layer correctly
+    # rejects inclination -1 before a TorqueDragInputs object can be created.
+    # Replacing the stations here exercises the torque/drag API's own
+    # fail-closed error contract at its boundary, including upstream errors.
+    c = case()
+    stations = tuple(replace(station, inclination_deg=inc)
+                     for station in c.section.survey_stations)
+    unsupported = replace(c, section=replace(c.section, survey_stations=stations))
+    with pytest.raises(TorqueDragError, match="inclination|range|supported"):
+        predict_straight_section(unsupported)
+
+
+def test_invalid_survey_is_rejected_by_source_intake_before_engine():
+    raw = json.loads((ROOT / "examples" / "synthetic_planned_section.json").read_text())
+    raw["survey_stations"][0]["inclination_deg"] = -1
+    with pytest.raises(PlannedSectionError, match="inclination"):
+        from_payload(raw)
 
 
 def test_dogleg_change_rejected_even_if_section_integrator_can_handle_it():
