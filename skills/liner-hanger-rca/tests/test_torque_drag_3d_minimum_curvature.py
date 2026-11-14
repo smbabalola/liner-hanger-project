@@ -162,3 +162,18 @@ def test_true_3d_weighted_model_not_approved_as_rig_hookload():
     assert r["status"]=="unreviewed_inputs"
     assert "no liner hanger load" in r["warning"]
     assert "minimum_curvature_delta_tvd_m" in r
+
+def test_independent_high_precision_weighted_3d_known_answer():
+    # Independent numerical integration: SciPy DOP853, rtol=1e-12,
+    # atol=1e-11, of the vector soft-string ODE for the same fictional
+    # 100m (30->60 deg inclination, 0->60 deg azimuth) wet tube.
+    # This is an independently computed math answer, not a field benchmark.
+    r=calculate(fixture(30,60,0,60,steps=256))["results"]
+    assert float(r["pickup"]["top_tension_n"]) == pytest.approx(
+        32312.017813922695,rel=2e-9)
+    assert float(r["slackoff"]["top_tension_n"]) == pytest.approx(
+        25564.335371987625,rel=2e-9)
+    assert float(r["rotation"]["top_tension_n"]) == pytest.approx(
+        28701.20754776104,rel=2e-9)
+    assert float(r["rotation"]["contact_torque_nm"]) == pytest.approx(
+        252.07886152249975,rel=2e-9)
