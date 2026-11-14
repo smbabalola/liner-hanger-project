@@ -1,6 +1,6 @@
 # LH-CALC-02 — weighted planar curvature, research model v0.1
 
-**State (2026-11-14):** Code, fictional fixture and test cases committed. **New tests and full Windows regression have NOT yet been verified**. The latest user-verified suite remains **367 passed in 14.87 s** at `3b3b120`. Model is **NOT** a validated directional-well, rig hookload, hanger setting-load, OEM, or field-operational model.
+**State (2026-11-14):** User independently verified the new code on Windows after pulling through commit `c6e44b3`: **410 tests passed in 17.08 s, zero failures**, including the weighted-curvature tests and prior suite. GitHub Actions run status remains unverified. Model is **NOT** a validated directional-well, rig hookload, hanger setting-load, OEM, or field-operational model.
 
 ## Implemented scope
 
@@ -47,4 +47,4 @@ py scripts/run_torque_drag_weighted_curve.py examples/synthetic_torque_drag_weig
 
 The outputs include **separate** pickup/slackoff/pure-rotation `top_tension_n` and mode-dependent `integrated_wall_contact_n`, pure-rotation `contact_torque_nm`, and raw input source-register metadata. These are **one section's shallow-end forces**, NOT rig hookload or verified load at a downhole component. No user is licensed to apply them as a safe operating load/pressure.
 
-**Gate remains OPEN:** user-run complete regression of the new files, independent third-party weighted-curvature reference beyond limiting cases, physical applicability review including signed curvature/wall contact, source review and separation of the one-section solver from the multi-section legacy profile. Maintain `LH-CALC-02 6/7 (~86%)`, overall 2/9 (~22%) until those gates are explicitly accepted; no false-field certification.
+**Full Windows software-regression gate PASSED:** **410 passed in 17.08 s** at `c6e44b3`. **Engineering gate remains OPEN:** independent third-party weighted-curvature reference beyond limiting cases, physical applicability review including signed curvature/wall contact, source review and separation of the one-section solver from the multi-section legacy profile. Maintain `LH-CALC-02 6/7 (~86%)`, overall 2/9 (~22%) until those gates are explicitly accepted; no false-field certification.
