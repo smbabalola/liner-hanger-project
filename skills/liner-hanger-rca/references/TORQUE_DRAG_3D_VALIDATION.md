@@ -1,6 +1,6 @@
 # LH-CALC-02 — experimental 3D inclined/azimuthal soft-string (v0.1)
 
-**New batch committed 2026-11-14. NEW REGRESSION PENDING.** Prior user-confirmed software baseline: **460 passed in 14.44 s** at `7f7e741`. This is a strictly bounded research implementation, **NOT a validated field directional-well calculator or OEM/liner-hanger operating model**.
+**Full Windows regression VERIFIED 2026-11-14:** user pulled through `6e79693` and ran `py -m pytest -rs -q tests` in the skill directory: **505 passed in 13.10 s, zero failures**. This includes the experimental 3D model, profile and the 180-degree survey diagnostic regression. This is a strictly bounded research implementation, **NOT a validated field directional-well calculator or OEM/liner-hanger operating model**.
 
 ## Physics and sourced research
 
@@ -57,7 +57,7 @@ py scripts/run_torque_drag_spatial_profile.py examples/synthetic_torque_drag_spa
 
 **User-run Windows evidence (2026-11-14):** initial 3D batch at `f584cbf` produced **503 passed, 1 failed**. The failing parametrized case used 0°→180° azimuth at 90° inclination. The source-qualified `PlannedSection` survey validation correctly rejected an undefined 180-degree minimum-curvature dogleg *before* the 3D solver ran. However, `run_torque_drag_3d.run_payload` obscured that specific cause with a generic `invalid sourced planned section` error, making the test's expected `azimuth` diagnostic fail.
 
-**Correction:** `scripts/run_torque_drag_3d.py` now forwards the specific 180-degree dogleg/azimuth-inclination survey reason as `TorqueDragError`, with the existing fail-closed survey rejection unchanged. An additional dedicated regression test was added in `tests/test_torque_drag_3d.py`. **505 total tests expected** after the new case; this correction has **not yet been verified** by a user-run full suite. No physics coefficient, trajectory interpolation, contact-force equation, model applicability or stage acceptance has changed.
+**Correction:** `scripts/run_torque_drag_3d.py` now forwards the specific 180-degree dogleg/azimuth-inclination survey reason as `TorqueDragError`, with the existing fail-closed survey rejection unchanged. An additional dedicated regression test was added in `tests/test_torque_drag_3d.py`. **505 total tests PASSED in 13.10 s** on user-run Windows full regression after the correction. No physics coefficient, trajectory interpolation, contact-force equation, model applicability or stage acceptance has changed.
 
 ## Explicit exclusions and open engineering acceptance
 
@@ -67,4 +67,4 @@ py scripts/run_torque_drag_spatial_profile.py examples/synthetic_torque_drag_spa
 - Azimuth turn beyond ±90° in one interval and exactly 180° direction ambiguity are rejected; inclination only 0°–90°; each point must retain source ID/location/revision; intermediate mode-derived loads unreviewed and not field measurements.
 - No automatic postprocessing can label the 3D loads as rig hookload or liner-hanger setting loads. They describe candidate section-top axial tensions and rotation contact torque **only within the stated assumed model**.
 
-**LH-CALC-02 remains 6/7 (~86%), overall 2/9 (~22%).** To accept the last engineering checkpoint, independently verify a substantial published or approved 3D weighted well profile, reconcile trajectory interpolation/physical sign/contact state and complete qualified human applicability review. The new regression has not yet been run by the user; do not update the verified 460 passing baseline until it is.
+**LH-CALC-02 remains 6/7 (~86%), overall 2/9 (~22%).** To accept the last engineering checkpoint, independently verify a substantial published or approved 3D weighted well profile, reconcile trajectory interpolation/physical sign/contact state and complete qualified human applicability review. The full new regression was independently run by the user: **505 passed in 13.10 s** at `6e79693`; this confirms the software checks, **not physical field validity**.
