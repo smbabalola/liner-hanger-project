@@ -9,7 +9,7 @@
 3. **Static pressure:** `Δp=ρgΔTVD`, constant `ρ` and `g=9.80665m/s²`; water 1000kg/m³ over 100m downward TVD gives `980665Pa`. MD must never be substituted for TVD. A fluid column with depth-dependent density requires future integration by depth.
 4. **Open flooded pipe in pressure-balanced fluid:** `W=(m' − ρπ(OD²−ID²)/4)g L`. The material-volume subtraction is valid only with identical internal and external densities and **both ends open/equilibrated**; it is **not** surface hookload, downhole effective axial tension, sealed-pipe buoyancy, end-cap pressure, hanger load or buckling. The sign may be negative if the configuration is buoyant; don't clamp results.
 5. **Minimum curvature:** `β=acos(cos i1 cos i2+sin i1 sin i2 cosΔazi)`, `RF=2tan(β/2)/β`, `ΔTVD=ΔMD(cos i1+cos i2)RF/2`. Verified analytic limit: 0°→90° over 100m yields `200/π≈63.661977236758m`. Horizontal straight section yields effectively zero ΔTVD. The model rejects a 180-degree dogleg singularity.
-6. **Synthetic whole-section example:** Survey MD 0→100m, TVD 0→100m, bore=0.2m, pipe OD=0.1m, pipe ID=0.08m: pipe capacity `0.5026548246m³`, annular capacity `2.3561944902m³`, 1000kg/m³ fluid static pressure `980665Pa`. These independent arithmetic checks are reproduced in `tests/test_planned_job_section.py`, but test execution must still be confirmed for that new file.
+6. **Synthetic whole-section example:** Survey MD 0→100m, TVD 0→100m, bore=0.2m, pipe OD=0.1m, pipe ID=0.08m: pipe capacity `0.5026548246m³`, annular capacity `2.3561944902m³`, 1000kg/m³ fluid static pressure `980665Pa`. These independent arithmetic checks are reproduced in `tests/test_planned_job_section.py` and included in the user-verified 273-test Windows regression.
 
 ## Engineering limitations that MUST survive future API work
 
@@ -24,8 +24,8 @@
 ## Acceptance / next step
 
 - **Prior verified regression:** 248 tests (2026-11-14) on Windows before `planned_job_section.py`.
-- **New software gate:** 15 `test_planned_job_section.py` cases, expected combined suite 263; **not yet independently confirmed as passing**.
+- **New software gate PASSED:** 15 `test_planned_job_section.py` plus ten CLI test cases included in full Windows regression, **273 passed in 10.67 s** at commit `15c9dec`, user verified 2026-11-14.
 - **CI enhancement:** root `.github/workflows/skill-regression.yml` runs complete skill suite for Python 3.11 and 3.12, with `requirements-test.txt` in the skill. Workflow has been committed, **but no successful CI result is currently verified**.
-- **Overall LH-CALC-01 remains open**. Assistant analytical review is complete at limited theoretical scope; *independent professional acceptance, real-case numerical verification and full regression of the new integration* are not.
+- **LH-CALC-01 limited software/analytical acceptance:** the uniform one-section static formulas, source-number contract, minimum-curvature integration and CLI can be treated as a **verified development foundation** within their explicit assumptions. **Independent professional engineering sign-off, KHRM-specific validation and real-world model applicability are still OPEN**; do not represent them as accepted or approved. Extension to multi-section and realistic drilling-fluid states belongs to subsequent model stages and requires separately scoped acceptance.
 
-**Next development gate:** Once regression is confirmed, the minimal uniform-section primitive slice may be accepted **at its explicitly limited scope** if remaining engineering/data-review conditions are met; then start `LH-CALC-02` torque-and-drag with an independent reference. Do not silently turn a one-section static model into a production field design model.
+**Next development gate:** Start `LH-CALC-02` torque and drag against independent analytical/published reference examples; no default friction coefficient, field release, high-angle stiffness or OEM rating. Retain standalone skill API contracts and existing RCA behavior. Do not silently turn a one-section static model into a production field design model.
