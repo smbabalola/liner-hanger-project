@@ -1,6 +1,6 @@
 # LH-CALC-01 — Elementary geometry and constant-density statics (first vertical slice)
 
-**Status:** Elementary primitives passed Windows regression (248/248, 2026-11-14). Source-identified single-section bridge added **after** that verification; its 15 new tests and full-suite regression are **pending**. **LH-CALC-01 is not yet accepted**: end-to-end source bridge regression and independent engineering applicability review remain. A **minimum-curvature trajectory integrator is implemented and locally focused-tested**; it has not been verified against a real KHRM survey.
+**Status (2026-11-14):** The user ran the **complete Windows skill regression: 273 passed in 10.67 s** after pulling through commit `15c9dec`. The narrow, source-labelled **single-uniform-section calculation foundation is software-verified against analytical known-answer cases**. This is not field validation, independent professional engineering approval or KHRM-specific verification. A **minimum-curvature trajectory integrator is implemented and locally focused-tested**; it has not been verified against a real KHRM survey.
 
 ## Scope and callable API (inside this skill)
 
@@ -21,7 +21,7 @@ Module: `scripts/directional_survey.py`. `integrate_minimum_curvature(stations=[
 
 The classic minimum-curvature method computes dogleg `β=acos(cos i1 cos i2+sin i1 sin i2 cos(Δazi))`, ratio factor `RF=2 tan(β/2)/β` (unity in the zero-dogleg limit), and `ΔTVD=ΔMD (cos i1 + cos i2) RF/2`. Trigonometric calculations use floating point internally and output `Decimal` for convenient downstream units; this is **not arbitrary precision survey computation**. Straight vertical 100m→100m TVD, straight horizontal 100m→~0m, steady 60-degree inclination 100m→50m and 0→90-degree 100m build→~63.661977m are independently checkable limiting geometries. No interpolation beyond provided stations or signed operator approval is implied.
 
-### Source-identified planned-job section bridge — new, not yet Windows-regressed
+### Source-identified planned-job section bridge — software regression confirmed
 
 Module `scripts/planned_job_section.py` exports `SourcedNumber` and `PlannedSection` (with `validate()` and `calculate()`). **Only one uniform planned section at a time**; not a whole-well summation.
 
@@ -35,11 +35,11 @@ Example **synthetic** vertical 100 m section, bore 0.2 m, pipe OD 0.1 m, ID 0.08
 - Static pressure difference = 1000×9.80665×100 = **980665 Pa**.
 - These are **hand-derivable geometric/statics references**, not source values from a Baker Hughes or KHRM package.
 
-`tests/test_planned_job_section.py` adds **15 proposed** integration tests: vertical/horizontal geometries, source-review status, unit equivalence, mandatory-source checks and fail-closed invalid/incomplete scenarios. They have **not yet been run in the user's Windows checkout**. The **last verified** full regression remains **248 passed**, preceding this code. Expected number if all new tests are collected is **263**, not a pass claim. Any failure must be corrected before marking the stage accepted.
+`tests/test_planned_job_section.py` adds **15** integration tests: vertical/horizontal geometries, source-review status, unit equivalence, mandatory-source checks and fail-closed invalid/incomplete scenarios. These are included in the user-run full Windows regression: **273 passed in 10.67 s** at `15c9dec`. No real KHRM input/output comparison is implied.
 
 **Next engineering tasks before acceptance:** verify full suite locally; perform independent engineering review of boundaries (notably open/flooded buoyancy and survey datum applicability); expand to sourced multi-section well profile only when component boundaries/survey stations are defensible. KHRM original-job numerical evidence remains unavailable.
 
-### Standalone JSON CLI (2026-11-14; NEW — full regression pending)
+### Standalone JSON CLI (2026-11-14; software-regressed)
 
 The user-facing portable entry point is `scripts/run_planned_section.py`:
 
@@ -52,7 +52,7 @@ The bundled example is explicitly **fictional**, with deliberately `unreviewed` 
 
 For programmatic calls, import `from run_planned_section import from_payload, run_payload` after placing the skill's `scripts/` directory on Python import path. The JSON field names follow the `PlannedSection` dataclass; see `examples/synthetic_planned_section.json`. The caller must protect original documents, review provenance and confirm whether a value corresponds to the intended actual equipment; **JSON source labels do not authenticate a Baker Hughes specification**. `tests/test_run_planned_section.py` adds ten synthetic entrypoint/schema/negative tests.
 
-**Regression count to verify:** last Windows-confirmed suite = 248. The 15 tests for `planned_job_section.py` and ten tests for this CLI have **not** been independently confirmed in a full suite. Expected collection = **273**, assuming no other changes; this is a predicted count, **not** a passing result. GitHub Actions workflow is configured but its execution result is not yet confirmed. Do not update accepted-stage percentages based on an unverified test count.
+**Regression evidence:** user independently ran `py -m pytest -rs -q tests` from the skill directory on Windows, at commit `15c9dec`, yielding **273 passed in 10.67 s**; this includes the 15 source-section integration tests and ten CLI tests. GitHub Actions results have **not** been independently confirmed; Windows passing tests do not certify the physical model for operations.
 
 ## Documented independent reference equations and analytical checks
 
