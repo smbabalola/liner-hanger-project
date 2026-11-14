@@ -121,7 +121,7 @@ def test_oversized_or_ambiguous_azimuth_turn_rejected(a0,a1):
 
 
 def test_compressive_slackoff_fails():
-    raw = example()
+    raw = example(inc=30)
     raw["bottom_tension"]["value"]=1
     raw["axial_friction"]["value"]=5
     with pytest.raises(TorqueDragError):
