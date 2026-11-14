@@ -88,6 +88,10 @@ Continue to use the v1.4 evidence schema and original timestamp/sensor caution, 
 
 The scene's running-string position must remain source-qualified and synchronized with the telemetry playback cursor, and all existing evidence and procedure-verification safeguards must survive UI updates. For offline examples, preserve the complete evidence bundle by explicit export; do not imply cloud backup or automatic file persistence. The implementation is `assets/annotation_workspace.{js,css}` embedded by `scripts/add_annotation_workspace.py`, which can upgrade v1.4 16B-style HTML to v1.5 without creating a second application or developer folder. See `references/ENGINEER_ANNOTATIONS.md`.
 
+## LH-CALC-02 — Contiguous co-linear string profile v0.1 (under development)
+
+Read `references/TORQUE_DRAG_PROFILE_VALIDATION.md` for `scripts/torque_drag_profile.py` and the offline `scripts/run_torque_drag_profile.py examples/synthetic_torque_drag_profile.json` contract. It propagates **separate** tensile boundaries for pickup/slack-off/pure rotation from deepest to shallowest sections and sums pure-rotation frictional contact torque. It requires **exact MD continuity, consistent TVD and datum/survey revision, unchanged inclination and azimuth across all segments**. Segment dimensions, weight and friction may vary. It rejects non-co-linear joints instead of pretending a dogleg has no force penalty. These are modelled section tensions, **not hookload or liner-hanger actuation loads**. The new 24 test cases have **not yet been full-regression verified on Windows**; the last verified suite was 310 tests.
+
 ## LH-CALC-02 — Straight-section torque-and-drag v0.1 (under development)
 
 Read `references/TORQUE_DRAG_STRAIGHT_VALIDATION.md` before invoking:
