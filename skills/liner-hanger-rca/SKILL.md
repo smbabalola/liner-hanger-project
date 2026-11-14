@@ -88,6 +88,13 @@ Continue to use the v1.4 evidence schema and original timestamp/sensor caution, 
 
 The scene's running-string position must remain source-qualified and synchronized with the telemetry playback cursor, and all existing evidence and procedure-verification safeguards must survive UI updates. For offline examples, preserve the complete evidence bundle by explicit export; do not imply cloud backup or automatic file persistence. The implementation is `assets/annotation_workspace.{js,css}` embedded by `scripts/add_annotation_workspace.py`, which can upgrade v1.4 16B-style HTML to v1.5 without creating a second application or developer folder. See `references/ENGINEER_ANNOTATIONS.md`.
 
+## LH-CALC-02 — Weighted planar curvature RK4 (research, NOT field validated)
+
+The research-only `scripts/torque_drag_weighted_curve.py` models **one** source-qualified, uniform open/flooded planar interval with signed gravity-plus-curvature contact and caller-specified integration steps; `scripts/run_torque_drag_weighted_curve.py` provides the JSON CLI:
+`python scripts/run_torque_drag_weighted_curve.py examples/synthetic_torque_drag_weighted_curve.json`.
+
+**Read `references/TORQUE_DRAG_WEIGHTED_CURVE_VALIDATION.md` before using it.** It compares exact zero-curvature, weightless-capstan and zero-friction limiting cases, plus RK4 refinement. It is **not integrated into the multi-section straight-profile solver**, cannot represent 3D azimuth turns, high-angle stiffness/buckling or any OEM mechanical ratings. It reports sectional candidate forces only, **not rig hookload, liner hanger setting force or safe operating limits**. The new tests are not yet user-verified by a full Windows regression.
+
 ## LH-CALC-02 — Ideal weightless bend benchmark (NOT weighted-well model)
 
 `scripts/torque_drag_bend.py` and `scripts/run_torque_drag_bend.py` implement the **exact weightless capstan limit** for a positive-tension bend and independently sourced friction coefficients, angle, and contact radius. Reproducible fictional case: `python scripts/run_torque_drag_bend.py examples/synthetic_torque_drag_bend.json`. See `references/TORQUE_DRAG_BEND_LIMIT_VALIDATION.md`. This is **deliberately separate** from the weighted straight string profile and **must not be added to it to claim a weighted curved-well solver**. The new analytical and negative tests await a full user-verified regression. No OEM values, rig hookload, downhole tool force or operating guidance.
