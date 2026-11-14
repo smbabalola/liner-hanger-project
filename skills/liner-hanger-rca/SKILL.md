@@ -88,6 +88,10 @@ Continue to use the v1.4 evidence schema and original timestamp/sensor caution, 
 
 The scene's running-string position must remain source-qualified and synchronized with the telemetry playback cursor, and all existing evidence and procedure-verification safeguards must survive UI updates. For offline examples, preserve the complete evidence bundle by explicit export; do not imply cloud backup or automatic file persistence. The implementation is `assets/annotation_workspace.{js,css}` embedded by `scripts/add_annotation_workspace.py`, which can upgrade v1.4 16B-style HTML to v1.5 without creating a second application or developer folder. See `references/ENGINEER_ANNOTATIONS.md`.
 
+## LH-CALC-02 — Planar weighted-curvature verification bundle (research only)
+
+Before comparing any curved output with a planned job, read `references/TORQUE_DRAG_WEIGHTED_CURVE_VALIDATION.md`: the constant-contact-side weighted build/drop solution now has an **independent closed-form analytical benchmark**, not just straight/weightless limiting checks. `scripts/weighted_curve_audit.py` exports `compare_refinement(inputs, step_counts=(64,128,256))`, reporting tensile/contact/torque **resolution differences without self-certifying a tolerance**. The weighted RK4 solver **fails closed** on sampled changes of the signed wall-contact side (not a full contact-loss/transfer model), and reports `signed_contact_side` for each movement mode. Model remains limited to **one uniform planar arc**, cannot infer rig hookload or downhole liner-hanger force, and is **not field/OEM-approved**. New regression has not yet been confirmed.
+
 ## LH-CALC-02 — Weighted planar curvature RK4 (research, NOT field validated)
 
 The research-only `scripts/torque_drag_weighted_curve.py` models **one** source-qualified, uniform open/flooded planar interval with signed gravity-plus-curvature contact and caller-specified integration steps; `scripts/run_torque_drag_weighted_curve.py` provides the JSON CLI:
