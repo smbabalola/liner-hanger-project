@@ -1,5 +1,12 @@
 # AGENTS.md — Working Rules for All Coding Assistants
 
+## CURRENT STEERING OVERRIDE — approved 2026-11-14
+
+**Read [STEERING.md](STEERING.md) first.** It is now the canonical current engineering objective for Codex. The user explicitly approved an integrated **planned engineering calculation → verification → optional historical fault investigation** workstream, staged as `LH-CALC` tasks in `TODO.md`. Earlier statements in this file saying **all broad calculations must be deferred**, or demanding **fault-investigation-only release before any calculation code**, are **superseded for this approved workstream only**. Do not discard retrospective safety/evidence rules or the existing tested RCA skill. UI construction and additional OEMs remain deferred.
+
+**Authoritative read sequence now:** `STEERING.md` → `START_HERE.md` → `TODO.md` → `AGENTS.md` → `skills/liner-hanger-rca/SKILL.md` → source/tests. Start with `LH-CALC-00` in the active staging plan, not the older general v1 list. Codex may repeat the bounded build/test/commit cycle **only during its running session**; no claims of autonomous after-session execution or engineering certification. Every executable module and its interfaces must be embedded in `skills/liner-hanger-rca/`, with portable skill-only delivery.
+
+
 Applies to the entire `liner-hanger-project` repository. This is an **engineering skill-first** project.
 
 ## Read-first sequence (mandatory at session start)
