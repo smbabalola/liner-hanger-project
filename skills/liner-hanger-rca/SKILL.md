@@ -88,6 +88,15 @@ Continue to use the v1.4 evidence schema and original timestamp/sensor caution, 
 
 The scene's running-string position must remain source-qualified and synchronized with the telemetry playback cursor, and all existing evidence and procedure-verification safeguards must survive UI updates. For offline examples, preserve the complete evidence bundle by explicit export; do not imply cloud backup or automatic file persistence. The implementation is `assets/annotation_workspace.{js,css}` embedded by `scripts/add_annotation_workspace.py`, which can upgrade v1.4 16B-style HTML to v1.5 without creating a second application or developer folder. See `references/ENGINEER_ANNOTATIONS.md`.
 
+## LH-CALC-02 — Straight-section torque-and-drag v0.1 (under development)
+
+Read `references/TORQUE_DRAG_STRAIGHT_VALIDATION.md` before invoking:
+- `scripts/torque_drag_straight.py`: source-qualified, **single straight section only** estimates of **section-top** pickup, slackoff and pure-rotation axial tensions, sliding friction, low-side normal force and pure-rotation contact torque, with hypothetical coefficient sensitivity; reuses `PlannedSection` and the LH-CALC-01 apparent weight calculation.
+- `scripts/run_torque_drag.py`: offline JSON CLI: `python scripts/run_torque_drag.py examples/synthetic_torque_drag_straight.json`.
+- `tests/test_torque_drag_straight.py` and `tests/test_run_torque_drag.py`: analytically benchmarked and negative-case tests **awaiting full Windows regression**.
+
+This deliberately rejects build/turn doglegs, floating/string compression, unsupported inclinations, absent source and friction data. **Do not** call these outputs rig hookload, true downhole tool forces, field-safe pickup/slackoff or model-specific Baker Hughes ratings. This is not a multi-section soft-string engine, stiff-string engine, buckling or combined rotation-plus-axial-movement model; no operating advice. Only progress and regression evidence recorded in `STEERING.md` and `TODO.md` can close the development stage.
+
 ## LH-CALC-01 — Elementary engineering calculations (under development)
 
 Read `references/ENGINEERING_PRIMITIVES.md` for the **currently implemented** skill-local APIs, independent numerical reference checks, units, assumptions, review gaps and limitations. Calculation modules:
