@@ -1,6 +1,6 @@
 # LH-CALC-02 — minimum-curvature-consistent 3D soft-string v0.1
 
-**Classification:** EXPERIMENTAL / RESEARCH ONLY. **New full regression NOT VERIFIED.** Current user-confirmed full skill baseline: **505 passed in 13.10s** at code commit `6e79693`. The separately committed trajectory audit introduced 25 unverified-in-full tests (530 expected). This research solver adds 37 further test cases, bringing the **expected new full collection to 567**; no Windows/CI passing result can be claimed for this batch.
+**Classification:** EXPERIMENTAL / RESEARCH ONLY. **New full regression NOT VERIFIED.** Current user-confirmed full skill baseline: **505 passed in 13.10s** at code commit `6e79693`. The separately committed trajectory audit introduced 25 unverified-in-full tests (530 expected). This research solver adds 38 further test cases, bringing the **expected new full collection to 568**; no Windows/CI passing result can be claimed for this batch.
 
 ## Why this is a new model, not a silent fix to the old one
 
@@ -13,7 +13,7 @@ This module **does not replace the legacy solver or change its 505-test baseline
 - `scripts/torque_drag_spatial_profile.py` — `predict_minimum_curvature_profile(SpatialProfile)` alongside the preserved legacy `predict_spatial_profile`
 - `scripts/run_torque_drag_spatial_profile_minimum_curvature.py` — strict sourced multi-interval JSON runner
 - Existing synthetically labelled `examples/synthetic_torque_drag_3d.json` and `examples/synthetic_torque_drag_spatial_profile.json` are the input formats. The combined build/turn benchmark is generated within the tests.
-- New tests: `tests/test_torque_drag_3d_minimum_curvature.py` (**22 cases**), `tests/test_run_torque_drag_3d_minimum_curvature.py` (**7 cases**), `tests/test_torque_drag_spatial_profile_minimum_curvature.py` (**8 cases**).
+- New tests: `tests/test_torque_drag_3d_minimum_curvature.py` (**23 cases**), `tests/test_run_torque_drag_3d_minimum_curvature.py` (**7 cases**), `tests/test_torque_drag_spatial_profile_minimum_curvature.py` (**8 cases**).
 
 ## Mathematical convention
 
@@ -48,6 +48,21 @@ The sourced `PlannedSection.calculate()` uses the same great-circle station TVD 
 3. **Legacy limits:** zero azimuth turn must agree with the existing signed-planar weighted solver; horizontal 90° azimuth turn must agree with the earlier linear-angle 3D model. A nonzero-weight combined build/turn deliberately **does not** agree with the old geometry convention.
 4. **Refinement and invalid input:** 32/64/128 RK4 steps, invalid friction/geometry/steps, undefined survey doglegs and unreconciled section MD/TVD boundaries fail closed or produce research-only values.
 5. **True 3D split:** a fictional 100m 30°→60° inclination and 0°→60° azimuth interval is split at the **great-circle tangent midpoint**, not the arithmetic midpoint of `i`/`a`. The second section receives the first section's independently calculated MC midpoint TVD. Section forces and cumulative rotation torque must match the single 100m interval. Nominal weight, friction and contact radius are identical across the two sections in this test.
+
+## Independent high-precision numerical comparison (fictional, nonzero weight)
+
+An independent local Python/SciPy `solve_ivp(method="DOP853", rtol=1e-12, atol=1e-11)` numerical integration of the explicit vector equations above was completed for a **100m fully flooded 0.100m OD / 0.080m ID tube**, dry linear mass **15kg/m**, fluid density **1000kg/m³**, standard gravity **9.80665m/s²**, upper inclination/azimuth **30°/0°**, lower inclination/azimuth **60°/60°**, source-friction coefficients **0.2 axial, 0.3 rotary**, radius **0.05m**, and a hypothetical **20,000N** positive bottom axial tension. It used the same *documented idealized mathematics* but a different high-order adaptive algorithm, independently of the new production RK4 module.
+
+| Reference quantity | DOP853 result |
+|---|---:|
+| Great-circle dogleg | 0.863844598907679rad |
+| Section buoyed weight | 11,937.21003633N |
+| Top pickup tension | **32,312.01781392N** |
+| Top slackoff tension | **25,564.33537199N** |
+| Top pure-rotation axial tension | **28,701.20754776N** |
+| Pure-rotation integrated wall-contact torque | **252.07886152N·m** |
+
+A new independent numeric known-answer test compares the versioned RK4 solver's four outputs with these values at `rel=2e-9`. **This test is committed but has not yet been verified in the full Windows suite.** The computation verifies consistency of numerical integration **under the same idealized ODE**; it is **not** a separately published field-well torque/drag comparison or an independent validation of the ODE's physical applicability.
 
 ## What is not independently validated
 
