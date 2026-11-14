@@ -1,5 +1,8 @@
 # START HERE — Liner Hanger Project
 
+> **ACTIVE STEERING UPDATE (2026-11-14):** Read [STEERING.md](STEERING.md) first, then the top **LH-CALC** section of [TODO.md](TODO.md). The user approved an integrated calculation-design-verification workstream *inside* `skills/liner-hanger-rca/`; earlier statements below deferring all broad calculations or requiring RCA-only v1 completion first are historical and superseded **for the LH-CALC workstream**. UI development, cross-OEM support, unapproved OEM limits and operational sign-off remain deferred. The user-confirmed baseline is **219 passing software tests**, not physical model validation.
+
+
 **Project:** Liner Hanger Project — Baker Hughes Retrospective Fault-Finding Skill (first release)  
 **Phase:** Skill-first development; application/UI work deferred  
 **Canonical repository:** `smbabalola/liner-hanger-project`  
