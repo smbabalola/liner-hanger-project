@@ -1,6 +1,6 @@
 # LH-CALC-01 — Elementary geometry and constant-density statics (first vertical slice)
 
-**Status:** IMPLEMENTED, **FOCUSED LOCAL SANDBOX TESTED**; Windows full-project regression pending. **LH-CALC-01 as a whole is not accepted**: source-wrapped job input schemas, independently reviewed applicability, and the full Windows regression remain outstanding. A **minimum-curvature trajectory integrator is implemented and locally focused-tested**; it has not been verified against a real KHRM survey.
+**Status:** IMPLEMENTED, **FOCUSED LOCAL SANDBOX TESTED**; Windows full-project regression PASSED (248/248, user-run 2026-11-14). **LH-CALC-01 as a whole is not accepted**: source-wrapped job input schemas, independently reviewed applicability, remain outstanding. A **minimum-curvature trajectory integrator is implemented and locally focused-tested**; it has not been verified against a real KHRM survey.
 
 ## Scope and callable API (inside this skill)
 
@@ -37,14 +37,14 @@ The following are elementary cylindrical geometry/statics identities, not vendor
 3. Water `ρ=1000 kg/m³`, downwards `ΔTVD=100 m`: `Δp = 1000×9.80665×100 = 980665 Pa`; upward 100 m gives `-980665 Pa`.
 4. Fully flooded open pipe, OD=0.2 m, ID=0.1 m, L=2 m, dry linear mass=100 kg/m, ρ=1000 kg/m³: wall material volume `0.0471238898038469 m³`; apparent load `(200−47.1238898038469)×9.80665 ≈ 1499.20 N`. This is not the load on a hanger or the rig hook.
 
-**Focused validation evidence:** In an isolated local Python sandbox a matching implementation plus 29 focused pytest cases (14 primitive cases and 15 directional-survey cases) returned **29 passed in 0.06 s**. No full repository regression or Windows Codex/checkout test has been executed for these new commits. The separately documented earlier full regression of 219 tests predates this implementation; expect **248 total** if all 29 new tests are discovered and nothing else changed, but record the actual output before accepting anything.
+**Focused validation evidence:** In an isolated local Python sandbox a matching implementation plus 29 focused pytest cases (14 primitive cases and 15 directional-survey cases) returned **29 passed in 0.06 s**. **Windows full-suite regression confirmed by the user on 2026-11-14:** checked out through commit `0749d96`, ran `py -m pytest -rs -q tests` in `skills/liner-hanger-rca`, obtained **248 passed in 8.26 s** with no failed tests. This is software verification only, not independent manufacturer or professional engineering approval.
 
 ## Missing work before LH-CALC-01 can be checked off
 
 - Extend implemented source-referenced survey and MD/TVD separation with survey-version governance, station-depth datum consistency and whole-well profile integration, as required by planned-job workflows.
 - Typed casing/hole sections, planned fluid properties and string data plus source-linked input wrappers for these primitive functions. Source metadata and exact unit/type crosswalk must be maintained.
 - Explicit exception and missing-data tests across a complete planned well geometry scenario and comparisons with independently reviewed results.
-- Full local Windows `py -m pytest -rs -q tests` regression + independent review of the model applicability and benchmark arithmetic.
+- [x] Full local Windows `py -m pytest -rs -q tests` regression, **248 passed in 8.26 s** (2026-11-14). Independent review of model applicability and benchmark arithmetic still pending.
 - Never use KHRM-299510 actual dimensions, fluid densities or approved BH limits without source pages/cells/revision and permission to use them. KHRM package extraction remains blocked; numerical functions remain generic.
 
 **Release boundary:** this slice supports **offline engineering calculations** only. It cannot establish safe tripping, casing burst/collapse, torque/drag, liner setting, cementing pressure, ball-seat shear, a successful job or fault causation.
