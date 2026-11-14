@@ -54,13 +54,26 @@ def _state_dynamics(t, s, *, w, i_bottom, k, mu, mode, radius, mu_rot):
     return force, contact, torque_rate
 
 
+def _contact_side(t, s, *, w, i_bottom, k):
+    """Signed wall reaction; zero means the simple contact model is neutral."""
+    signed = w * sin(i_bottom - k * s) - t * k
+    threshold = 1e-10 * max(1.0, abs(w), abs(t * k))
+    return 1 if signed > threshold else -1 if signed < -threshold else 0
+
+
 def _integrate(*, bottom, length, w, i_bottom, k, mu, mu_rot, radius, mode, steps):
     h = length / steps
     tension = bottom
     normal = 0.0
     torque = 0.0
+    side = 0
     for j in range(steps):
         s = j * h
+        current = _contact_side(tension, s, w=w, i_bottom=i_bottom, k=k)
+        if current:
+            if side and current != side:
+                raise TorqueDragError("contact side transition unsupported; wall-contact state requires independent review")
+            side = current
         a1 = _state_dynamics(tension, s, w=w, i_bottom=i_bottom, k=k,
                              mu=mu, mode=mode, radius=radius, mu_rot=mu_rot)
         a2 = _state_dynamics(tension + h*a1[0]/2, s+h/2, w=w, i_bottom=i_bottom,
@@ -69,6 +82,15 @@ def _integrate(*, bottom, length, w, i_bottom, k, mu, mu_rot, radius, mode, step
                              k=k, mu=mu, mode=mode, radius=radius, mu_rot=mu_rot)
         a4 = _state_dynamics(tension + h*a3[0], s+h, w=w, i_bottom=i_bottom,
                              k=k, mu=mu, mode=mode, radius=radius, mu_rot=mu_rot)
+        midpoint = _contact_side(tension + h*a2[0]/2, s+h/2,
+                                 w=w, i_bottom=i_bottom, k=k)
+        endpoint = _contact_side(tension + h*a3[0], s+h,
+                                 w=w, i_bottom=i_bottom, k=k)
+        for candidate in (midpoint, endpoint):
+            if candidate:
+                if side and candidate != side:
+                    raise TorqueDragError("contact side transition unsupported; wall-contact state requires independent review")
+                side = candidate
         tension += h*(a1[0]+2*a2[0]+2*a3[0]+a4[0])/6
         normal += h*(a1[1]+2*a2[1]+2*a3[1]+a4[1])/6
         torque += h*(a1[2]+2*a2[2]+2*a3[2]+a4[2])/6
@@ -76,7 +98,7 @@ def _integrate(*, bottom, length, w, i_bottom, k, mu, mu_rot, radius, mode, step
             raise TorqueDragError("non-finite weighted-curvature solution")
         if tension < -1e-9:
             raise TorqueDragError("predicted compression/buckling is unsupported")
-    return max(0.0, tension), normal, torque
+    return max(0.0, tension), normal, torque, side
 
 
 def predict_weighted_curve(inputs: WeightedCurveInputs) -> dict:
@@ -135,13 +157,14 @@ def predict_weighted_curve(inputs: WeightedCurveInputs) -> dict:
         raise TorqueDragError("excessive friction-dogleg product unsupported")
     force = {}
     for mode, name in ((1, "pickup"), (-1, "slackoff"), (0, "rotation")):
-        top, contact, friction_torque = _integrate(
+        top, contact, friction_torque, contact_side = _integrate(
             bottom=bottom, length=length, w=w, i_bottom=i_bottom, k=k,
             mu=mu, mu_rot=mu_rot, radius=radius, mode=mode,
             steps=inputs.integration_steps)
         force[name] = {
             "top_tension_n": str(top),
             "integrated_wall_contact_n": str(contact),
+            "signed_contact_side": contact_side,
         }
         if mode == 0:
             force[name]["contact_torque_nm"] = str(friction_torque)
@@ -170,6 +193,7 @@ def predict_weighted_curve(inputs: WeightedCurveInputs) -> dict:
             "two exact survey stations with constant azimuth, 0..90 degree inclination",
             "soft-string wall reaction combines gravity and signed curvature vector",
             "friction is Coulomb, separate pure pickup/slackoff/pure-rotation modes",
+            "single contact side per movement mode; transitions rejected, not silently approximated",
             "continuous modeled wall contact, not stiffness or tool-joint forces",
             "explicit RK4 step count; convergence must be checked by caller",
             "bottom positive tensile boundary, no dynamic pressure-end loads",
