@@ -1,0 +1,121 @@
+{
+  "planned_section": {
+    "case_id": "SYNTHETIC-TD-STRAIGHT-NOT-REAL-WELL",
+    "section_id": "vertical-uniform-100m",
+    "datum": "RKB",
+    "survey_revision": "fictional-v1",
+    "survey_source_id": "SYNTHETIC-SURVEY",
+    "survey_stations": [
+      {
+        "measured_depth": 0,
+        "inclination_deg": 60,
+        "azimuth_deg": 0,
+        "source_ref": "synthetic-survey-row-1"
+      },
+      {
+        "measured_depth": 100,
+        "inclination_deg": 60,
+        "azimuth_deg": 0,
+        "source_ref": "synthetic-survey-row-2"
+      }
+    ],
+    "survey_depth_unit": "m",
+    "flooded_open_pipe": true,
+    "first_station_tvd": {
+      "value": 0,
+      "unit": "m",
+      "source_id": "SYNTHETIC-NOT-OEM",
+      "source_location": "fixture:first_station_tvd",
+      "source_revision": "fictional-v1",
+      "review_status": "unreviewed"
+    },
+    "top_md": {
+      "value": 0,
+      "unit": "m",
+      "source_id": "SYNTHETIC-NOT-OEM",
+      "source_location": "fixture:top_md",
+      "source_revision": "fictional-v1",
+      "review_status": "unreviewed"
+    },
+    "bottom_md": {
+      "value": 100,
+      "unit": "m",
+      "source_id": "SYNTHETIC-NOT-OEM",
+      "source_location": "fixture:bottom_md",
+      "source_revision": "fictional-v1",
+      "review_status": "unreviewed"
+    },
+    "bore_diameter": {
+      "value": "0.2",
+      "unit": "m",
+      "source_id": "SYNTHETIC-NOT-OEM",
+      "source_location": "fixture:bore_diameter",
+      "source_revision": "fictional-v1",
+      "review_status": "unreviewed"
+    },
+    "pipe_outer_diameter": {
+      "value": "0.1",
+      "unit": "m",
+      "source_id": "SYNTHETIC-NOT-OEM",
+      "source_location": "fixture:pipe_outer_diameter",
+      "source_revision": "fictional-v1",
+      "review_status": "unreviewed"
+    },
+    "pipe_inner_diameter": {
+      "value": "0.08",
+      "unit": "m",
+      "source_id": "SYNTHETIC-NOT-OEM",
+      "source_location": "fixture:pipe_inner_diameter",
+      "source_revision": "fictional-v1",
+      "review_status": "unreviewed"
+    },
+    "dry_linear_mass": {
+      "value": 15,
+      "unit": "kg/m",
+      "source_id": "SYNTHETIC-NOT-OEM",
+      "source_location": "fixture:dry_linear_mass",
+      "source_revision": "fictional-v1",
+      "review_status": "unreviewed"
+    },
+    "fluid_density": {
+      "value": 1000,
+      "unit": "kg/m3",
+      "source_id": "SYNTHETIC-NOT-OEM",
+      "source_location": "fixture:fluid_density",
+      "source_revision": "fictional-v1",
+      "review_status": "unreviewed"
+    }
+  },
+  "axial_friction": {
+    "value": "0.2",
+    "unit": "1",
+    "source_id": "FICTIONAL-NOT-APPROVED",
+    "source_location": "fixture:axial_friction",
+    "source_revision": "fictional-1",
+    "review_status": "unreviewed"
+  },
+  "rotational_friction": {
+    "value": "0.3",
+    "unit": "1",
+    "source_id": "FICTIONAL-NOT-APPROVED",
+    "source_location": "fixture:rotational_friction",
+    "source_revision": "fictional-1",
+    "review_status": "unreviewed"
+  },
+  "contact_radius": {
+    "value": "0.05",
+    "unit": "m",
+    "source_id": "FICTIONAL-NOT-APPROVED",
+    "source_location": "fixture:contact_radius",
+    "source_revision": "fictional-1",
+    "review_status": "unreviewed"
+  },
+  "bottom_tension": {
+    "value": 20000,
+    "unit": "N",
+    "source_id": "FICTIONAL-NOT-APPROVED",
+    "source_location": "fixture:bottom_tension",
+    "source_revision": "fictional-1",
+    "review_status": "unreviewed"
+  }
+}
