@@ -1,6 +1,6 @@
 # LH-CALC-02 — straight-section soft-string torque-and-drag v0.1
 
-**State:** Initial implementation committed; **new full Windows regression and CI results are not yet verified**. The only previously user-verified full suite is **273 passed at commit `15c9dec`**. A model-specific independent analytical known-answer check has been developed, but this is **not** a qualified engineer's sign-off, production whole-well model or Baker Hughes equipment clearance.
+**State (2026-11-14):** Initial straight-section implementation and corrective test have now passed the full **user-run Windows regression: 310 passed in 16.15 s at commit `fd0e1c5`**. GitHub Actions status is not independently verified. A model-specific independent analytical known-answer check has been developed, but this is **not** a qualified engineer's sign-off, production whole-well model or Baker Hughes equipment clearance.
 
 ## Inputs and skill-local entrypoint
 
@@ -61,7 +61,7 @@ This is **independent hand/analytical benchmarking within the stated assumptions
 
 **Observed actual Windows run:** 308 passed, one failed (15.50 s). The failure was in `test_unsupported_inclinations_fail_closed[-1]`: the test constructed `case(-1)` through `run_planned_section.from_payload`, which correctly rejected invalid survey inclination *before* the torque-and-drag layer could issue its `TorqueDragError`. The upstream survey validation is a safety boundary; no code change was made to permit invalid inclinations.
 
-**Test-only correction:** Build a valid planned section, then use `dataclasses.replace` to insert the unsupported inclination directly at the torque-and-drag API boundary. This tests the engine's translation of upstream survey error into `TorqueDragError`. An additional test explicitly asserts that the JSON source-intake layer continues to reject an inclination of −1 with `PlannedSectionError`. Change committed as `e601a1b`; **this new version has not yet been run on the user's Windows checkout**, so the stage remains open. Expected total collection now **310 tests** (one newly added negative test), not a pass claim.
+**Test-only correction:** Build a valid planned section, then use `dataclasses.replace` to insert the unsupported inclination directly at the torque-and-drag API boundary. This tests the engine's translation of upstream survey error into `TorqueDragError`. An additional test explicitly asserts that the JSON source-intake layer continues to reject an inclination of −1 with `PlannedSectionError`. Change committed as `e601a1b`; user subsequently verified the corrected full Windows suite at commit `fd0e1c5`: **310 passed in 16.15 s, zero failures**. The stage remains open for multi-section and curved-well model work.
 
 ## Validation state and remaining gate
 
@@ -72,6 +72,6 @@ Files added:
 - `tests/test_torque_drag_straight.py` — analytical/zero-friction/zero-contact/sensitivity/unsupported-domain cases.
 - `tests/test_run_torque_drag.py` — fixed known-answer numbers, CLI and malformed/missing-input checks.
 
-**Original new full-suite run observed:** **308 passed, 1 failed**, due to a test setup crossing the upstream survey intake boundary. **Test-only correction committed** with one extra source-intake negative test; expected **310 tests** in the next run, **not yet verified**. The original 273-test legacy baseline remains preserved. Run `py -m pytest -rs -q tests` after pulling the new commits. CI status is not confirmed.
+**Windows regression gate PASSED for v0.1:** initial run **308 passed, 1 failed**, due to a test setup crossing the upstream survey intake boundary; a test-only correction was committed and the user reran the complete suite: **310 passed in 16.15 s at `fd0e1c5`**. The earlier 273-test suite remains part of these 310 passing cases. GitHub Actions status is not confirmed. No full multi-section/dogleg model or professional engineering review is implied.
 
 **LH-CALC-02 remains IN PROGRESS:** the straight-section model is a bounded first slice only. Required for full P2 acceptance are sourced multi-section/depth propagation, dogleg/tension contact when independently benchmarked, capability/uncertainty and sensitivity envelope review, full regression, and distinctions between section loads, hookload and downhole component force. No field or OEM approval is authorized.
