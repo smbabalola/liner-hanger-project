@@ -57,6 +57,12 @@ Independent checks: (1) vertical straight case: low-side contact = 0, so no wall
 
 This is **independent hand/analytical benchmarking within the stated assumptions**, not a published full-well field benchmark or independent PE/OEM validation.
 
+### Regression defect and corrective test (2026-11-14)
+
+**Observed actual Windows run:** 308 passed, one failed (15.50 s). The failure was in `test_unsupported_inclinations_fail_closed[-1]`: the test constructed `case(-1)` through `run_planned_section.from_payload`, which correctly rejected invalid survey inclination *before* the torque-and-drag layer could issue its `TorqueDragError`. The upstream survey validation is a safety boundary; no code change was made to permit invalid inclinations.
+
+**Test-only correction:** Build a valid planned section, then use `dataclasses.replace` to insert the unsupported inclination directly at the torque-and-drag API boundary. This tests the engine's translation of upstream survey error into `TorqueDragError`. An additional test explicitly asserts that the JSON source-intake layer continues to reject an inclination of −1 with `PlannedSectionError`. Change committed as `e601a1b`; **this new version has not yet been run on the user's Windows checkout**, so the stage remains open. Expected total collection now **310 tests** (one newly added negative test), not a pass claim.
+
 ## Validation state and remaining gate
 
 Files added:
@@ -66,6 +72,6 @@ Files added:
 - `tests/test_torque_drag_straight.py` — analytical/zero-friction/zero-contact/sensitivity/unsupported-domain cases.
 - `tests/test_run_torque_drag.py` — fixed known-answer numbers, CLI and malformed/missing-input checks.
 
-**New tests are committed but NOT YET confirmed by an actual complete regression run.** Expected collection from explicit parametrisation: **36 new cases** (27 physics + 9 CLI), or **309 total** compared with 273 last user-verified. The count is a prediction, not a pass result. Run `py -m pytest -rs -q tests` after pulling the new commits. CI status is not confirmed.
+**Original new full-suite run observed:** **308 passed, 1 failed**, due to a test setup crossing the upstream survey intake boundary. **Test-only correction committed** with one extra source-intake negative test; expected **310 tests** in the next run, **not yet verified**. The original 273-test legacy baseline remains preserved. Run `py -m pytest -rs -q tests` after pulling the new commits. CI status is not confirmed.
 
 **LH-CALC-02 remains IN PROGRESS:** the straight-section model is a bounded first slice only. Required for full P2 acceptance are sourced multi-section/depth propagation, dogleg/tension contact when independently benchmarked, capability/uncertainty and sensitivity envelope review, full regression, and distinctions between section loads, hookload and downhole component force. No field or OEM approval is authorized.
