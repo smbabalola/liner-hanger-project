@@ -13,6 +13,21 @@ A future coding assistant must be able to install **only this skill package** an
 
 **Success means working, benchmarked physics modules and repeatable skill-only workflows, not simply a TODO, a diagram, a plausible report, or 219 passing pre-existing tests.**
 
+## Current execution checkpoint — 2026-11-14
+
+**Development stage tracker:** `LH-CALC-00` baseline audit **accepted**; `LH-CALC-01` **accepted at limited software/analytical scope** after user independently ran the full Windows regression at commit `15c9dec`: **273 passed in 10.67 s**. **2 of 9 milestones accepted (~22%)**. This percentage describes accepted development gates, **not** finished physics, well-specific accuracy, operational approval, or engineer certification.
+
+**Next eligible stage:** `LH-CALC-02` torque-and-drag. Begin with an explicitly bounded soft-string model, independently checked analytic/published reference cases, force-direction and unit tests, friction/geometry sensitivity, full-suite regression, and documented exclusions (stiff-string, buckling, unsupported equipment-specific forces). Build inside `skills/liner-hanger-rca/`. Do not construct UI ahead of the calculation validation.
+
+**Evidence blockers:** No readable authorized KHRM-299510 original calculation inputs and outputs were verified in the initial source audit; do not invent field data. Professional/OEM validation of stage-1 primitives remains outstanding. Automated GitHub Actions was committed but **a successful run has not yet been confirmed**; user-run Windows test evidence is confirmed.
+
+### Mandatory maintenance of steering and TODO
+
+- **`STEERING.md`** records stable objectives, technical architecture, stage priority and **current accepted-stage checkpoint**. Update this checkpoint whenever a stage is accepted or the approved technical direction changes, without turning this file into a verbose per-commit diary.
+- **`TODO.md`** records each active task, implementation and validation evidence, blockers, changed paths, commit IDs, **stage-level percent and programme-level percent** after substantive progress.
+- Progress counts **accepted gates / 9**, reported separately from partially completed checkpoints. A passing test verifies software, not independently approved field-engineering output. No advancing a task checkbox on predicted results or unauthenticated equipment ratings.
+- Before reporting completion, keep `STEERING.md`, `TODO.md` and the skill-local technical references consistent; supersede outdated status prose instead of allowing multiple contradictory 'latest' snapshots.
+
 ## Execution order — one task at a time, bounded repeat loop
 
 **P0 — Baseline and source audit.** Confirm checkout HEAD and clean working tree; run the pre-change full test suite, record counts, audit existing BHA, equipment-spec, planned/observed comparison, CSV and evidence modules. Review permitted actual job-programme source data and locate the KHRM-299510 *planned* design package if available. Record missing inputs and reference calculations. KHRM is **not a reported failure or verified as-run record**.
