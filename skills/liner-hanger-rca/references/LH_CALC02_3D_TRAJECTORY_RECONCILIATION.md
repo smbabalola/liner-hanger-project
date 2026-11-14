@@ -1,7 +1,7 @@
 # LH-CALC-02 — 3D trajectory/contact reconciliation work package
 
 **Date:** 2026-11-14  
-**State:** OPEN — independent geometry diagnostic implemented and isolated tests passed; no full skill regression or physics acceptance yet.  
+**State:** OPEN — geometry diagnostic and separate MC-consistent 3D force/profile solver implemented; new full skill regression and external physical validation pending.  
 **Last user-verified regression:** 505 passed in 13.10 s at `6e79693`.
 
 ## Concrete discrepancy to investigate
@@ -39,6 +39,16 @@ The two interpolations agree to numerical accuracy in the straight, constant-hea
 5. Where the geometry models disagree materially, fail closed or explicitly select/document one consistent trajectory convention throughout survey validation and gravity/contact integration; do not silently force agreement at endpoints.
 6. Independently check signs of the two normal-reaction components and the limiting case where contact approaches zero. Keep unmodelled contact loss, side transfer, stiffness, buckling and compression unsupported unless validated.
 7. Run focused negative and limiting tests, then the full skill test suite after code changes. Record actual outputs and any failures; compare a separate published/qualified **nonzero-weight 3D directional-well benchmark** when available. A synthetic self-check is not a field benchmark.
+
+## Versioned physics follow-up — minimum-curvature force model committed (not full-regression verified)
+
+A **separate** `predict_minimum_curvature_curve` algorithm and `predict_minimum_curvature_profile` wrapper now use great-circle tangent and its derivative for both buoyed-gravity projection and weighted soft-string contact reaction. The original linear-angle solver is retained, with its existing 505-test verified baseline unchanged. The new solver also verifies that its independently integrated minimum-curvature section TVD matches the sourced survey's minimum-curvature TVD, with an explicit source/units/status audit.
+
+- Single and multi-interval strict JSON CLIs are available entirely inside `skills/liner-hanger-rca/scripts/`.
+- Three test modules add **38** expected cases: exact weightless great-circle capstan, zero-friction gravity/TVD integral, old planar/horizontal limits, **nonzero-weight independent DOP853** numerical comparison, true great-circle tangent/MC-TVD split invariance, invalid sources and contact-side rejection.
+- The independent DOP853 mathematical example for a fictional nonzero-weight combined build-and-turn gives pickup **32,312.01781392N**, slackoff **25,564.33537199N**, pure-rotation axial **28,701.20754776N** and rotation wall-contact torque **252.07886152N·m**. See `LH_CALC02_MINIMUM_CURVATURE_3D_MODEL.md` for the precise input contract, ODE, independent integration settings and distinctions from field validation.
+- **New code not yet user-run verified.** Alongside the previous 25 independent geometry tests, **568 full-suite cases are expected** against the last user-confirmed 505; no GitHub CI run/pass has been verified.
+- **Still blocked:** independent actual 3D weighted well benchmark, physical contact/wall-transfer model, stiffness/buckling applicability, and human/OEM engineering review. No accepted-stage percentage changes. The new outputs explicitly remain `unreviewed_inputs`, not rig hookload or liner-hanger operational limits.
 
 ## External benchmark candidate found — not reproduced or accepted
 
