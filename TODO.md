@@ -1,6 +1,6 @@
 # TODO — Master Skill Development Register
 
-**Purpose:** The authoritative backlog for **Baker Hughes-only retrospective fault-finding skill v1**. The earlier broad engineering tasks are preserved below as a deferred record, not release blockers. Read [START_HERE.md](START_HERE.md) and [AGENTS.md](AGENTS.md) before work.
+**Purpose:** The authoritative task and validation register for the **active LH-CALC planned engineering foundation followed by retrospective investigation**. Older fault-first-only material remains below for historical reference; the active order is governed by `STEERING.md`. Read [START_HERE.md](START_HERE.md) and [AGENTS.md](AGENTS.md) before work.
 
 ## Status and task discipline
 
@@ -21,9 +21,11 @@
 
 ## ACTIVE PRIORITY — LH-CALC engineering calculations (approved 2026-11-14)
 
-**Single objective:** Finish the skill-embedded planned engineering calculation and validation foundation, then connect it to the retrospective investigation system. **[STEERING.md](STEERING.md)** sets the authoritative objectives, order, engineering gates and bounded Codex work loop. Earlier Baker Hughes-only fault-first deferrals remain historical but **do not block this explicitly approved workstream**. Build within `skills/liner-hanger-rca/`; UI and extra OEMs remain deferred. The **219 passing tests** are the most recent *user-confirmed* baseline; no physical solver has passed independent engineering validation yet.
+**Single objective:** Finish the skill-embedded planned engineering calculation and validation foundation, then connect it to the retrospective investigation system. **[STEERING.md](STEERING.md)** sets the authoritative objectives, order, engineering gates and bounded Codex work loop. Earlier Baker Hughes-only fault-first deferrals remain historical but **do not block this explicitly approved workstream**. Build within `skills/liner-hanger-rca/`; UI and extra OEMs remain deferred. The current user-confirmed Windows full regression is **273 passed in 10.67 s** at commit `15c9dec`; physical model operational approval and KHRM-specific validation remain outstanding.
 
 **Current accepted-stage progress: 2/9 (~22%) as of 2026-11-14, following the LH-CALC-01 273-test verification; this supersedes older progress snapshots below. Real-job/OEM-certified engineering capability is NOT implied.**
+
+**Steering synchronization (2026-11-14):** `STEERING.md` is now updated with the **current 2/9 (~22%) stage checkpoint**, LH-CALC-02 as next eligible work, the unverified GitHub Actions status, and a mandatory two-file maintenance contract. This latest checkpoint supersedes the historical 1/9 progress note farther below; earlier entries are retained as a chronological work log. Steering updated in commit `0ea3bc0`. **No new calculation code or additional tests are claimed in this synchronization.**
 
 **Progress register (2026-11-14):** **LH-CALC-00 = 7/7 checkpoints (100%; ACCEPTED)**; **overall engineering programme = 1/9 accepted stages (~11%)**. These are **stage acceptance metrics, not percent of physics/engineering effort finished**; **0 physical calculation modules independently validated**. User independently verified on Windows after `git pull --ff-only` to HEAD `eaa75da`: `py -m pytest -rs -q tests` → **219 passed in 13.97 s**, no failures. `git status --short` had only an untracked `lh017-bulk-reviewed.zip` — **preserve it; do not delete/commit without review**. Skill-local evidence: `skills/liner-hanger-rca/references/CALCULATION_BASELINE_AUDIT.md` (updated in commit `96863ef`). **KHRM-299510 numerical benchmark remains BLOCKED on readable authorized source inputs/results**; this does not block generic independently benchmarked physics primitives. **NEXT: LH-CALC-01** — implement geometry/capacity/buoyancy/hydrostatic primitives inside skill using independently checked synthetic/public analytical examples, then run full regression and record numerical validation. Do not claim field applicability or OEM acceptance.
 
