@@ -1,6 +1,6 @@
 # LH-CALC-02 — minimum-curvature-consistent 3D soft-string v0.1
 
-**Classification:** EXPERIMENTAL / RESEARCH ONLY. **New full regression NOT VERIFIED.** Current user-confirmed full skill baseline: **505 passed in 13.10s** at code commit `6e79693`. The separately committed trajectory audit introduced 25 unverified-in-full tests (530 expected). This research solver adds 38 further test cases, bringing the **expected new full collection to 568**; no Windows/CI passing result can be claimed for this batch.
+**Classification:** EXPERIMENTAL / RESEARCH ONLY. **New full regression NOT VERIFIED.** Current user-confirmed full skill baseline: **505 passed in 13.10s** at code commit `6e79693`. The separately committed trajectory audit introduced 25 unverified-in-full tests (530 expected). This research solver adds 37 further test cases, bringing the **expected new full collection to 567**; no Windows/CI passing result can be claimed for this batch.
 
 ## Why this is a new model, not a silent fix to the old one
 
@@ -13,7 +13,7 @@ This module **does not replace the legacy solver or change its 505-test baseline
 - `scripts/torque_drag_spatial_profile.py` — `predict_minimum_curvature_profile(SpatialProfile)` alongside the preserved legacy `predict_spatial_profile`
 - `scripts/run_torque_drag_spatial_profile_minimum_curvature.py` — strict sourced multi-interval JSON runner
 - Existing synthetically labelled `examples/synthetic_torque_drag_3d.json` and `examples/synthetic_torque_drag_spatial_profile.json` are the input formats. The combined build/turn benchmark is generated within the tests.
-- New tests: `tests/test_torque_drag_3d_minimum_curvature.py` (**22 cases**), `tests/test_run_torque_drag_3d_minimum_curvature.py` (**7 cases**), `tests/test_torque_drag_spatial_profile_minimum_curvature.py` (**9 cases**).
+- New tests: `tests/test_torque_drag_3d_minimum_curvature.py` (**22 cases**), `tests/test_run_torque_drag_3d_minimum_curvature.py` (**7 cases**), `tests/test_torque_drag_spatial_profile_minimum_curvature.py` (**8 cases**).
 
 ## Mathematical convention
 
