@@ -39,6 +39,21 @@ Example **synthetic** vertical 100 m section, bore 0.2 m, pipe OD 0.1 m, ID 0.08
 
 **Next engineering tasks before acceptance:** verify full suite locally; perform independent engineering review of boundaries (notably open/flooded buoyancy and survey datum applicability); expand to sourced multi-section well profile only when component boundaries/survey stations are defensible. KHRM original-job numerical evidence remains unavailable.
 
+### Standalone JSON CLI (2026-11-14; NEW — full regression pending)
+
+The user-facing portable entry point is `scripts/run_planned_section.py`:
+
+```powershell
+cd C:\\dev\\liner-hanger-project\\skills\\liner-hanger-rca
+py scripts/run_planned_section.py examples/synthetic_planned_section.json
+```
+
+The bundled example is explicitly **fictional**, with deliberately `unreviewed` source records. The CLI produces only a JSON candidate with `status="unreviewed_inputs"` and units in its result keys. It can also use `--output path.json` to write the report. It rejects unknown/missing top-level keys, malformed sourced-number and survey-station records, invalid units, non-finite numbers and contradictory geometry; bad inputs return nonzero exit status and `unavailable:` diagnostic on stderr.
+
+For programmatic calls, import `from run_planned_section import from_payload, run_payload` after placing the skill's `scripts/` directory on Python import path. The JSON field names follow the `PlannedSection` dataclass; see `examples/synthetic_planned_section.json`. The caller must protect original documents, review provenance and confirm whether a value corresponds to the intended actual equipment; **JSON source labels do not authenticate a Baker Hughes specification**. `tests/test_run_planned_section.py` adds ten synthetic entrypoint/schema/negative tests.
+
+**Regression count to verify:** last Windows-confirmed suite = 248. The 15 tests for `planned_job_section.py` and ten tests for this CLI have **not** been independently confirmed in a full suite. Expected collection = **273**, assuming no other changes; this is a predicted count, **not** a passing result. GitHub Actions workflow is configured but its execution result is not yet confirmed. Do not update accepted-stage percentages based on an unverified test count.
+
 ## Documented independent reference equations and analytical checks
 
 The following are elementary cylindrical geometry/statics identities, not vendor-specific Baker Hughes calculations.
