@@ -88,6 +88,15 @@ Continue to use the v1.4 evidence schema and original timestamp/sensor caution, 
 
 The scene's running-string position must remain source-qualified and synchronized with the telemetry playback cursor, and all existing evidence and procedure-verification safeguards must survive UI updates. For offline examples, preserve the complete evidence bundle by explicit export; do not imply cloud backup or automatic file persistence. The implementation is `assets/annotation_workspace.{js,css}` embedded by `scripts/add_annotation_workspace.py`, which can upgrade v1.4 16B-style HTML to v1.5 without creating a second application or developer folder. See `references/ENGINEER_ANNOTATIONS.md`.
 
+## LH-CALC-01 — Elementary engineering calculations (under development)
+
+Read `references/ENGINEERING_PRIMITIVES.md` for the **currently implemented** skill-local APIs, independent numerical reference checks, units, assumptions, review gaps and limitations. Calculation modules:
+- `scripts/engineering_primitives.py`: cylindrical internal/annular capacity (m³), single-fluid hydrostatic pressure difference (Pa) from **TVD**, and apparent weight (N) for an **open, completely flooded pipe** only.
+- `scripts/directional_survey.py`: source-referenced MD/inclination/azimuth stations and minimum-curvature TVD integration; initial station TVD and datum must be supplied.
+- `tests/test_engineering_primitives.py` and `tests/test_directional_survey.py`: focused analytical/negative regression tests.
+
+These are **low-level computational primitives**, not approved job calculations. There is no complete source-validated planned-job model, torque/drag, circulating friction, surge/swab, tool actuation/rating or KHRM validation yet. Do not infer exact equipment limits or load/pressure at the liner hanger from these outputs. The skill's planned-design/retrospective comparison rules remain mandatory.
+
 ## Active planned-engineering development entrypoint (2026-11-14)
 
 For requests to **design or verify a planned liner-hanger job**, not a reported failure, read `references/CALCULATION_BASELINE_AUDIT.md` first and use source-gated `scripts/bha_tally.py`, `scripts/equipment_specs.py` and `scripts/engineering_baseline.py` only for the functions they currently implement. These modules do **not** yet calculate validated torque/drag, hydraulics, surge/swab, or BH tool-setting pressures. Never mislabel an input/output comparison as an independent physical prediction.
