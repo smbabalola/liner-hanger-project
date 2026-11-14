@@ -59,6 +59,12 @@ py scripts/run_torque_drag_spatial_profile.py examples/synthetic_torque_drag_spa
 
 **Correction:** `scripts/run_torque_drag_3d.py` now forwards the specific 180-degree dogleg/azimuth-inclination survey reason as `TorqueDragError`, with the existing fail-closed survey rejection unchanged. An additional dedicated regression test was added in `tests/test_torque_drag_3d.py`. **505 total tests PASSED in 13.10 s** on user-run Windows full regression after the correction. No physics coefficient, trajectory interpolation, contact-force equation, model applicability or stage acceptance has changed.
 
+## Independent trajectory interpolation audit (2026-11-14; not a physics validation)
+
+A skill-local geometry-only diagnostic at `scripts/trajectory_interpolation_audit.py` now calculates the disagreement between **linear inclination/azimuth** (assumed by this 3D force solver) and **minimum-curvature great-circle** trajectory interpolation (assumed by the station TVD validator). It uses independent Simpson quadrature, not the torque/drag RK4 force solver. In a **fictional** 100m 30°→60° inclination / 0°→60° azimuth build-and-turn, the mathematical endpoint differences are **−2.98576451m TVD** and **8.15076067m in 3D position**. The sampled tangent-unit difference peaks around 0.123642. This directly demonstrates that the current model's two geometric interpolation conventions are **not equivalent**.
+
+Twenty-five focused diagnostic tests passed in an isolated local run (0.12s). The **full skill regression including these new tests has NOT been executed**, with **530 total tests expected** against the last verified 505. See `LH_CALC02_3D_TRAJECTORY_RECONCILIATION.md` for the derivation, scope, quantitative data and follow-on tests. **Do not interpret an analytical interpolation discrepancy as a measured wellpath or as a corresponding torque/hookload error.** This new code does not alter the existing 3D force solver. A consistent trajectory/contact formulation and an independent weighted full-profile benchmark remain required before acceptance.
+
 ## Explicit exclusions and open engineering acceptance
 
 - These are **not actual 3D measured wellbore mechanics**. The survey is represented by exactly two stations per interval with **constant angular gradients in the chosen angle parametrization**, not minimum-curvature interpolation at each RK4 step. Station TVD boundary checks use the separately existing minimum-curvature survey procedure and do not prove agreement between these distinct interpolation models.
