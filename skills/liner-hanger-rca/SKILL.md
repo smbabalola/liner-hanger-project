@@ -88,6 +88,16 @@ Continue to use the v1.4 evidence schema and original timestamp/sensor caution, 
 
 The scene's running-string position must remain source-qualified and synchronized with the telemetry playback cursor, and all existing evidence and procedure-verification safeguards must survive UI updates. For offline examples, preserve the complete evidence bundle by explicit export; do not imply cloud backup or automatic file persistence. The implementation is `assets/annotation_workspace.{js,css}` embedded by `scripts/add_annotation_workspace.py`, which can upgrade v1.4 16B-style HTML to v1.5 without creating a second application or developer folder. See `references/ENGINEER_ANNOTATIONS.md`.
 
+## LH-CALC-02 — Versioned minimum-curvature-consistent 3D research engine
+
+**New, software-regression-pending experimental alternative**, not a change to the original linear-angle solver: `scripts/torque_drag_3d_minimum_curvature.py` exposes `predict_minimum_curvature_curve(SpatialCurveInputs)`; `scripts/torque_drag_spatial_profile.py` exposes `predict_minimum_curvature_profile(SpatialProfile)`. Both propagate explicitly sourced pure pickup, slackoff and rotation loads using the **same minimum-curvature great-circle tangent convention** as the survey TVD integration. The profile retains MD/TVD/inclination/azimuth/provenance continuity rejection and distinct mode-specific tension boundaries.
+
+Offline JSON:
+`python scripts/run_torque_drag_3d_minimum_curvature.py examples/synthetic_torque_drag_3d.json`
+and `python scripts/run_torque_drag_spatial_profile_minimum_curvature.py examples/synthetic_torque_drag_spatial_profile.json`. Input JSON schemas remain those of the existing 3D section/profile runners. The source input example is **fictional**, not an approved well. A combined build-and-turn split test constructs the exact great-circle midpoint rather than averaging angles.
+
+**MANDATORY:** Read `references/LH_CALC02_MINIMUM_CURVATURE_3D_MODEL.md` and `references/LH_CALC02_3D_TRAJECTORY_RECONCILIATION.md` before using these APIs. Independently check the great-circle capstan and zero-friction TVD limiting cases. These are **research values only, not rig hookload or liner-hanger operating limits**. The 37 new MC solver/profile/CLI tests **have not passed a full regression**; with the prior 25 diagnostic tests, the expected new collection is **567** versus last user-verified **505**. The physical-engineering acceptance of `LH-CALC-02` remains blocked.
+
 ## LH-CALC-02 — Independent 3D survey interpolation mismatch audit
 
 For **research-only** comparison of survey interpolation conventions, import `audit_two_station_trajectory` from `scripts/trajectory_interpolation_audit.py` with explicit `length_m`, `top_inclination_deg`, `bottom_inclination_deg`, `top_azimuth_deg`, `bottom_azimuth_deg` and optional `steps` (multiple of four). This standalone numerical audit returns positions in **north/east/down metres**, endpoint TVD/position differences and sampled tangent differences for linear-in-MD angle interpolation versus great-circle minimum-curvature interpolation. It uses **no OEM or well data** and never returns a load, a safe deviation threshold, or a field-validated trajectory.
