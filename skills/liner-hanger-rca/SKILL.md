@@ -94,6 +94,7 @@ Read `references/ENGINEERING_PRIMITIVES.md` for the **currently implemented** sk
 - `scripts/engineering_primitives.py`: cylindrical internal/annular capacity (m³), single-fluid hydrostatic pressure difference (Pa) from **TVD**, and apparent weight (N) for an **open, completely flooded pipe** only.
 - `scripts/directional_survey.py`: source-referenced MD/inclination/azimuth stations and minimum-curvature TVD integration; initial station TVD and datum must be supplied.
 - `tests/test_engineering_primitives.py` and `tests/test_directional_survey.py`: focused analytical/negative regression tests.
+- `scripts/planned_job_section.py`: initial source-identified, single-section wrapper joining minimum-curvature survey endpoints with capacity, static hydrostatics and open/flooded-pipe weight. Requires actual document IDs/locations/revisions for every input; no default well or manufacturer values; `tests/test_planned_job_section.py` adds 15 new tests awaiting full Windows verification. Read `references/ENGINEERING_PRIMITIVES.md` before using it. This is not a validated multi-section well model or OEM approval.
 
 These are **low-level computational primitives**, not approved job calculations. There is no complete source-validated planned-job model, torque/drag, circulating friction, surge/swab, tool actuation/rating or KHRM validation yet. Do not infer exact equipment limits or load/pressure at the liner hanger from these outputs. The skill's planned-design/retrospective comparison rules remain mandatory.
 
