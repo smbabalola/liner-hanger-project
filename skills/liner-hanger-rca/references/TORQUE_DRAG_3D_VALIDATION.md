@@ -53,6 +53,12 @@ py scripts/run_torque_drag_3d.py examples/synthetic_torque_drag_3d.json
 py scripts/run_torque_drag_spatial_profile.py examples/synthetic_torque_drag_spatial_profile.json
 ```
 
+## Regression defect correction — 180-degree survey error propagation
+
+**User-run Windows evidence (2026-11-14):** initial 3D batch at `f584cbf` produced **503 passed, 1 failed**. The failing parametrized case used 0°→180° azimuth at 90° inclination. The source-qualified `PlannedSection` survey validation correctly rejected an undefined 180-degree minimum-curvature dogleg *before* the 3D solver ran. However, `run_torque_drag_3d.run_payload` obscured that specific cause with a generic `invalid sourced planned section` error, making the test's expected `azimuth` diagnostic fail.
+
+**Correction:** `scripts/run_torque_drag_3d.py` now forwards the specific 180-degree dogleg/azimuth-inclination survey reason as `TorqueDragError`, with the existing fail-closed survey rejection unchanged. An additional dedicated regression test was added in `tests/test_torque_drag_3d.py`. **505 total tests expected** after the new case; this correction has **not yet been verified** by a user-run full suite. No physics coefficient, trajectory interpolation, contact-force equation, model applicability or stage acceptance has changed.
+
 ## Explicit exclusions and open engineering acceptance
 
 - These are **not actual 3D measured wellbore mechanics**. The survey is represented by exactly two stations per interval with **constant angular gradients in the chosen angle parametrization**, not minimum-curvature interpolation at each RK4 step. Station TVD boundary checks use the separately existing minimum-curvature survey procedure and do not prove agreement between these distinct interpolation models.
