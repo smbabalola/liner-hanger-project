@@ -151,6 +151,13 @@ def predict_minimum_curvature_curve(inputs: SpatialCurveInputs) -> dict:
     if mu*beta > 30:
         raise TorqueDragError("excessive friction-dogleg product")
     w = W/L
+    # The minimum-curvature station TVD must agree with the trajectory
+    # actually used for force and gravity in this versioned solver.
+    rf = 1.0 if beta < 1e-8 else 2.0/beta * (sin(beta/2)/cos(beta/2))
+    model_tvd = L*(t0[2]+t1[2])*rf/2
+    survey_tvd = float(static["results"]["delta_tvd_m"])
+    if abs(model_tvd-survey_tvd) > max(1e-7, 1e-9*abs(survey_tvd)):
+        raise TorqueDragError("minimum-curvature TVD inconsistent with sourced survey")
     outputs = {}
     for mode,label in ((1,"pickup"),(-1,"slackoff"),(0,"rotation")):
         T,N,M = _integrate(bottom,L,w,t0,t1,beta,mu,mu_rot,radius,
@@ -175,6 +182,8 @@ def predict_minimum_curvature_curve(inputs: SpatialCurveInputs) -> dict:
         "results":outputs,
         "dogleg_rad":str(beta),
         "section_buoyed_weight_n":str(W),
+        "minimum_curvature_delta_tvd_m":str(model_tvd),
+        "survey_delta_tvd_m":str(survey_tvd),
         "sources":{"planned_section":static["sources"],"minimum_curvature_inputs":src},
         "assumptions":[
             "one constant-mass and constant-friction two-station section",
