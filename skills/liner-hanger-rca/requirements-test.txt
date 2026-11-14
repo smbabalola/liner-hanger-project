@@ -1,0 +1,6 @@
+# Reproducible skill test environment for GitHub Actions.
+# These are test/import dependencies, not equipment-model validation.
+pytest>=8.0,<10
+openpyxl>=3.1,<4
+numpy>=1.26,<3
+pandas>=2.1,<3
