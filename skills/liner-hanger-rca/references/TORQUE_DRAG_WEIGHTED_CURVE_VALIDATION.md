@@ -32,6 +32,35 @@ Fourth-order Runge–Kutta solves the three positive-tension states separately w
 
 **Convergence benchmark (fictional 100 m build from 0° to 60°):** for a 0.1 m OD, 0.08 m ID uniform open/flooded pipe, dry mass 15 kg/m, fluid 1000 kg/m³, deepest tension 20 kN, `mu_ax=0.2`, `mu_rot=0.3`, `r=0.05m`, numerical RK4 at 256 intervals gives approximately: pickup **34,214.052 N**, slack-off **26,217.838 N**, pure-rotation axial **29,871.993 N**, contact torque **298.240 N·m**. These reference values are *independently recomputed from the explicit ODE by a separate JavaScript RK4 arithmetic check*, not original engineer or OEM job outputs. Check 64, 128 and 256 subdivisions for convergence, and compare 256 against 512 when verifying tolerances. A future full solver must additionally compare against a published engineering benchmark or approved engineering calculations and test contact-wall side transitions and discretization sensitivity in realistic surveys.
 
+## Extended engineering review — published formulation and exact nonzero-weight benchmark (2026-11-14)
+
+**Literature cross-check, not field calibration:** Johancsik, Friesen & Dawson, *Torque and Drag in Directional Wells—Prediction and Measurement*, SPE 11380 (1984), https://doi.org/10.2118/11380-PA, establishes a friction-times-wall-normal-load soft-string framework. Public engineering derivations explicitly distinguish **build** wall reaction (buoyed low-side gravity opposed by tensile curvature) from **drop** reaction (reinforcement). See https://core.ac.uk/download/pdf/147134737.pdf (build/drop force diagrams and normal-force balance), and https://www.sciencedirect.com/science/article/abs/pii/S0920410501001474 (Aadnøy & Andersen's analytical soft-string framework). We have **not** independently replicated their field data, full three-dimensional survey, friction calibration or complete published numerical job results.
+
+**A stronger independent exact benchmark is now added** in `tests/test_weighted_curve_independent_benchmarks.py`. Within a single planar section where the **signed wall-contact side remains unchanged**, define `σ = sign(w sin(i) − kT)`, and `b = mode * μ_ax * σ`, where mode is +1 pickup, −1 slack-off, 0 pure rotation. Then `T'(s) + bk T(s) = w [cos(i(s)) + b sin(i(s))]`. A closed-form integrating-factor solution exists, independent of the production RK4 integrator:
+
+```text
+k=(i_bottom-i_top)/L   (nonzero)
+A=w*(b*b-1)/(k*(1+b*b))
+B=2*w*b/(k*(1+b*b))
+P(i)=A*sin(i)+B*cos(i)
+T_top=exp(-b*k*L)*T_bottom + P(i_top) - exp(-b*k*L)*P(i_bottom)
+```
+
+This reproduces **both weighted build and drop** reference solutions for all three movement modes (mathematically stronger than simply matching the pre-existing straight and weightless limiting models):
+
+| Fictional 100 m planar section (20,000 N bottom) | Pickup top N | Slack-off top N | Pure-rotation top N |
+|---|---:|---:|---:|
+| 0°→60° build, μ_ax 0.2 | 34,214.05213166 | 26,217.83775350 | 29,871.99323562 |
+| 60°→0° drop, μ_ax 0.2 | 36,985.98340222 | 23,969.69422630 | 29,871.99323562 |
+
+The **analytic reference assumes invariant contact side**: for this fictional build `σ=−1`, drop `σ=+1`. It is an independent mathematical benchmark **derived from the declared model**, not an external well dataset or independent engineering certification.
+
+**Contact-side behaviour:** Previously the `abs(w sin i − kT)` contact law silently permitted sign changes. That may involve changing wall side, contact loss/transfer or other mechanics unsupported by the simple continuous-contact assumptions. The solver now checks the signed reaction at every RK4 step and midpoint, reports `signed_contact_side` per movement mode (`−1`, `0`, `+1`), and **fails closed with `TorqueDragError`** on detected side transitions rather than presenting an unconstrained candidate number. A low-tension 0°→60° synthetic case explicitly tests this rejection. The sample-based guard is not a proof of physical wall contact or a replacement for stiff-string modelling.
+
+**Numerical refinement diagnostics:** `scripts/weighted_curve_audit.py` exposes `compare_refinement(inputs, step_counts=(64,128,256))` to report **absolute differences** for all three tensile modes, their integrated contact reactions, and pure-rotation friction torque across successive RK4 resolutions. It performs no automatic pass/fail on engineering accuracy, no OEM limit check and no numerical self-certification. Real-world convergence must still be assessed with model applicability and evidence quality.
+
+**Current acceptance boundary:** The signed planar contact equation and separately derived exact constant-side mathematical solution are reviewed, but independent professional sign-off, third-party field/profile benchmark, 3D azimuthal wall contact, joined weighted curves, pressure-end forces and operating constraints remain **OUTSTANDING**. `LH-CALC-02` remains **6/7 (~86%), overall 2/9 (~22%)** until an explicit acceptance decision on the remaining work.
+
 ## API, input contract and limitations
 
 - `scripts/torque_drag_weighted_curve.py` — `WeightedCurveInputs(section, axial_friction, rotational_friction, contact_radius, bottom_tension, integration_steps)` and `predict_weighted_curve(inputs)`.
