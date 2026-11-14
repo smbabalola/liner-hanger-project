@@ -1,6 +1,6 @@
 # LH-CALC-01 — Elementary geometry and constant-density statics (first vertical slice)
 
-**Status:** IMPLEMENTED, **FOCUSED LOCAL SANDBOX TESTED**; Windows full-project regression pending. **LH-CALC-01 as a whole is not accepted**: a validated survey and MD/TVD trajectory contract, source-wrapped job input schemas, and independent engineering review remain outstanding.
+**Status:** IMPLEMENTED, **FOCUSED LOCAL SANDBOX TESTED**; Windows full-project regression pending. **LH-CALC-01 as a whole is not accepted**: source-wrapped job input schemas, independently reviewed applicability, and the full Windows regression remain outstanding. A **minimum-curvature trajectory integrator is implemented and locally focused-tested**; it has not been verified against a real KHRM survey.
 
 ## Scope and callable API (inside this skill)
 
@@ -14,6 +14,12 @@ Module: `scripts/engineering_primitives.py`. Import in an offline application vi
 | `flooded_pipe_apparent_weight(outer_diameter, inner_diameter, diameter_unit, dry_linear_mass, linear_mass_unit, fluid_density, density_unit, length, length_unit)` | metal OD, ID, dry linear mass `kg/m` or `lbm/ft`, fluid density, length | segment apparent gravitational weight **N** (positive downward) | FULLY FLOODED, OPEN, uniform wall, same internal/external fluid density, pressure-balanced; no pressure-end forces or tool internals, **not hookload** |
 
 Inputs must have caller-owned original source ID/revision/cell/page and case-specific applicability. These elementary functions **do not confer source authentication**: planned-job apps must validate source records through the skill's `equipment_specs.py` and `engineering_baseline.py` interfaces before comparing a result with a job value.
+
+### Minimum-curvature directional survey
+
+Module: `scripts/directional_survey.py`. `integrate_minimum_curvature(stations=[SurveyStation(...)], depth_unit="m"|"ft", start_tvd=..., start_tvd_unit="m"|"ft", datum=...)` returns `TVDStation` records with MD and TVD in metres, source-defined inclination and azimuth in degrees, and dogleg radians. Each survey station carries a non-empty source reference. The **first survey station's TVD must be supplied**, not silently assumed to be zero at its MD. Strictly increasing MD, inclination 0–180 degrees and azimuth 0–<360 degrees are required. A 180-degree dogleg is rejected as singular; missing or malformed station inputs raise `SurveyError`.
+
+The classic minimum-curvature method computes dogleg `β=acos(cos i1 cos i2+sin i1 sin i2 cos(Δazi))`, ratio factor `RF=2 tan(β/2)/β` (unity in the zero-dogleg limit), and `ΔTVD=ΔMD (cos i1 + cos i2) RF/2`. Trigonometric calculations use floating point internally and output `Decimal` for convenient downstream units; this is **not arbitrary precision survey computation**. Straight vertical 100m→100m TVD, straight horizontal 100m→~0m, steady 60-degree inclination 100m→50m and 0→90-degree 100m build→~63.661977m are independently checkable limiting geometries. No interpolation beyond provided stations or signed operator approval is implied.
 
 ## Documented independent reference equations and analytical checks
 
@@ -31,11 +37,11 @@ The following are elementary cylindrical geometry/statics identities, not vendor
 3. Water `ρ=1000 kg/m³`, downwards `ΔTVD=100 m`: `Δp = 1000×9.80665×100 = 980665 Pa`; upward 100 m gives `-980665 Pa`.
 4. Fully flooded open pipe, OD=0.2 m, ID=0.1 m, L=2 m, dry linear mass=100 kg/m, ρ=1000 kg/m³: wall material volume `0.0471238898038469 m³`; apparent load `(200−47.1238898038469)×9.80665 ≈ 1499.20 N`. This is not the load on a hanger or the rig hook.
 
-**Focused validation evidence:** In an isolated local Python sandbox a matching implementation plus 14 focused pytest cases (7 analytic/unit/sign scenarios + 7 invalid-input parametrisations) returned **14 passed in 0.06 s**. No full repository regression or Windows Codex/checkout test has been executed for these new commits. The separately documented earlier full regression of 219 tests predates this implementation; expect **233 total** if the 14 new tests are discovered and nothing else changed, but record the actual output before accepting anything.
+**Focused validation evidence:** In an isolated local Python sandbox a matching implementation plus 29 focused pytest cases (14 primitive cases and 15 directional-survey cases) returned **29 passed in 0.06 s**. No full repository regression or Windows Codex/checkout test has been executed for these new commits. The separately documented earlier full regression of 219 tests predates this implementation; expect **248 total** if all 29 new tests are discovered and nothing else changed, but record the actual output before accepting anything.
 
 ## Missing work before LH-CALC-01 can be checked off
 
-- Versioned survey record (MD, inclination, azimuth, datum), mathematically defined minimum-curvature TVD or clearly scoped alternative, trajectory validation and separate MD/TVD handling.
+- Extend implemented source-referenced survey and MD/TVD separation with survey-version governance, station-depth datum consistency and whole-well profile integration, as required by planned-job workflows.
 - Typed casing/hole sections, planned fluid properties and string data plus source-linked input wrappers for these primitive functions. Source metadata and exact unit/type crosswalk must be maintained.
 - Explicit exception and missing-data tests across a complete planned well geometry scenario and comparisons with independently reviewed results.
 - Full local Windows `py -m pytest -rs -q tests` regression + independent review of the model applicability and benchmark arithmetic.
