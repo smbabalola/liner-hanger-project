@@ -64,6 +64,12 @@ A research-only, standard-library fail-closed numerical comparison gate is now a
 
 The current theoretical full-suite collection is **605 tests** (568 expected before this batch plus 37 new cases); **not verified as passing** in a full repository or Windows run. The latest user-confirmed full skill regression remains **505 passed at `6e79693`**. No authenticated GitHub Actions full-suite result or qualified physical applicability approval is available. `LH-CALC-02` remains **6/7 (~86%) OPEN**, programme **2/9 (~22%)**.
 
+## 2026-11-15 — full skill CI regression VERIFIED; external physical benchmark still OPEN
+
+GitHub Actions [run 43718419410](https://github.com/smbabalola/liner-hanger-project/actions/runs/43718419410) at code/workflow commit `2fab5b6` executed the **entire skill test suite**, with real browser provisioning and previously skipped Playwright checks. Actual logs: **Python 3.11: 605 passed, 0 skipped in 27.26s; Python 3.12: 605 passed, 0 skipped in 17.32s**. Prior references to *expected* 605 tests and 505 last confirmed are historical; they are superseded for this tested commit. Software integration verification is now satisfied.
+
+External source Candidate B was inspected more deeply (see `LH_CALC02_EXTERNAL_BENCHMARK_REGISTER.md`). The public `welleng` example is azimuth-constant/planar, differs in detailed BHA/tooljoint/bottom-boundary construction and does not constitute an independently reproduced combined-build-and-turn weighted 3D well. **No published nonzero-weight full 3D contact-force/torque profile has been matched** on identical physical inputs and assumptions, and no qualified reviewer has approved contact-state/stiffness/field applicability. Therefore **LH-CALC-02 remains 6/7 (~86%) OPEN; programme 2/9 (~22%)**. Do not treat the regression success as rig-hookload or OEM engineering approval.
+
 ## Acceptance gate — next bounded sequence
 
 - [x] Basic straight, co-linear, exact weightless bend and planar weighted module implemented, with full updated user Windows regression of **432 passed in 13.82 s** at `bf7838e`.
