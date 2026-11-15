@@ -4,6 +4,16 @@
 
 ## Development checkpoint — 2026-11-15
 
+## Verified software regression and annular thin-gap stability — 2026-11-15
+
+**Verification:** The first implemented Newtonian laminar pipe/concentric-annulus CLI and primitives were confirmed by actual GitHub Actions [run 43749939250](https://github.com/smbabalola/liner-hanger-project/actions/runs/43749939250) job logs: **690 passed** on Python 3.11 and **690 passed** on Python 3.12. Subsequent small-gap numerical stability fix and three regression cases are now verified at code commit `192c9c8`, [run 43752254732](https://github.com/smbabalola/liner-hanger-project/actions/runs/43752254732): **Python 3.11 693 passed in 7.17s**, **Python 3.12 693 passed in 27.93s**, no failures (both completed with success). These are software tests and analytical limiting checks, **not** a sourced full-rig hydraulic physical benchmark or acceptance.
+
+**Specific defect mitigated:** Direct evaluation of the exact fully developed Newtonian concentric-annulus throughput coefficient `1-x^4-(1-x^2)^2/ln(1/x)`, where `x=Ri/Ro`, loses significant digits in nearly closed clearances from subtraction of similar terms. The skill's `circulating_hydraulics.py` now evaluates `t=log1p((Ro-Ri)/Ri)`; for `t < 0.01` it uses a derived `O(t^8)` conductance series (leading term `4t^3/3`), otherwise a stable `expm1` expression. The physical model and its laminar boundary remain unchanged. Two new synthetic narrow-gap cases independently compare against the **parallel-plate thin-gap limit** `dp≈6 μ L Q/(π Ro h^3)`, and a third tests inverse gap-cubed sensitivity; these do not claim either an OEM annulus gap or real tool dimensional applicability. Changes: `scripts/circulating_hydraulics.py` commit `d9c7308`, `tests/test_circulating_hydraulics.py` commit `192c9c8`.
+
+**Acceptance:** LH-CALC-03 still **IN PROGRESS / NOT ACCEPTED**. No hydraulic mud rheology beyond Newtonian, no source-backed turbulent/transitional law, eccentricity, running-tool/liner restrictions or full pump-to-return pressure datum, real-measured SPP benchmark or qualified reviewer sign-off. The model output is **only partial straight-section circulation friction**, `standpipe_pressure_pa=null`. LH-CALC-02 stays PARKED OPEN 6/7; overall 2/9 accepted.
+
+
+
 **Implemented in GitHub, but NOT yet full-regression verified or physically accepted.**
 - `scripts/circulating_hydraulics.py`: strict SI Newtonian fluid and pipe/concentric-annulus geometry; laminar analytical pressure drop, velocity, Reynolds and per-segment audit trail; conservative rejection above Reynolds 2000 and malformed/nonfinite inputs.
 - `scripts/run_circulating_hydraulics.py`: strict JSON offline entry point and failure exit codes.
