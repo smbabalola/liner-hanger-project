@@ -1,0 +1,37 @@
+{
+  "fluid": {
+    "density_kg_m3": 1000,
+    "dynamic_viscosity_pa_s": 0.1,
+    "rheology": "newtonian"
+  },
+  "flow_m3_s": 0.0001,
+  "components_in_flow_order": [
+    {
+      "type": "pipe_or_annulus",
+      "name": "fictional_internal_pipe",
+      "kind": "pipe",
+      "length_m": 10,
+      "outer_diameter_m": 0.1,
+      "inner_diameter_m": 0,
+      "flow_leg": "downstream"
+    },
+    {
+      "type": "nozzle_orifice",
+      "name": "fictional_nozzle",
+      "total_flow_area_m2": 0.0002,
+      "discharge_coefficient": 0.8,
+      "coefficient_source_id": "SYNTHETIC-NOT-ACTUAL-NOZZLE-CALIBRATION",
+      "flow_leg": "downstream",
+      "geometry": "orifice_approach_velocity_negligible"
+    },
+    {
+      "type": "pipe_or_annulus",
+      "name": "fictional_annulus",
+      "kind": "concentric_annulus",
+      "length_m": 10,
+      "outer_diameter_m": 0.2,
+      "inner_diameter_m": 0.1,
+      "flow_leg": "return"
+    }
+  ]
+}
