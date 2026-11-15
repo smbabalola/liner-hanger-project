@@ -1,0 +1,19 @@
+{
+  "fluid": {
+    "density_kg_m3": 1100,
+    "plastic_viscosity_pa_s": 0.1,
+    "yield_stress_pa": 5,
+    "rheology": "bingham_plastic"
+  },
+  "segment": {
+    "name": "fictional_internal_pipe",
+    "kind": "pipe",
+    "length_m": 10,
+    "outer_diameter_m": 0.1,
+    "inner_diameter_m": 0,
+    "flow_leg": "downstream"
+  },
+  "flow_m3_s": 0.00001,
+  "laminar_regime_independently_confirmed": true,
+  "regime_evidence_id": "SYNTHETIC-ASSUMPTION-NOT-A-MEASUREMENT"
+}
