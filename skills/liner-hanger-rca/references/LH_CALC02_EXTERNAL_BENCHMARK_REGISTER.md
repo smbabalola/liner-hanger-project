@@ -1,6 +1,6 @@
 # LH-CALC-02 — independently sourced external benchmark intake
 
-**Date:** 2026-11-14. **Gate:** OPEN. This is a source-input crosswalk, **not** an independent validation pass or permission for operational use. The new minimum-curvature research solver has **568 expected software tests**, not yet verified in the full Windows skill suite; last user-confirmed suite **505 passed in 13.10s** at `6e79693`.
+**Date:** 2026-11-14. **Gate:** OPEN. This is a source-input crosswalk, **not** an independent validation pass or permission for operational use. The latest verified hosted full regression is **605 passed, zero skipped** on both Python 3.11 and 3.12 at `2fab5b6` (see acceptance substeps); historical 568-expected/505-Windows figures are superseded for software regression, not for field validation.
 
 ## Candidate A — Texas A&M dissertation with published force/torque values
 
@@ -45,6 +45,17 @@ The paper describes a publicly inspectable, containerized transient axial/torsio
 
 **Decision (2026-11-15):** source and repository identified; **no simulator run, data extraction, input crosswalk, force match or review performed**. Record as an external validation lead only. Next: inspect the upstream ModelTest/SimulatorTest fixtures and associated 2026 paper examples, select a reproducible static limit if available, compare explicitly with our supported contact regime, and reject non-equivalent cases. Do not commit upstream source or field data to this project.
 
+## Candidate E fixture inspection — 2026-11-15 (read-only, upstream main)
+
+Inspected the upstream repository's [recursive tree](https://github.com/Open-Source-Drilling-Community/Simulator4nDOF), [ModelTest/Tests.cs](https://github.com/Open-Source-Drilling-Community/Simulator4nDOF/blob/main/ModelTest/Tests.cs), [SimulatorTest/SimulatorTrajectoryTests.cs](https://github.com/Open-Source-Drilling-Community/Simulator4nDOF/blob/main/SimulatorTest/SimulatorTrajectoryTests.cs), [SimulatorTest/DiscretizationTests.cs](https://github.com/Open-Source-Drilling-Community/Simulator4nDOF/blob/main/SimulatorTest/DiscretizationTests.cs) and upstream README via GitHub's read API. This is a **source inspection**, not an executed external simulation.
+
+- `ModelTest/Tests.cs` contains only empty one-time setup/teardown hooks; it is **not** a published torque/drag known-answer fixture.
+- `SimulatorTrajectoryTests.cs` contains a **combined build/turn trajectory** at MD 0/300/600/1000 m, inclinations 0/10/30/45 degrees and azimuths 0/45/60/70 degrees. Tests compare the *same simulator's* trajectory and survey-run constructors, station ordering and tie-in handling at tolerance 1e-12. Their TVD entries (0/298/570/870 m) are fixture inputs, **not independently verified minimum-curvature TVDs**, and the tests have no string, friction, weight, boundary tension or torque output. **Do not promote this geometry fixture to a weighted 3D torque-and-drag benchmark.**
+- `DiscretizationTests.cs` uses illustrative density 7850 kg/m³, area 0.003 m², inertia 1e-5 m⁴, Young's modulus 2.1e11 Pa, shear modulus 8e10 Pa and deliberately uneven element lengths. It tests grid mappings, interpolation and consistent nodal-load conservation, **not** a complete directional-well force/torque profile or an equivalent soft-string contact law.
+- Upstream README describes a **transient** 4n-DOF simulator and its service interfaces. These fixture tests do not define a stationary quasi-static reduction, convergence tolerance, friction/contact law equivalence or published per-node force/torque targets. No model execution, static-limit calibration or qualified external comparison occurred.
+
+**Gate decision:** Candidate E remains a **research lead, not a usable LH-CALC-02 acceptance benchmark**. The next evidence-eligible action is to locate a *fully specified, published/authorized* 3D quasi-static load case with survey, string, fluid, friction/contact, movement mode, bottom boundary and tabulated independent force/torque outputs; otherwise keep this gate open. Do not infer independent physical validation from the upstream unit-test suite.
+
 ## Candidate B deeper source crosswalk — 2026-11-15
 
 The publicly reproducible `welleng` notebook/article at https://jonnymaserati.github.io/2022/05/22/an-example-of-welleng-torque-drag.html documents control nodes (MD 0/731.5/1280/3718 m; inclination 0/0/44/44 deg; azimuth 0 deg throughout), 30 m resampling, an example BHA (6.5 in/4 in drill collars for 372 ft at 146.90 lb/ft; 4.5 in/4 in HWDP for 840 ft at 46.90 lb/ft; 5 in/3.625 in pipe at 20 lb/ft), casing/open-hole friction 0.39, the cited 9.8/8.33 SG fluid conversion and WOB 10,000 N, bottom torque 2,712 N m, overpull 50,000 N. Its wellbore assembly references 8.5 in nominal diameter, while tooljoint diameters are separately included. The plotted T&D curves are not a published machine-readable per-station force/torque table in the article, and the source explicitly omits high-dogleg sections from the original paper.
@@ -56,7 +67,7 @@ The publicly reproducible `welleng` notebook/article at https://jonnymaserati.gi
 - [x] Identify and read independent published source candidates and record **exactly what each supports and lacks**.
 - [ ] Obtain all source inputs and outputs required for one **physically equivalent** benchmark; compare unit systems, bottom conditions, motion modes, angle conventions, wall radius and pipe mass/buoyancy basis. Do not tune missing values to match reported results.
 - [ ] Establish a nontrivial **nonzero-weight 3D** (inclination + azimuth) published/qualified actual comparable torque/drag dataset, with an independent engineering reviewer.
-- [ ] Run the current **568 expected** full skill regression (locally or verified CI) and record actual count/failures; no pass-by-assumption.
+- [x] Full skill regression independently confirmed in GitHub Actions [run 43718419410](https://github.com/smbabalola/liner-hanger-project/actions/runs/43718419410) at commit `2fab5b6`: **Python 3.11 605 passed, 0 skipped (27.26s); Python 3.12 605 passed, 0 skipped (17.32s)**, verified from actual job logs with Playwright/Chromium provisioned. This is software regression, not physical validation.
 - [ ] Record discrepancy tables and qualified model applicability/field-use decision; unsupported configurations remain unavailable.
 
 **Confidentiality:** publish only scholarly citations and small independently derived numerical fixtures; never upload copyrighted papers, Baker Hughes job packages, or customer records.
