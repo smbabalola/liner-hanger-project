@@ -87,7 +87,10 @@ def main() -> int:
     if not all(math.isfinite(x) for x in inclinations + azimuths):
         raise RuntimeError("nonfinite external survey values")
     dimensions = {"pipe": {"od": 4.5, "id": 4, "shoe": 3000}, "odAnn": 5}
-    # The independent reconstruction uses the original survey before calc\n    # mutates its trajectory dictionaries in-place.\n    source_law = independent_discrete_source_reconstruction(copy.deepcopy(data))\n    result = calc(data, dimensions, case="all", torque_calc=True, wob=50, tbit=50)
+    # The independent reconstruction uses the original survey before calc
+    # mutates its trajectory dictionaries in-place.
+    source_law = independent_discrete_source_reconstruction(copy.deepcopy(data))
+    result = calc(data, dimensions, case="all", torque_calc=True, wob=50, tbit=50)
     explicit_default = calc(copy.deepcopy(data), dimensions, case="all", torque_calc=True,
                             wob=50, tbit=50, fric=[0.24] * len(data))
     actual = {"force": {k: float(result.force[k][0]) for k in DOCUMENTED_FIRST_FORCE_KN},
