@@ -182,6 +182,16 @@ Implementation and validation must follow the canonical workstream `LH-CALC-00` 
 
 ## LH-CALC-03 — Offline experimental circulating hydraulics (NOT a rig SPP calculator)
 
+**Latest LH-CALC-03 software regression:** [GitHub Actions run 43757805273](https://github.com/smbabalola/liner-hanger-project/actions/runs/43757805273) at code commit `227d241` — **815 passed on Python 3.11 and 815 passed on Python 3.12**, zero failures or skips in either job (actual logs verified). This is a software result, not rig hydraulics approval. The older 766-case count in the historical checkpoint above is superseded for new software.
+
+**Additional restricted power-law pipe calculation:**
+```bash
+python scripts/run_power_law_laminar_pipe.py examples/synthetic_power_law_laminar_pipe.json
+```
+This source-based `power_law_laminar_pipe.py` uses `tau=K gamma_dot^n`, `K` in **Pa·s^n**, strictly a fully developed **laminar circular pipe**, with separate source-labelled but caller-asserted laminar-regime evidence. `n=1` reduces to Newtonian Hagen–Poiseuille, and `DeltaP ∝ Q^n` for fixed geometry. It **does not** support power-law annular flow, transitional/turbulent flow, mud yield stress, casing eccentricity, OEM restrictions or rig standpipe-pressure predictions. See `references/LH_CALC03_HYDRAULICS_PLAN.md` for the published BYU Eq 7–8 source and exact validation boundary. `standpipe_pressure_pa=null`, `engineering_acceptance=false` at all times.
+
+
+
 **Current research-only software APIs and CLI usage:**
 
 ```bash
