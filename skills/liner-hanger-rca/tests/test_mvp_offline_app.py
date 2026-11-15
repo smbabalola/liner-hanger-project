@@ -147,3 +147,29 @@ def test_reject_duplicate_timestamps_and_unsupported_case_without_crash(tmp_path
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_chart_drag_opens_interval_annotation_modal():
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            canvas = page.locator("#charts canvas").first
+            bounds = canvas.bounding_box()
+            x1 = bounds["x"] + bounds["width"] * .3
+            x2 = bounds["x"] + bounds["width"] * .5
+            y = bounds["y"] + bounds["height"] * .45
+            page.mouse.move(x1, y)
+            page.mouse.down()
+            page.mouse.move(x2, y, steps=8)
+            page.mouse.up()
+            assert page.locator("#noteDialog").is_visible()
+            assert "recorded sample indices" in page.locator("#noteInterval").inner_text()
+            page.locator("#noteTitle").fill("Direct chart selection")
+            page.locator('#noteForm button[type="submit"]').click()
+            page.locator('[data-tab="notes"]').click()
+            assert page.locator("#notesList article").count() == 1
+            assert not errors, errors
+        finally:
+            instance.close()
