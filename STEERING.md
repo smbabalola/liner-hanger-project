@@ -15,6 +15,10 @@ A future coding assistant must be able to install **only this skill package** an
 
 ## Current execution checkpoint — 2026-11-14
 
+**Latest LH-CALC-03 code checkpoint (2026-11-15):** Bingham laminar circular-pipe, source-labelled nozzle differential and offline Newtonian pipe/nozzle/annular-return component budget implemented and software-regression verified: [run 43753403289](https://github.com/smbabalola/liner-hanger-project/actions/runs/43753403289), **766 tests passed on each of Python 3.11 and 3.12**. See `skills/liner-hanger-rca/references/LH_CALC03_ACCEPTANCE_EVIDENCE.md` for exact verified scope and unmet physical acceptance criteria. Stage **IN PROGRESS**, no field approval and no computed standpipe pressure. LH-CALC-02 remains parked OPEN 6/7; programme 2/9 accepted.
+
+
+
 **2026-11-15 LH-CALC-03 latest verified engineering checkpoint:** Active work remains **circulating hydraulics** per user reprioritisation. First restricted Newtonian laminar straight-pipe/concentric-annulus code and CLI successfully passed **690** Python tests per environment in [run 43749939250](https://github.com/smbabalola/liner-hanger-project/actions/runs/43749939250). Identified and corrected narrow-annulus conductance cancellation (`d9c7308`) and added three independent thin-gap analytical/sensitivity tests (`192c9c8`). **Latest full Python 3.11 and 3.12 GitHub Actions run 43752254732**: **693 passed** each, zero failures (3.11 7.17s; 3.12 27.93s), both logs independently checked. Applies *only* to isothermal Newtonian fully developed laminar straight sections; **does not produce standpipe pressure**, `standpipe_pressure_pa=null`. Physically complete pressure boundaries, source-supported mud rheology, circuit equipment, independent field/equivalent full-case benchmark and qualified signoff remain absent. **LH-CALC-03 IN PROGRESS, NOT ACCEPTED; LH-CALC-02 PARKED OPEN 6/7; overall 2/9 accepted.** Next engineering activity: source-based rheology and auditable complete circuit definition, no inferred OEM ratings.
 
 
