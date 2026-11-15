@@ -30,6 +30,14 @@
 
 **Physical acceptance remains OPEN:** No complete exact OEM/tool hydraulic path, stage-dependent mud rheology and genuine per-section flow regimes, pressure sensor location/datum, tool restrictions, thermal/multiphase/hydrostatic return terms, field reference pressure profile or qualified engineering sign-off has been provided or independently validated. Source-equation match is **not** an end-to-end hydraulic model approval.
 
+## Verified two-column hydrostatic contribution — 2026-11-15
+
+**New bounded model:** `circulation_hydrostatics.py` and strict `run_circulation_hydrostatics.py`; independent analytical tests in `tests/test_circulation_hydrostatics.py` and CLI cases in `tests/test_run_circulation_hydrostatics.py`. Source-audited input example `examples/synthetic_hydrostatic_column_balance.json` is explicitly fictional. Uses the static fluid law `dP/dTVD=rho*g`; for equal vertical endpoint/datum downflow and return columns, the *hydrostatic contribution* to the downflow-minus-return surface pressure is **`g*(sum_return rho*deltaTVD - sum_down rho*deltaTVD)`**. Conflicting datum, missing/overlapping TVD vertical spans, nonpositive density, unmatched bottom/surface elevation and duplicate identities fail closed. No MD-as-TVD assumption, no fictitious source density value. The result remains isolated: `standpipe_pressure_pa=null`, `engineering_acceptance=false`.
+
+**Confirmed entire hosted code regression:** [GitHub Actions run 43759583639](https://github.com/smbabalola/liner-hanger-project/actions/runs/43759583639), code commit `abde443`, Python **3.11 890 passed in 26.33s**, **3.12 890 passed in 22.10s**, no failures/skips, verified from both job logs. This supersedes older 766- and 866-case counts as the latest full-code verification; earlier failed intermediate CI runs are documented and corrected.
+
+**Physical interpretation restriction:** No friction, rheological state, dynamic pressure, temperature/compressibility, fluid-interface position or pressure-sensor elevation differences are inferred. It cannot be automatically summed into an approved predicted SPP: the true equipment flow path, datum, stage-specific column state and benchmark are still absent. **LH-CALC-03 remains OPEN/IN PROGRESS**, with no independent operator/OEM engineering acceptance.
+
 ## Source registers and methodological scope
 
 - **Newtonian pipe:** Hagen–Poiseuille `DeltaP = 128 mu L Q / (pi D^4)`, steady fully developed laminar circular tube; checked against separately expressed velocity/radius formulation.
