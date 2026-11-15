@@ -2,6 +2,14 @@
 
 **Status:** IN PROGRESS — scope and engineering contract established 2026-11-15. No implementation, numerical benchmark or acceptance claimed by this document.
 
+## Power-law laminar circular-pipe model — 2026-11-15
+
+**Source and derivation:** Brigham Young University, *Non-Newtonian Fluid Math*, Eqs. (7) and (8), https://www.et.byu.edu/~wheeler/Non-Newtonian_Fluid_Math.pdf . For an isothermal steady incompressible power-law fluid `tau=K gamma_dot^n`, `K` has units `Pa s^n` (not `Pa s` unless `n=1`), `n` is unitless, `v=4Q/(pi D^2)`; the laminar circular-pipe wall stress is `tau_w=K[(3n+1)/(4n) * 8v/D]^n`, and `DeltaP=4L tau_w/D`. This is the explicit, separately derived Metzner–Reed/Rabinowitsch relation and not a calibration to a published pressure target. The current model refuses to infer a laminar regime from a density and plastic-viscosity approximation; the caller supplies a separately established laminar-regime assertion **plus source identifier**, explicitly labelled *not authenticated* by the software. The 0.1–2 research-only exponent guard prevents extreme/poorly characterised exponents and is not an industrial validity limit.
+
+**Implementation/contract:** `scripts/power_law_laminar_pipe.py`, `scripts/run_power_law_laminar_pipe.py` (strict offline JSON), `examples/synthetic_power_law_laminar_pipe.json`, `tests/test_power_law_laminar_pipe.py`, `tests/test_run_power_law_laminar_pipe.py`. Source-based independent equation and exact `n=1` Newtonian reduction, `DeltaP ∝ Q^n` sensitivity, zero-flow/length and malformed-evidence/invalid-geometry fail-closed tests. This calculation applies **only** to a *circular internal pipe in independently confirmed laminar flow*, not to a power-law annulus, an actual dynamically changing mud with yield stress, Herschel–Bulkley flow or turbulent/transition regime. No observed mud rheogram, pump/running-tool data or operator pressure comparison is claimed. Its outputs always include `standpipe_pressure_pa=null` and `engineering_acceptance=false`.
+
+**New-code test status:** GitHub CI on commit `227d241` pending verification at time of authoring. Do not count tests until job logs are reviewed; stage remains LH-CALC-03 OPEN regardless of software pass.
+
 ## New source-supported research models — 2026-11-15
 
 **Status: code, executable offline examples and tests committed; latest full GitHub regression to be verified before the cases are counted.** All files are in the portable `skills/liner-hanger-rca/` skill, not a separate application.
