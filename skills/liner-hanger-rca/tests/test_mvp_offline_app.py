@@ -71,7 +71,7 @@ def test_anomaly_deviation_annotation_persistence_and_report_export():
             page.locator('[data-tab="deviations"]').click()
             assert "1 rule(s)" in page.locator("#ruleSummary").inner_text()
             assert page.locator("#findings article.flag").count() == 1
-            assert "deviation_candidate" in page.locator("#findings article.flag").inner_text()
+            assert "deviation candidate" in page.locator("#findings article.flag").inner_text()
             page.locator("#findings article.flag button").first.click()
             assert "sample 25/61" in page.locator("#cursorTime").inner_text()
             page.locator('[data-tab="notes"]').click()
