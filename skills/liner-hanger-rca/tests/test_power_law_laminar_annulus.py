@@ -53,6 +53,7 @@ def test_annular_quadrature_refinement_is_consistent():
 def test_zero_flow_zero_distributed_friction():
     r=solve(q=0)
     assert r["pressure_loss_pa"]==0
+    assert r["zero_shear_radius_m"] is None
     assert r["standpipe_pressure_pa"] is None
 
 
