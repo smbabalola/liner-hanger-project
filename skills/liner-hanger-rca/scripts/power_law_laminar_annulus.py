@@ -96,7 +96,9 @@ def power_law_laminar_annulus_pressure_loss(
             "annulus exponent outside bounded 0.3..1.5 research scope")
     if not q or not section.length_m:
         dp=gradient=0.
-        rm=(ri+ro)/2
+        # Zero flow has no identified maximum-velocity location; zero
+        # length has no distributed developed-flow field to locate.
+        rm=None
         rel_error=0.
     else:
         rm,c=_coefficient(ri,ro,fluid.flow_behavior_index,quadrature_steps)
