@@ -108,3 +108,10 @@ def test_schema_version_required():
     data["schema_version"] = "unknown"
     with pytest.raises(BenchmarkError):
         assess_benchmark(data)
+
+
+def test_huge_integer_fails_closed_without_overflow():
+    data = manifest()
+    data["comparison"]["model_value"] = 10**400
+    with pytest.raises(BenchmarkError, match="finite float"):
+        assess_benchmark(data)
