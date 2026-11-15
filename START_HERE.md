@@ -1,5 +1,7 @@
 # START HERE — Liner Hanger Project
 
+> **CURRENT USER-APPROVED OVERRIDE — 2026-11-15:** Finish a locally runnable liner-hanger RCA application MVP, targeting today where feasible. Read [STEERING.md](STEERING.md) and the five MVP-01..05 gates in [TODO.md](TODO.md). Reuse existing skill/UI prototypes; prioritize Import → Replay/assembly movement → procedure deviations → notes → report → verified end-to-end demo. All earlier instructions here saying UI deferred, calculations first, or skill-only release before the app are historical and superseded for this MVP. Advanced LH-CALC stages are deferred, not accepted. Keep evidence, confidentiality and engineering-review safeguards. Do not claim completion without a running UI and passing normal/anomalous end-to-end cases.
+
 > **ACTIVE STEERING UPDATE (2026-11-14):** Read [STEERING.md](STEERING.md) first, then the top **LH-CALC** section of [TODO.md](TODO.md). The user approved an integrated calculation-design-verification workstream *inside* `skills/liner-hanger-rca/`; earlier statements below deferring all broad calculations or requiring RCA-only v1 completion first are historical and superseded **for the LH-CALC workstream**. UI development, cross-OEM support, unapproved OEM limits and operational sign-off remain deferred. The user-confirmed baseline is **219 passing software tests**, not physical model validation.
 
 
