@@ -21,6 +21,10 @@
 
 ## ACTIVE PRIORITY — LH-CALC engineering calculations (approved 2026-11-14)
 
+**LH-CALC-02 benchmark-source follow-up (2026-11-15):** [x] Located NORCE/SPE-230785-MS (March 2026) Apache-2.0 open-source 4n-DOF transient torque/drag simulator and its GitHub `Simulator4nDOF` repository; documented it as Candidate E in `skills/liner-hanger-rca/references/LH_CALC02_EXTERNAL_BENCHMARK_REGISTER.md` (commit `6dd436e`). [ ] Determine whether upstream public fixtures include a physically comparable nonzero-weight 3D **quasi-static** case, fully source-match input/output and obtain independent qualified review. **No new numerical reproduction, full 568-test execution or acceptance achieved in this session**: the linked GitHub files were inspected read-only and the execution container cannot reach/clone GitHub or access the required user's Windows checkout. Latest verified 505 tests; 568 expected, NOT passed by inference. **LH-CALC-02 remains OPEN 6/7 (~86%), programme 2/9 (~22%).**
+
+
+
 **Single objective:** Finish the skill-embedded planned engineering calculation and validation foundation, then connect it to the retrospective investigation system. **[STEERING.md](STEERING.md)** sets the authoritative objectives, order, engineering gates and bounded Codex work loop. Earlier Baker Hughes-only fault-first deferrals remain historical but **do not block this explicitly approved workstream**. Build within `skills/liner-hanger-rca/`; UI and extra OEMs remain deferred. The current user-confirmed Windows full regression is **505 passed in 13.10 s** after pulling through commit `6e79693`; the experimental 3D batch is software-regression verified; physical model operational approval and KHRM-specific validation remain outstanding.
 
 **Current accepted-stage progress: 2/9 (~22%) as of 2026-11-14, following the LH-CALC-01 273-test verification; this supersedes older progress snapshots below. Real-job/OEM-certified engineering capability is NOT implied.**
