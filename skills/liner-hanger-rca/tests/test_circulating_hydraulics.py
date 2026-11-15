@@ -181,3 +181,38 @@ def test_circuit_rejects_unsupported_turbulent_leg():
 def test_si_pascal_to_bar_consistency():
     r = segment_pressure_loss(fluid(), pipe(), 0.0001)
     assert r["pressure_loss_bar"]*1e5 == pytest.approx(r["pressure_loss_pa"])
+
+
+@pytest.mark.parametrize("radial_gap_m,flow_m3_s", [
+    (1e-5, 1e-12),
+    (1e-8, 1e-20),
+])
+def test_thin_concentric_annulus_matches_independent_parallel_plate_limit(
+        radial_gap_m, flow_m3_s):
+    # Independent leading-order no-slip narrow-gap theory:
+    # Q = (2*pi*R)*h**3*dp/(12*mu*L) as h/R -> 0.
+    # The annulus calculation uses the full cylindrical expression and
+    # must approach this law without catastrophic cancellation.
+    r_outer = 0.1
+    r_inner = r_outer-radial_gap_m
+    section = annulus(
+        length=10, outer=2*r_outer, inner=2*r_inner)
+    result = segment_pressure_loss(fluid(), section, flow_m3_s)
+    expected = 6*0.1*10*flow_m3_s / (
+        math.pi*r_outer*radial_gap_m**3)
+    assert result["reynolds"] < 2000
+    assert result["pressure_loss_pa"] == pytest.approx(expected, rel=5e-4)
+    assert math.isfinite(result["pressure_loss_pa"])
+    assert result["engineering_acceptance"] is False
+
+
+def test_thin_gap_pressure_scales_as_inverse_gap_cubed():
+    # Independently derive the asymptotic geometric scaling, keeping
+    # all other laminar conditions fixed.
+    results = [
+        segment_pressure_loss(
+            fluid(), annulus(outer=0.2, inner=0.2-2*gap), 1e-12
+        )["pressure_loss_pa"]
+        for gap in (1e-5, 2e-5)
+    ]
+    assert results[0]/results[1] == pytest.approx(8, rel=1e-3)
