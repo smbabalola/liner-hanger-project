@@ -58,7 +58,11 @@ def main() -> int:
             for k, value in DOCUMENTED_FIRST_TORQUE_KNM.items()
         },
     }
+    documents_match = all(
+        ok for group in matches.values() for ok in group.values()
+    )
     report = {
+        "status": "source_documentation_reproduced" if documents_match else "source_documentation_mismatch",
         "classification": "independent_upstream_software_reproduction_not_physical_validation",
         "engineering_acceptance": False,
         "upstream_torque_drag_commit": TORQUE_DRAG_COMMIT,
