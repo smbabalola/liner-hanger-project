@@ -220,3 +220,36 @@ def test_reported_procedure_sequence_distinguishes_missing_from_out_of_order(tmp
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_standalone_copy_and_case_json_roundtrip(tmp_path):
+    """App must not rely on skill scripts, original checkout or cloud service."""
+    copied = tmp_path / "standalone_liner_mvp"
+    shutil.copytree(ROOT / "app", copied)
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance = driver.chromium.launch(headless=True, executable_path=chromium,
+                                          args=["--no-sandbox"])
+        try:
+            page = instance.new_page(accept_downloads=True)
+            errors = []
+            page.on("pageerror", lambda error: errors.append(str(error)))
+            page.goto((copied / "index.html").as_uri())
+            page.locator("#anomalous").click()
+            with page.expect_download() as event:
+                page.locator('[data-tab="import"]').click()
+                page.locator("#exportCase").click()
+            save_to = tmp_path / "exported_case.json"
+            event.value.save_as(save_to)
+            saved = json.loads(save_to.read_text(encoding="utf-8"))
+            assert saved["schema"] == "liner-mvp-case-1"
+            assert len(saved["rows"]) == 61
+            assert saved["id"] == "SYNTHETIC-MVP-ANOMALOUS"
+            page.reload()
+            page.locator("#caseFile").set_input_files(save_to)
+            page.locator('[data-tab="deviations"]').click()
+            assert "1 rule(s)" in page.locator("#ruleSummary").inner_text()
+            assert page.locator("#findings article.flag").count() == 1
+            assert not errors, errors
+        finally:
+            instance.close()
