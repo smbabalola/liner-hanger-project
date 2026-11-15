@@ -15,6 +15,10 @@ A future coding assistant must be able to install **only this skill package** an
 
 ## Current execution checkpoint — 2026-11-14
 
+**2026-11-15 LH-CALC-03 continuation:** Added separately source-checked power-law laminar **circular-pipe only** friction (Metzner–Reed/Rabinowitsch, BYU Eqs 7–8), strict research JSON entrypoint, fictional fixture and independent n=1 Newtonian/Q^n/failure tests. Full hosted [GitHub Actions run 43757805273](https://github.com/smbabalola/liner-hanger-project/actions/runs/43757805273) verified from both logs: **815 passed on Python 3.11** (16.27s), **815 passed on Python 3.12** (20.98s), no failures. Source/model limits in skill-local `references/LH_CALC03_HYDRAULICS_PLAN.md`; acceptance matrix updated. **LH-CALC-03 IN PROGRESS / NOT engineering accepted**: power-law annulus and transitional/turbulent/HB cases unavailable, complete licensed rig-tool-returns fluid/circuit/pressure datum and end-to-end independently measured benchmark/signoff still missing. Never interpret partial component losses as rig standpipe pressure; software exposes null SPP. LH-CALC-02 remains parked OPEN 6/7; programme 2/9 accepted.
+
+
+
 **Latest LH-CALC-03 code checkpoint (2026-11-15):** Bingham laminar circular-pipe, source-labelled nozzle differential and offline Newtonian pipe/nozzle/annular-return component budget implemented and software-regression verified: [run 43753403289](https://github.com/smbabalola/liner-hanger-project/actions/runs/43753403289), **766 tests passed on each of Python 3.11 and 3.12**. See `skills/liner-hanger-rca/references/LH_CALC03_ACCEPTANCE_EVIDENCE.md` for exact verified scope and unmet physical acceptance criteria. Stage **IN PROGRESS**, no field approval and no computed standpipe pressure. LH-CALC-02 remains parked OPEN 6/7; programme 2/9 accepted.
 
 
