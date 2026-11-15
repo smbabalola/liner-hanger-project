@@ -15,6 +15,10 @@ A future coding assistant must be able to install **only this skill package** an
 
 ## Current execution checkpoint — 2026-11-14
 
+**2026-11-15 latest validated restricted 3D force limit:** Published Zhang et al. (2026) Eq.16 3D soft-string normal-contact expression was independently reduced for weighted, horizontal azimuthal turns under **pure rotation and constant axial tension**. Tests compare the implementation against closed-form integrated normal and friction torque and source discrete-equation refinement, commit `bd57763`. Verified complete GitHub Actions [run 43741012671](https://github.com/smbabalola/liner-hanger-project/actions/runs/43741012671): Python 3.11 **633 passed, 0 skipped (19.94s)**, Python 3.12 **633 passed, 0 skipped (21.16s)**, from actual job logs. This is meaningful independent **restricted 3D physical-equation limit verification**, **not** an independently reconstructed published full nonzero-weight field-profile or human approval. Required original numerical full-well inputs and equivalent contact/viscous model still missing. **LH-CALC-02 OPEN 6/7 (~86%)**, programme **2/9 (~22%)**; next stage remains blocked.
+
+
+
 **Latest external force evidence intake (2026-11-15):** A newly published independent 3D soft-string equation and numerical **force and torque** profile was source-reviewed (Scientific Reports, Zhang et al., DOI 10.1038/s41598-026-78097-x; 14.6/26.5kN selected force points; 48kN cumulative drag, 13,200N·m cumulative torque). This is the first reviewed Candidate G with actual reported 3D force/torque quantities rather than solely survey geometry, **but not a reproducible benchmark pass**: numerical station-by-station trajectory, exact pipe tally and compatible bottom/viscosity/contact model inputs are still incomplete. `references/LH_CALC02_EXTERNAL_BENCHMARK_REGISTER.md` documents Eq.16 and input/observable barriers (commit `1a8676e`). Last fully verified software regression: **622 passed on Python 3.11 and 3.12** (run 43722944618). **LH-CALC-02 OPEN 6/7 (~86%); programme 2/9 (~22%)**. Only target the outstanding force-validation gate; no false physical signoff or next-stage transition.
 
 
