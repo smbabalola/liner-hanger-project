@@ -110,6 +110,20 @@ def test_schema_version_required():
         assess_benchmark(data)
 
 
+@pytest.mark.parametrize("reference,model,atol,rtol", [
+    (-1e308, 1e308, 1.0, 0.0),
+    (1e308, 1e308, 0.0, 1e308),
+    (1e308, 1e308, 1e308, 1.0),
+])
+def test_finite_inputs_with_overflowing_comparison_fail_closed(reference, model, atol, rtol):
+    data = manifest()
+    data["comparison"].update(
+        reference_value=reference, model_value=model,
+        absolute_tolerance=atol, relative_tolerance=rtol)
+    with pytest.raises(BenchmarkError, match="overflowed finite range"):
+        assess_benchmark(data)
+
+
 def test_huge_integer_fails_closed_without_overflow():
     data = manifest()
     data["comparison"]["model_value"] = 10**400
