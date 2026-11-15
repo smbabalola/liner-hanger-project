@@ -179,3 +179,23 @@ Implementation and validation must follow the canonical workstream `LH-CALC-00` 
 **Current status (2026-11-12):** Existing retrospective investigation instructions and scripts are present in the skill. `scripts/engineering_baseline.py` and its test suite are inside the skill directory; the user confirmed **219 passing tests** across the current project suite after commit `43fe431`. However, that module currently provides a gated *comparison contract*, not validated physical calculation solvers. The planned-design architecture currently lives in repo-level `docs/planned-design-and-fault-investigation-architecture.md`; it has **not yet been fully incorporated into a self-contained skill reference and callable workflow**. The current `SKILL.md` title/description and default workflow are still retrospective-centric. Do **not** tell users the complete design-and-investigation skill or its UI-readiness has been accepted.
 
 **Release gate:** Before building a substantial UI, perform a clean-room install of the skill alone; have a coding assistant construct a minimal interface from its bundled schemas/API/requirements without consulting external project notes; exercise a planned design scenario and a synthetic historical investigation, and document what is available versus not yet implemented. Require explicit engineering acceptance of physical models independently of the UI integration test. Existing source-rights protections still apply: never package confidential OEM/customer PDFs into a distributable skill without authorization.
+
+## LH-CALC-03 — Offline experimental circulating hydraulics (NOT a rig SPP calculator)
+
+**Current research-only software APIs and CLI usage:**
+
+```bash
+python scripts/run_circulating_hydraulics.py examples/synthetic_laminar_circuit.json
+python scripts/run_bingham_laminar_pipe.py examples/synthetic_bingham_laminar_pipe.json
+python scripts/run_circulation_budget.py examples/synthetic_newtonian_component_budget.json
+```
+
+All paths are relative to the **installed skill root**; executable scripts use only Python standard library. Full implementation and source/acceptance details: `references/LH_CALC03_HYDRAULICS_PLAN.md`. Read it before interpreting numerical values.
+
+1. `circulating_hydraulics.py`: source-checked **Newtonian, laminar, fully developed** circular pipe and concentric fixed-wall annulus per-segment pressure loss; rejects Re>2000 (simple conservative screening only). The names `outer_diameter_m` and `inner_diameter_m` represent **flow boundaries**, not necessarily metal tubular OD, and pipe `outer_diameter_m` is its **flow ID**.
+2. `bingham_laminar_pipe.py`: source-checked **Bingham-plastic, laminar circular PIPE ONLY** Buckingham–Reiner equation, with nonzero yield and positive plastic viscosity; requires *separately established* laminar-regime assertion and evidence ID via strict CLI. Its plastic Reynolds estimate does not validate the regime. At zero flow and positive yield stress the differential is physically indeterminate; rejected. Bingham annulus/turbulence unsupported.
+3. `circulation_restrictions.py`: independently sourced *incompressible nozzle/orifice differential* with externally established flow area, discharge coefficient and explicit source identity. May not be silently repurposed as a specific OEM running-tool internal restriction.
+4. `circulation_budget.py`: explicit ordered **Newtonian** pipe/annulus, optional nozzle, return leg; sums only modeled component losses, rejects ambiguous flow paths and unsupported component regimes. Does not claim complete rig hydraulic equipment or pressure datum.
+
+**MANDATORY:** All these inputs/examples are **fictional or caller-described**; none is a substitute for actual fluid test values, checked pump rate, flow split, true pipe/tubular internal diameters, annular clearances, tool restrictions and manufacturer/job configuration. Calculated component friction is **NOT rig standpipe pressure**, a ball-seat/setting differential, ECD, surge/swab, burst/collapse rating, qualified operating envelope or confirmation of actual pressure transducer calibration. Output **always contains `standpipe_pressure_pa: null` and `engineering_acceptance: false`**. Unsupported field scenarios fail closed; no rig operator instructions or OEM pressure values may be inferred. **LH-CALC-03 stage remains IN PROGRESS, not engineering accepted.**
+
