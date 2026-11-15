@@ -34,6 +34,49 @@ DOCUMENTED_FIRST_TORQUE_KNM = {
 }
 
 
+
+def independent_discrete_source_reconstruction(trajectory):
+    """Separate direct algebraic evaluation of upstream's discrete equations.
+
+    Uses upstream's published unit conventions, 4.5/4/5in diameters,
+    1.3/7.8SG densities, 0.24 sliding friction, 50kN bottom force and
+    50kNm bottom torque. This is *source-law parity*, not our model's
+    physics validation. Do not substitute these assumptions for ours.
+    """
+    pipe_r = 4.5 / 2 / 39.37
+    inner_r = 4 / 2 / 39.37
+    ann_r = 5 / 2 / 39.37
+    area_ann = math.pi * (ann_r**2 - pipe_r**2)
+    area_inner = math.pi * inner_r**2
+    buoyancy = 1 - 1300 * (area_ann - area_inner) / (
+        7800 * (area_ann - area_inner))
+    unit_weight = 7800 * 9.81 * math.pi * (pipe_r**2 - inner_r**2)
+    selected = [p for p in trajectory if 0 <= p["md"] <= 3000]
+    force = {mode: 50000.0 for mode in ("lowering", "static", "hoisting")}
+    torque = {mode: 50000.0 for mode in force}
+    output = {mode: {"force": [0.0]*len(selected),
+                     "torque": [0.0]*len(selected)} for mode in force}
+    for mode in force:
+        output[mode]["force"][-1] = 50.0
+        output[mode]["torque"][-1] = 50.0
+    for idx in range(len(selected)-2, -1, -1):
+        point = selected[idx]
+        following = selected[idx+1]
+        avg_i = math.radians((point["inc"] + selected[idx-1]["inc"])/2)
+        da = -math.radians(following["delta"]["azi"])
+        di = -math.radians(following["delta"]["inc"])
+        weight = unit_weight * point["delta"]["md"] * buoyancy
+        for mode, sign in (("lowering",-1),("static",0),("hoisting",1)):
+            normal = math.hypot(
+                force[mode]*da*math.sin(avg_i),
+                force[mode]*di + weight*math.sin(avg_i))
+            force[mode] += weight*math.cos(avg_i) + sign*0.24*normal
+            torque[mode] += 0.24*normal*pipe_r
+            output[mode]["force"][idx] = force[mode]/1000
+            output[mode]["torque"][idx] = torque[mode]/1000
+    return output
+
+
 def main() -> int:
     well = load(FIXTURE)
     data = well.trajectory
@@ -44,7 +87,7 @@ def main() -> int:
     if not all(math.isfinite(x) for x in inclinations + azimuths):
         raise RuntimeError("nonfinite external survey values")
     dimensions = {"pipe": {"od": 4.5, "id": 4, "shoe": 3000}, "odAnn": 5}
-    result = calc(data, dimensions, case="all", torque_calc=True, wob=50, tbit=50)
+    # The independent reconstruction uses the original survey before calc\n    # mutates its trajectory dictionaries in-place.\n    source_law = independent_discrete_source_reconstruction(copy.deepcopy(data))\n    result = calc(data, dimensions, case="all", torque_calc=True, wob=50, tbit=50)
     explicit_default = calc(copy.deepcopy(data), dimensions, case="all", torque_calc=True,
                             wob=50, tbit=50, fric=[0.24] * len(data))
     actual = {"force": {k: float(result.force[k][0]) for k in DOCUMENTED_FIRST_FORCE_KN},
@@ -77,7 +120,22 @@ def main() -> int:
     documents_match = all(
         ok for group in matches.values() for ok in group.values()
     )
+    all_station_differences = {
+        quantity: {
+            mode: max(abs(float(getattr(result, quantity)[mode][i])
+                          - source_law[mode][quantity][i])
+                      for i in range(len(result.depth)))
+            for mode in DOCUMENTED_FIRST_FORCE_KN
+        }
+        for quantity in ("force", "torque")
+    }
+    source_law_parity = all(
+        delta <= 1e-8 for group in all_station_differences.values()
+        for delta in group.values()
+    )
     report = {
+        "independent_discrete_source_law_parity": source_law_parity,
+        "source_law_max_abs_difference_by_mode_kN_or_kNm": all_station_differences,
         "status": "source_documentation_reproduced" if documents_match else "source_documentation_mismatch",
         "classification": "independent_upstream_software_reproduction_not_physical_validation",
         "engineering_acceptance": False,
@@ -106,6 +164,8 @@ def main() -> int:
     # mismatch is evidence of version drift, not a reason to tune values.
     if not report["contains_inclination_variation"] or not report["contains_azimuth_variation"]:
         return 3
+    if not source_law_parity:
+        return 4
     return 0
 
 
