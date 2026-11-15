@@ -1,0 +1,29 @@
+name: LH-CALC-02 external benchmark probe (non-acceptance)
+on:
+  push:
+    paths:
+      - 'skills/liner-hanger-rca/scripts/probe_prowellplan_reference.py'
+      - '.github/workflows/lh-calc02-external-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  upstream-source-reproduction:
+    name: Independent upstream numeric reproduction
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned open-source independent packages
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "git+https://github.com/pro-well-plan/well_profile.git@43375df82eaa53a890b5539808ed33d3d57f0817" "git+https://github.com/pro-well-plan/torque_drag.git@701cfff5990e33b495f45e082364d608ee65db87"
+      - name: Execute independent source (not field verification)
+        run: python skills/liner-hanger-rca/scripts/probe_prowellplan_reference.py
