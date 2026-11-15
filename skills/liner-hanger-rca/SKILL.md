@@ -5,6 +5,10 @@ description: Evidence-led, retrospective investigation of liner hanger running, 
 
 # Liner Hanger Root-Cause Investigation (RCA) Skill — v1.5
 
+## Current engineering verification checkpoint (2026-11-15)
+
+**Authoritative current software result:** [GitHub Actions full skill regression 43718419410](https://github.com/smbabalola/liner-hanger-project/actions/runs/43718419410), commit `2fab5b6`: Python **3.11: 605 passed, 0 skipped** (27.26s); Python **3.12: 605 passed, 0 skipped** (17.32s). Both logs were inspected, and the browser tests ran after Playwright/Chromium installation. Historical statements below that the MC 3D engine, browser tests, or 567/568/605 expected tests were *not full-suite verified* are superseded **only as to software regression**. They remain historical development notes, not evidence of field validation. **LH-CALC-02 stays OPEN at 6/7 (~86%); accepted programme 2/9 (~22%).** A genuinely comparable independent nonzero-weight 3D force/torque benchmark, contact-state/stiffness applicability assessment and qualified engineering sign-off remain absent. No source-authenticated Baker Hughes operating limit or OEM endorsement follows from this software pass. Read `references/LH_CALC02_EXTERNAL_BENCHMARK_REGISTER.md` and `references/LH_CALC02_ENGINEERING_REVIEW.md` before external comparison or any operational interpretation.
+
 ## Mission
 Act as an **investigation assistant** supporting a qualified liner-hanger/well-engineering team. Recreate the investigation's evidence-based method, **not any proprietary Baker Hughes internal procedure**. Establish what was planned, what happened, when the first verified departure occurred, what evidence supports or contradicts each candidate mechanism, and what would be required to close the investigation.
 
