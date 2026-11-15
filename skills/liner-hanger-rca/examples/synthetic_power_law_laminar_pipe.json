@@ -1,0 +1,19 @@
+{
+  "fluid": {
+    "density_kg_m3": 1050,
+    "consistency_pa_s_n": 0.15,
+    "flow_behavior_index": 0.7,
+    "rheology": "power_law"
+  },
+  "segment": {
+    "name": "fictional_power_law_pipe",
+    "kind": "pipe",
+    "length_m": 10,
+    "outer_diameter_m": 0.1,
+    "inner_diameter_m": 0,
+    "flow_leg": "downstream"
+  },
+  "flow_m3_s": 0.0001,
+  "laminar_regime_independently_confirmed": true,
+  "regime_evidence_id": "SYNTHETIC-ASSUMED-LAMINAR-NOT-A-FIELD-CLASSIFICATION"
+}
