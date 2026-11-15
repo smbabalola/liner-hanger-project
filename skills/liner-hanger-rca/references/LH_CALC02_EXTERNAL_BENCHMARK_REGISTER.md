@@ -72,6 +72,23 @@ Selected *sourced context, NOT a validated benchmark manifest*: Well A maximum M
 
 **2026-11-15 decision: SOURCE IDENTIFIED / 3D SURVEYS AVAILABLE / FORCE REPRODUCTION NOT YET PERFORMED.** The next eligible research step is to extract a small correctly sourced survey segment and verify the original depth/TVD/azimuth convention; obtain documented string-section depth boundaries and fluid properties, assess the different normal-contact law, and check availability/permission for original numerical prediction or measurement arrays. Only then prepare and execute source-specific comparison manifests and report honest error/missing-data findings. **No benchmark pass, full 3D validation, operator acceptance, field applicability or qualified engineering signoff is claimed.** Do not copy full PDF, private rig ASCII files or original spreadsheets into the public skill.
 
+## Candidate F quantitative external survey-geometry reproduction — 2026-11-15
+
+**Primary source:** Tveitan (2011), Table A-1, printed p.57, rows MD 1202.50, 1231.10, 1260.50, 1289.50, 1318.10 m. Source URL above. A five-row transcription limited to (MD/inclination/azimuth/TVD/north/east) appears in skill test `tests/test_published_tveitan_survey_geometry.py` with citation and 0.01-unit printed precision; no proprietary operator files or full third-party survey table were copied.
+
+**Actually computed, independently of force solver**, using minimum-curvature endpoint tangents and the `trajectory_interpolation_audit` Simpson integration:
+
+| MD interval (m) | Computed ΔN / ΔE / ΔTVD (m) | Printed ΔN / ΔE / ΔTVD (m) |
+| --- | --- | --- |
+| 1202.50–1231.10 | −6.10244 / −10.68332 / 25.81586 | −6.11 / −10.68 / 25.82 |
+| 1231.10–1260.50 | −5.62156 / −12.09849 / 26.19570 | −5.62 / −12.10 / 26.19 |
+| 1260.50–1289.50 | −4.69213 / −13.05006 / 25.46512 | −4.69 / −13.05 / 25.47 |
+| 1289.50–1318.10 | −3.38991 / −13.88349 / 24.76836 | −3.39 / −13.88 / 24.77 |
+
+Maximum displayed component-wise discrepancy **<0.008m**. Source station coordinates and angles are rounded, so the test uses an explicit **0.02m** bound per interval and for cumulative TVD. This is conservative compared with the table's nominal rounding and does not assert source measurement precision. All four intervals have both inclination and azimuth varying. A separate test exercises the skill's actual `directional_survey.integrate_minimum_curvature` implementation across all five published stations, with a published anchored starting TVD and no extrapolation above MD 1202.50m. **14 new assertions/tests** were committed in `0effcf7`; CI execution for this addition must be checked before claiming they passed. A source trace and independent numerical reproduction now exist for the **trajectory geometry only**.
+
+**Acceptance boundary unchanged:** The independent publication does *not* make its measured and predicted **force** profiles available as reproducible numeric vectors with sufficiently equivalent input configuration, pressure corrections, string boundary, joint contact, friction calibration, and model law. Even a perfect published geometry match cannot validate soft-string 3D normal reaction/contact or predicted pickup/slackoff/rotary torque. Consequently no independent force benchmark, qualified review, operational approval or LH-CALC-02 closure is claimed.
+
 ## Next acceptance substeps
 
 - [x] Identify and read independent published source candidates and record **exactly what each supports and lacks**.
