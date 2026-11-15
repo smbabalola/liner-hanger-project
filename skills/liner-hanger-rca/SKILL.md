@@ -182,6 +182,18 @@ Implementation and validation must follow the canonical workstream `LH-CALC-00` 
 
 ## LH-CALC-03 — Offline experimental circulating hydraulics (NOT a rig SPP calculator)
 
+### Hydrostatic density imbalance (static research contribution, NOT rig SPP)
+
+```bash
+python scripts/run_circulation_hydrostatics.py examples/synthetic_hydrostatic_column_balance.json
+```
+
+`circulation_hydrostatics.py` exposes `HydrostaticLayer` and `static_hydrostatic_imbalance`. Both downstream/return legs must have **matching top/bottom TVD endpoints, the same pressure-depth datum and contiguous layers**. Each layer requires a density source identifier; all inputs in the sample are fictional. The signed contribution to downstream surface pressure minus return surface pressure is `g*(sum_return rho*deltaTVD - sum_downstream rho*deltaTVD)` **before flow friction, restrictions or backpressure**. This is explicitly an *isolated static term*, not a pump differential, ECD, hydraulics simulation of flowing fluid, measured rig SPP, or OEM operating criterion. It does not assume MD is TVD and rejects unmatched datums/missing fluid layers. Always `standpipe_pressure_pa=null`, `engineering_acceptance=false`. See `references/LH_CALC03_HYDRAULICS_PLAN.md` for the sign convention, assumptions and independent analytical tests.
+
+**Latest full regression for the hydrostatic addition:** [GitHub Actions run 43759583639](https://github.com/smbabalola/liner-hanger-project/actions/runs/43759583639) at code commit `abde443`: Python **3.11 890 passed (26.33s)**, Python **3.12 890 passed (22.10s)**, zero failed/skipped. Actual hosted logs verified. This supersedes the earlier 815/866 counts, which remain historical checkpoints.
+
+
+
 ### Newly implemented bounded power-law concentric annular flow and circuit workflow
 
 Run from the installed skill directory:
