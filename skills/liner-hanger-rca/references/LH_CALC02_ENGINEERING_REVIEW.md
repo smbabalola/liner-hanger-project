@@ -58,6 +58,12 @@ Independent mathematical limiting evidence includes exact weightless great-circl
 
 External public material has been inspected and classified in `LH_CALC02_EXTERNAL_BENCHMARK_REGISTER.md`: published planar numerical references (including an unsupported-compression case), a reproducible but planar open-source example, and a published 3D commercial-software comparison **without the complete source inputs/results needed for a valid apples-to-apples numerical check**. **No nonzero-weight 3D independent published or actual-well benchmark reproduced; no qualified engineer/OEM acceptance.** `LH-CALC-02` remains **6/7 (~86%) OPEN**, programme accepted stages **2/9 (~22%)**. The next step is 568-case actual full regression and physically equivalent external benchmark; do not advance to hydraulics stage prematurely.
 
+## 2026-11-15 — external benchmark intake gate, without a published profile match
+
+A research-only, standard-library fail-closed numerical comparison gate is now available at `scripts/benchmark_crosswalk.py` with exact source/physics/mode/unit/boundary/tolerance crosswalk requirements. Its separate 37-test isolated local suite **passed 37/37**, including incomplete provenance and contact-state inputs, inconsistent modes and nonfinite/oversized numbers. See `LH_CALC02_BENCHMARK_CROSSWALK_GATE.md`. This is an **intake mechanism**, not a reproduced published or field force case, and it returns `engineering_acceptance=false` even for numerical agreement. No change to torque/drag force equations or contact algorithm was made in this batch.
+
+The current theoretical full-suite collection is **605 tests** (568 expected before this batch plus 37 new cases); **not verified as passing** in a full repository or Windows run. The latest user-confirmed full skill regression remains **505 passed at `6e79693`**. No authenticated GitHub Actions full-suite result or qualified physical applicability approval is available. `LH-CALC-02` remains **6/7 (~86%) OPEN**, programme **2/9 (~22%)**.
+
 ## Acceptance gate — next bounded sequence
 
 - [x] Basic straight, co-linear, exact weightless bend and planar weighted module implemented, with full updated user Windows regression of **432 passed in 13.82 s** at `bf7838e`.
