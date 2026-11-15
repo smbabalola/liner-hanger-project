@@ -106,10 +106,19 @@ function renderCharts(){
   const label=document.createElement("strong");label.textContent=name+" ("+unit+"; units must be independently confirmed)";
   const value=document.createElement("span");value.className="tag";value.style.float="right";box.append(label,value);
   const canvas=document.createElement("canvas");canvas.width=540;canvas.height=112;canvas.setAttribute("aria-label",name+" trend");box.append(canvas);root.append(box);
-  canvas.addEventListener("pointerdown",e=>{
-    const bounds=canvas.getBoundingClientRect();
-    idx=Math.min(data.rows.length-1,Math.max(0,Math.round((e.clientX-bounds.left)/bounds.width*(data.rows.length-1))));
-    renderCursor();
+  const indexAt=e=>{const bounds=canvas.getBoundingClientRect();return Math.min(data.rows.length-1,
+   Math.max(0,Math.round((e.clientX-bounds.left)/bounds.width*(data.rows.length-1))))};
+  let pressed=null;
+  canvas.addEventListener("pointerdown",e=>{pressed={index:indexAt(e),x:e.clientX};canvas.setPointerCapture(e.pointerId)});
+  canvas.addEventListener("pointerup",e=>{
+    if(!pressed)return;const a=pressed.index,b=indexAt(e),distance=Math.abs(e.clientX-pressed.x);
+    pressed=null;
+    if(distance>=12&&Math.abs(b-a)>=1){tab("notes");openNote(Math.min(a,b),Math.max(a,b));return}
+    idx=b;renderCursor();
+  });
+  canvas.addEventListener("pointermove",e=>{
+    if(pressed)return;const point=indexAt(e),hit=data.notes.find(n=>point>=n.a&&point<=n.b);
+    canvas.title=hit?hit.title+" — "+hit.kind+"; open Notes to edit":"Click to replay; drag to annotate a time range";
   });plotCanvases.push({key,canvas,value});
  }
 }
