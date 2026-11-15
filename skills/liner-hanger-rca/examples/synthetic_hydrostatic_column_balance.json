@@ -1,0 +1,40 @@
+{
+  "layers": [
+    {
+      "name": "fictional_down_upper",
+      "leg": "downstream",
+      "top_tvd_m": 0,
+      "bottom_tvd_m": 400,
+      "density_kg_m3": 1000,
+      "density_source_id": "SYNTHETIC-NOT-MEASURED",
+      "datum": "FICTIONAL-TVD"
+    },
+    {
+      "name": "fictional_down_lower",
+      "leg": "downstream",
+      "top_tvd_m": 400,
+      "bottom_tvd_m": 1000,
+      "density_kg_m3": 1150,
+      "density_source_id": "SYNTHETIC-NOT-MEASURED",
+      "datum": "FICTIONAL-TVD"
+    },
+    {
+      "name": "fictional_return_upper",
+      "leg": "return",
+      "top_tvd_m": 0,
+      "bottom_tvd_m": 200,
+      "density_kg_m3": 1200,
+      "density_source_id": "SYNTHETIC-NOT-MEASURED",
+      "datum": "FICTIONAL-TVD"
+    },
+    {
+      "name": "fictional_return_lower",
+      "leg": "return",
+      "top_tvd_m": 200,
+      "bottom_tvd_m": 1000,
+      "density_kg_m3": 1050,
+      "density_source_id": "SYNTHETIC-NOT-MEASURED",
+      "datum": "FICTIONAL-TVD"
+    }
+  ]
+}
