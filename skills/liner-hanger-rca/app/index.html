@@ -31,9 +31,9 @@ canvas{width:100%;height:112px;display:block;cursor:crosshair;margin-top:5px}#as
 </nav>
 <section id="import" class="tab">
  <div class="two"><div class="panel"><h2>Open a case</h2>
-  <div class="three"><div class="field"><label for="caseName">Case ID</label><input id="caseName" value="SYNTHETIC-MVP-NORMAL"></div>
-  <div class="field"><label for="wellName">Well / site</label><input id="wellName" value="Fictional Well A"></div>
-  <div class="field"><label for="sourceLabel">Telemetry source and clock</label><input id="sourceLabel" value="SYNTHETIC-UTC" placeholder="Rig CSV / source / timezone"></div></div>
+  <div class="three"><div class="field"><label for="caseName">Case ID</label><input id="caseName" placeholder="Enter a new case ID"></div>
+  <div class="field"><label for="wellName">Well / site</label><input id="wellName" placeholder="Well identifier / facility"></div>
+  <div class="field"><label for="sourceLabel">Telemetry source and clock</label><input id="sourceLabel" placeholder="Rig CSV filename / source ID / timezone"></div></div>
   <div class="field"><label for="telemetryFile">Rig telemetry CSV (timestamp plus optional depth, pressure, hookload, torque, RPM, pump flow, pumped volume and returns)</label><input type="file" id="telemetryFile" accept=".csv,text/csv"></div>
   <div class="field"><label for="eventsFile">Chronological job events JSON (optional)</label><input type="file" id="eventsFile" accept=".json,application/json"></div>
   <div class="field"><label for="rulesFile">Job-specific procedure rulebook JSON (optional; not assumed approved)</label><input type="file" id="rulesFile" accept=".json,application/json"></div>
