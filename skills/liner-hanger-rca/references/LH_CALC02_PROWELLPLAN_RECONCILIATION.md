@@ -29,3 +29,25 @@ Scope: reproduce pinned upstream code vs the source-documentation six scalars; d
 
 ## Verdict
 **The six upstream documentation values are not validated regression targets** under the pinned source and fixture. The third-party executable 3D reference is useful for controlled *software comparison* once its numerical inputs and output definitions are mapped; neither executable agreement nor this audit proves field physics. **LH-CALC-02 remains 6/7 OPEN**, no LH-CALC-03, no solver edits, no qualified acceptance.
+
+
+## 2026-11-15 executed full-profile source-law reconciliation — **RESOLVED for pinned upstream implementation**
+
+The first independent recurrence check initially failed due to an accidentally escaped newline that commented out the external `calc` assignment (GitHub run 43745922716); this was corrected immediately in commit `4bbcb4b`. The corrected [independent external probe run 43745962102](https://github.com/smbabalola/liner-hanger-project/actions/runs/43745962102) **completed successfully** and printed `independent_discrete_source_law_parity=true`. (If the linked run number changes under GitHub Actions retention, inspect the check-run job associated with commit `4bbcb4bdfe1ec62910c23ff4c8793c21a850f7b9`.)
+
+The research probe now independently evaluates the **same discrete Johancsik-style equations** in a separate routine over the full pinned 100-station 3D trajectory, with source units and boundaries: 4.5/4in OD/ID, 5in annulus, 1.3/7.8 SG densities, 0.24 sliding friction, 50kN bottom axial force, 50kN·m bottom torque, lowering/static/hoisting. It evaluates gravity/buoyancy, azimuth and inclination normal-force terms, axial friction and accumulated friction torque, then compares **all depth-indexed output samples** for all modes against the separately installed original upstream package. The reference implementation uses the upstream's actual peculiar `idx-1` indexing convention; parity is about reproducing *its behavior*, not endorsing that indexing as physically correct.
+
+**Observed maximum absolute discrepancy over all stations (from executed CI job log):**
+
+| Quantity | Lowering | Static | Hoisting |
+| --- | ---: | ---: | ---: |
+| Force (kN) | 1.1368683772161603e-13 | 1.1368683772161603e-13 | 1.1368683772161603e-13 |
+| Torque (kN·m) | 0 | 0 | 1.4210854715202004e-14 |
+
+All are floating-point round-off; this is **a successful full-profile pinned-source algebraic reconciliation**. The original six *documentation* numbers remain mismatched, separately reported as `source_documentation_mismatch`. They are not approved regression targets. A full-profile match to the original source does **not** mean the current **liner-hanger skill solver** has been run on identical inputs or agrees with the upstream force outputs, and does **not** constitute field or OEM engineering validation. Distinguish these three outcomes:
+1. **Resolved:** independently reimplemented recurrence vs installed pinned upstream model on 100-station 3D survey.
+2. **Unresolved:** upstream documentation figures vs installed pinned upstream model (no historically pinned documentation/fixture provenance).
+3. **Not yet executed:** physically equivalent model-to-model full 3D force crosswalk against the skill's continuous two-station minimum-curvature solver (different buoyancy, discrete vs continuous contact, movement and bit-torque semantics); qualified engineering signoff.
+
+This is a real reconciliation result, but **LH-CALC-02 acceptance remains OPEN 6/7**, with no assertion of qualified physical model validity.
+
