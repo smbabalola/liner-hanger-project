@@ -122,6 +122,22 @@ Maximum displayed component-wise discrepancy **<0.008m**. Source station coordin
 
 **Decision: candidate for *independent software-to-software reproduction* and a possible source-complete input/output fixture, NOT yet an accepted physically equivalent 3D force comparison.** No execution of upstream package, verified survey geometry, crosswalk against our model, original data licensing review, measured-field validation or professional engineering sign-off has been performed. Next: obtain and verify the fixture survey data in a pinned environment; compare source inputs and contact/weight law; decline to compare if a mode or physical observable differs. Even an exact comparison with this upstream model would validate only *within comparable mathematical scope*, not establish OEM/field-use permission.
 
+## Candidate H executed pinned 3D external comparator — 2026-11-15
+
+A **real GitHub-hosted execution** of the independently authored Pro Well Plan model has now completed: [external-probe Actions run 43741811259](https://github.com/smbabalola/liner-hanger-project/actions/runs/43741811259), at project workflow commit `2237c1457a639b87e7fd98971125a8ae292440ec`. `skills/liner-hanger-rca/scripts/probe_prowellplan_reference.py` (commit `a2c6758`) installs third-party `torque_drag` at upstream commit `701cfff5990e33b495f45e082364d608ee65db87` and `well_profile` at `43375df82eaa53a890b5539808ed33d3d57f0817`, and directly loads its pinned original `trajectory1.xlsx` fixture through its own published API. **This is an independent implementation run, not our force solver.**
+
+The fixture has **100 survey stations**; inclination ranges **0–55.13°** and azimuth **0–221.03°**, so it is genuinely nonplanar. With the exact documented sample dimensions (4.5in OD / 4in ID, shoe 3000m, 5in annular OD), default 1.3/7.8 SG fluid/steel, 50kN WOB and 50kN·m bit torque, the *pinned source version* produced these first array values:
+
+| Mode | Executed first force (kN) | Online docs first force (kN) | Executed first torque (kN·m) | Online docs first torque (kN·m) |
+|---|---:|---:|---:|---:|
+| Lowering | **303.687163** | 372.297170 | **56.194335** | 52.889651 |
+| Static | **412.074258** | 422.859633 | **57.629232** | 53.248796 |
+| Hoisting | **579.615586** | 486.978072 | **59.575006** | 53.664376 |
+
+**All six upstream-doc comparisons failed.** A successful process-exit status is **not** evidence that the documentation figures were reproduced; the probe reports six `false` comparisons and `engineering_acceptance=false`. This is a demonstrated **version/input/documentation inconsistency**, not evidence our own model is right or wrong. The upstream calculation uses a specific buoyancy expression, friction default behavior and boundary treatment different from our skill. Original XLSX fixture was retrieved transiently by GitHub Actions but not committed to the project.
+
+**Decision:** Candidate H provides a newly **runnable, source-pinned, 100-station 3D force reference implementation** and explicitly measured outputs, which is useful for future independently sourced numerical benchmarking. It does **not** yet qualify as a scientifically equivalent third-party force benchmark or physical/OEM review: first resolve source/fixture/docs divergence and exact input/normal-force/buoyancy/mode mapping. Do not use either set of six figures for tuning, or treat pure-rotation contact torque as interchangeable with upstream torque including **50kN·m bit torque**. Stage **LH-CALC-02 remains OPEN 6/7 (~86%)**, programme **2/9 (~22%)**.
+
 ## Next acceptance substeps
 
 - [x] Identify and read independent published source candidates and record **exactly what each supports and lacks**.
