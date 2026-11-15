@@ -66,3 +66,8 @@ def test_missing_source_or_non_supported_geometry_rejected():
 def test_unsupported_flow_fails_closed(q):
     with pytest.raises(HydraulicsUnavailable):
         nozzle_orifice_loss(1000,nozzle(),q)
+
+
+def test_extreme_finite_orifice_flow_fails_closed_without_python_overflow():
+    with pytest.raises(HydraulicsUnavailable,match="overflow|nonfinite"):
+        nozzle_orifice_loss(1000,nozzle(),1e200)
