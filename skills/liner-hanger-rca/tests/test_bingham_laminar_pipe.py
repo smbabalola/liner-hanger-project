@@ -66,16 +66,27 @@ def test_yielding_near_threshold_still_returns_physical_above_yield_root():
 
 
 @pytest.mark.parametrize("q", [0, 1e-5])
-def test_zero_length_and_zero_flow_have_zero_friction(q):
+def test_zero_length_has_no_distributed_friction(q):
     r = bingham_pipe_laminar_pressure_loss(
         BinghamFluid(1000,.1,5),pipe(length=0),q,
         laminar_regime_independently_confirmed=True)
     assert r["pressure_loss_pa"] == 0
-    if q == 0:
-        normal = bingham_pipe_laminar_pressure_loss(
-            BinghamFluid(1000,.1,5),pipe(),q,
+
+
+def test_zero_flow_with_positive_yield_has_indeterminate_pressure():
+    # Static plug below yield is compatible with a family of gradients;
+    # a zero-flow reading does NOT determine the pressure differential.
+    with pytest.raises(HydraulicsUnavailable, match="indeterminate"):
+        bingham_pipe_laminar_pressure_loss(
+            BinghamFluid(1000,.1,5),pipe(),0,
             laminar_regime_independently_confirmed=True)
-        assert normal["pressure_loss_pa"] == 0
+
+
+def test_zero_flow_with_zero_yield_is_zero_laminar_friction():
+    r = bingham_pipe_laminar_pressure_loss(
+        BinghamFluid(1000,.1,0),pipe(),0,
+        laminar_regime_independently_confirmed=True)
+    assert r["pressure_loss_pa"] == 0
 
 
 @pytest.mark.parametrize("flag", [False, 1, "yes", None])
