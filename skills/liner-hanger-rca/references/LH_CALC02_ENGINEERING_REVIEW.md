@@ -86,6 +86,16 @@ A separate, independent **published mathematical model** is now compared numeric
 
 ## Acceptance gate — next bounded sequence
 
+## 2026-11-15 — independent published weighted 3D contact-law limit
+
+Source: Zhang et al. (2026), *Scientific Reports*, DOI https://doi.org/10.1038/s41598-026-78097-x, Eq. (16). A narrow continuous 3D *pure-rotation, horizontal, constant-axial-tension* reduction was derived from the independent published discrete soft-string normal-force contributions. Azimuth curvature provides the horizontal normal load while nonzero buoyed gravity provides the orthogonal vertical normal load. With total turn β (radians), bottom/through-section tension T and buoyed section weight W, the independently checkable **continuous-contact limit** is integrated normal force `hypot(T*β,W)`; integrated **frictional contact torque** is `mu_rot*r*hypot(T*β,W)`. Unlike earlier zero-weight capstan cases, these tests require **both finite weight and nonzero azimuth turn**. Published discrete microelement normals `2T sin(Δaz/2)` and `W/count` independently converge to the continuous equation under refinement. Neither relation models viscous torque or the paper's full tool assembly.
+
+Four new cases (three angles, one discretization-refinement check) committed in `tests/test_published_3d_contact_limit.py` at `bd57763`. **Entire current GitHub regression verified from both actual job logs at that commit:** [run 43741012671](https://github.com/smbabalola/liner-hanger-project/actions/runs/43741012671): Python 3.11 **633 passed, 0 skipped, 19.94s**; Python 3.12 **633 passed, 0 skipped, 21.16s**. The prior 629-case baseline includes independently committed related synthetic analytical checks and is superseded.
+
+**Classification:** independent *published equation limiting-case* validation of normal force/rotary friction in a restricted weighted 3D geometry, **not** independent published full-well 3D pickup/slackoff/torque numerical reproduction. Neither Eq. (16)'s full model nor surface hookload/stiff-string/contact transfer is validated by this limit. **LH-CALC-02 still OPEN, 6/7 (~86%); programme 2/9 (~22%).** Qualified independent physical applicability review and a complete source-equivalent external 3D force/torque benchmark remain outstanding.
+
+
+
 - [x] Basic straight, co-linear, exact weightless bend and planar weighted module implemented, with full updated user Windows regression of **432 passed in 13.82 s** at `bf7838e`.
 - [x] Published contact-law sources located and separately derived weighted **constant-contact-side** analytical solution documented.
 - [x] Unsupported sampled contact-side changes fail closed; refinement differences exposed without numeric self-certification.
