@@ -2,6 +2,41 @@
 
 **Status:** IN PROGRESS — scope and engineering contract established 2026-11-15. No implementation, numerical benchmark or acceptance claimed by this document.
 
+## New source-supported research models — 2026-11-15
+
+**Status: code, executable offline examples and tests committed; latest full GitHub regression to be verified before the cases are counted.** All files are in the portable `skills/liner-hanger-rca/` skill, not a separate application.
+
+### 1. Bingham-plastic circular-pipe laminar flow (not annulus)
+
+- Module `scripts/bingham_laminar_pipe.py`; runner `scripts/run_bingham_laminar_pipe.py`; fixture `examples/synthetic_bingham_laminar_pipe.json`; tests `tests/test_bingham_laminar_pipe.py` and `tests/test_run_bingham_laminar_pipe.py`.
+- **Independent published source:** *Perry's Chemical Engineers' Handbook*, 7th ed., *Fluid and Particle Dynamics*, Eq. **6-59**, public educational excerpt at https://schneider.cheme.cmu.edu/Files/Perry%27s%20Chemical%20Engineers%27%20Handbook%207th%20Edition/6.%20Fluid%20and%20Particle%20Dynamics.pdf . Let `tau_w=DeltaP D/(4 L)`, `a=tau_y/tau_w`; fully developed Bingham-plastic laminar circular pipe has `Q=pi D^3 tau_w/(32 mu_plastic) * [1-4a/3+a^4/3]`. The implementation solves only the **physical tau_w>tau_y branch**, with a monotone bisection and stable factorisation `(1-a)^2 (a^2+2a+3)/3`; matches independent forward equation, zero-yield Newtonian limit and positive-yield sensitivity.
+- Assumptions: SI, fixed circular flow ID, incompressible Bingham rheology with **sourced/independently measured** plastic viscosity and yield stress, steady fully developed laminar, no slip/sag, nonzero pipe section. Bingham flow regime cannot be determined merely from the Newtonian-style plastic Reynolds; requires an explicit, *externally established* laminar-regime assertion and evidence identifier; both remain **caller-declared / NOT authenticated**. No annular Bingham implementation, transition/turbulent law, actual mud profile or field approval.
+- **Safety-corrected boundary:** When `Q=0` with `tau_y>0`, a static plug may sustain a **range of nonzero pressure gradients**. Pressure is therefore **indeterminate**, not zero; the code refuses to return a numeric differential in that case. Zero-length component has zero distributed friction. Runtime always returns `standpipe_pressure_pa=null`, `engineering_acceptance=false`.
+
+### 2. Incompressible nozzle/orifice differential
+
+- Module `scripts/circulation_restrictions.py`, tests `tests/test_circulation_restrictions.py`.
+- **Independent source:** Canada Mortgage and Housing Corporation (1995), *Vents and Orifice Flow*, §2.2, archived at https://publications.gc.ca/collections/collection_2018/schl-cmhc/nh17/NH17-201-1995-eng.pdf , `Q=C_d A sqrt(2 DeltaP/rho)`. Rearranged to `DeltaP=rho Q^2/(2 C_d^2 A^2)`, used in an independently checked known-answer case. Drilling-context reference: *Applied Drilling Circulation Systems: Hydraulics, Calculations and Models*, bit nozzle kinetic pressure equation, https://ndl.ethernet.edu.et/bitstream/123456789/3543/1/Applied%20Drilling%20Circulation%20Systems%20Hydraulics%2C%20Calculations%2C.pdf .
+- Requires separately **sourced and independently validated** total flow area/discharge coefficient, constant density, negligible approach velocity, single-phase incompressible steady behavior, no cavitation; input source string is **not** authorization or evidence verification. The output must never imply that a Baker Hughes tool restriction can be represented by an arbitrary jet/orifice. Returns `standpipe_pressure_pa=null`, `engineering_acceptance=false`.
+
+### 3. Auditable partial Newtonian circulation-component budget
+
+- Module `scripts/circulation_budget.py`, strict CLI `scripts/run_circulation_budget.py`, case `examples/synthetic_newtonian_component_budget.json`, tests `tests/test_circulation_budget.py` and `tests/test_run_circulation_budget.py`.
+- An **ordered, unique** `pipe_or_annulus -> optional source-described nozzle -> annular return` sequence with both legs explicitly declared. Computes and separately records only supported Newtonian laminar segment friction and isolated nozzle differential; rejects turbulent/unsupported sections instead of returning a partial result. Independent synthetic three-component known-answer sum checks the analytical pipe, annular and nozzle terms without using the production formulas.
+- `status=partial_circuit_component_budget_only`, `standpipe_pressure_pa=null`, `engineering_acceptance=false` **always**. Output `boundary_coverage` explicitly records missing pressure-transducer datum, actual complete equipment restrictions, hydrostatic balance and measured rig comparison. No real-world liner hanger model, OEM hydraulic restriction rating or validated pressure limits are supplied.
+
+### Remaining completion requirements
+
+- [x] Restricted Newtonian laminar pipe + concentric annulus and documented independent analytical tests (not field acceptance).
+- [x] Source-based Bingham-plastic **pipe-only** laminar relation and offline contract (subject to latest CI confirmation).
+- [x] Source-backed **individually declared** nozzle/orifice pressure differential and limited partial component budget (subject to latest CI confirmation).
+- [ ] Source-supported **annular and transitional/turbulent non-Newtonian rheology** and confidence/temperature/regime screening.
+- [ ] Authorized **complete, exact-equipment rig → running-string/liner → nozzle/restrictions → annular return** configuration with all ID/OD/lengths, material fluid state, pump path, bypass/leaks, friction/flow assumptions, pressure-transducer locations, hydrostatic and surface backpressure boundary.
+- [ ] Full published/authorized **input-equivalent end-to-end hydraulic benchmark** vs an independently computed field/model result; reconcile measured SPP sensor uncertainty and operating state.
+- [ ] Independently qualified hydraulics/OEM/operator engineering applicability review and explicit sign-off; no automatic acceptance by model or AI.
+
+**LH-CALC-03 remains IN PROGRESS, NOT ACCEPTED; LH-CALC-02 parked OPEN 6/7; overall 2/9 accepted stages.** Do not substitute synthetic model values for real well design or rig operations.
+
 ## Development checkpoint — 2026-11-15
 
 ## Verified software regression and annular thin-gap stability — 2026-11-15
