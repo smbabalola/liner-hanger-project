@@ -9,7 +9,7 @@ behavior, fittings, bit nozzles, acceleration, pump efficiency or SPP claim.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import isfinite, log, pi
+from math import expm1, isfinite, log1p, pi
 from typing import Literal
 
 
@@ -104,12 +104,24 @@ def segment_pressure_loss(fluid: NewtonianFluid, segment: FlowSegment,
         dp = 128*mu*segment.length_m*q/(pi*d_outer**4)
     else:
         ro, ri = d_outer/2, d_inner/2
-        # Scale by Ro**4 to avoid subtracting large/very small powers.
-        x = ri/ro
-        factor = 1-x**4-(1-x*x)**2/log(1/x)
+        # The exact annulus conductance factor is
+        # 1-exp(-4t) - (1-exp(-2t))**2/t, t=ln(Ro/Ri).
+        # Direct fourth-power subtraction catastrophically cancels for thin
+        # gaps. log1p preserves t; a Taylor expansion preserves O(t**3)
+        # without subtracting O(t) terms. This is still the SAME exact
+        # Newtonian concentric-annulus physical model, not a slit model.
+        t = log1p((ro-ri)/ri)
+        if t < 0.01:
+            # Expansion to O(t**8), relative truncation O(t**6).
+            factor = t**3 * (
+                4/3 + t*(-8/3 + t*(136/45 + t*(-112/45 +
+                t*(172/105 + t*(-856/945)))))
+            )
+        else:
+            factor = -expm1(-4*t) - expm1(-2*t)**2/t
         if not isfinite(factor) or factor <= 0:
             raise HydraulicsUnavailable(
-                "annular gap too narrow for numerically stable evaluation"
+                "annular conductance not numerically resolvable"
             )
         dp = 8*mu*segment.length_m*q/(pi*ro**4*factor)
     if not isfinite(dp) or dp < 0:
