@@ -34,11 +34,17 @@ def _nonempty(value):
 
 
 def _finite_number(value, name, *, nonnegative=False):
-    if type(value) not in (int, float) or not math.isfinite(value):
+    if type(value) not in (int, float):
         raise BenchmarkError(f"{name} must be a finite numeric value (not boolean)")
-    if nonnegative and value < 0:
+    try:
+        result = float(value)
+    except (OverflowError, ValueError) as exc:
+        raise BenchmarkError(f"{name} cannot be represented as finite float") from exc
+    if not math.isfinite(result):
+        raise BenchmarkError(f"{name} must be finite")
+    if nonnegative and result < 0:
         raise BenchmarkError(f"{name} must not be negative")
-    return float(value)
+    return result
 
 
 def assess_benchmark(data: dict) -> dict:
