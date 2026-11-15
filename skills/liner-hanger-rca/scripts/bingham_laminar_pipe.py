@@ -77,7 +77,16 @@ def bingham_pipe_laminar_pressure_loss(
     plastic_re = fluid.density_kg_m3*velocity*d/mu
     if not isfinite(plastic_re):
         raise HydraulicsUnavailable("nonfinite plastic Reynolds number")
-    if not q or not L:
+    if not L:
+        dp = tau = 0.0
+    elif not q and tau_y > 0:
+        # Yield-stress material can sustain a nonzero *static* pressure
+        # gradient without motion. The pressure is not uniquely determined
+        # from Q=0: reporting delta_P=0 would be misleading.
+        raise HydraulicsUnavailable(
+            "zero-flow yielded-fluid pressure is indeterminate without boundary pressure"
+        )
+    elif not q:
         dp = tau = 0.0
     elif tau_y == 0:
         # Exact Newtonian limit, also avoids unnecessary root iteration.
