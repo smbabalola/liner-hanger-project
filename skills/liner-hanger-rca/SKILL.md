@@ -182,6 +182,19 @@ Implementation and validation must follow the canonical workstream `LH-CALC-00` 
 
 ## LH-CALC-03 — Offline experimental circulating hydraulics (NOT a rig SPP calculator)
 
+### Newly implemented bounded power-law concentric annular flow and circuit workflow
+
+Run from the installed skill directory:
+
+```bash
+python scripts/run_power_law_laminar_annulus.py examples/synthetic_power_law_laminar_annulus.json
+python scripts/run_power_law_circulation_budget.py examples/synthetic_power_law_circulation_budget.json
+```
+
+The annular model is an explicitly separate `power_law_laminar_annulus_pressure_loss(PowerLawFluid, FlowSegment, ...)` with stationary concentric walls, steady fully developed **laminar** power-law material, radial shear-stress zero location found by a no-slip boundary-value integral, then separately integrated pressure gradient; **not** a pipe hydraulic-diameter approximation. The restricted annular radius ratio is 0.15–0.85 and `n` 0.3–1.5 for the current research-tested numerical scope only. These are not equipment or mud operating limits. The coupled `partial_power_law_circulation_budget` requires a separate **caller-supplied, not independently authenticated laminar regime source ID for every straight pipe and annular segment**, optionally combines one separately source-labelled nozzle differential, and returns only a **partial loss ledger**. The zero-shear radius is `null` when no distributed flow field exists. Neither module models pipe rotation, eccentricity, yield stress, solids, turbulent/transition flow, thermal behavior, tool restrictions or pressure-transducer datum. Both always return `standpipe_pressure_pa=null`, `engineering_acceptance=false` and remain research-only. Governing equations and independent Newtonian annulus limit in `references/LH_CALC03_HYDRAULICS_PLAN.md`; acceptance evidence in `references/LH_CALC03_ACCEPTANCE_EVIDENCE.md`.
+
+
+
 **Latest LH-CALC-03 software regression:** [GitHub Actions run 43757805273](https://github.com/smbabalola/liner-hanger-project/actions/runs/43757805273) at code commit `227d241` — **815 passed on Python 3.11 and 815 passed on Python 3.12**, zero failures or skips in either job (actual logs verified). This is a software result, not rig hydraulics approval. The older 766-case count in the historical checkpoint above is superseded for new software.
 
 **Additional restricted power-law pipe calculation:**
