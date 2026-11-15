@@ -45,6 +45,12 @@ The paper describes a publicly inspectable, containerized transient axial/torsio
 
 **Decision (2026-11-15):** source and repository identified; **no simulator run, data extraction, input crosswalk, force match or review performed**. Record as an external validation lead only. Next: inspect the upstream ModelTest/SimulatorTest fixtures and associated 2026 paper examples, select a reproducible static limit if available, compare explicitly with our supported contact regime, and reject non-equivalent cases. Do not commit upstream source or field data to this project.
 
+## Candidate B deeper source crosswalk — 2026-11-15
+
+The publicly reproducible `welleng` notebook/article at https://jonnymaserati.github.io/2022/05/22/an-example-of-welleng-torque-drag.html documents control nodes (MD 0/731.5/1280/3718 m; inclination 0/0/44/44 deg; azimuth 0 deg throughout), 30 m resampling, an example BHA (6.5 in/4 in drill collars for 372 ft at 146.90 lb/ft; 4.5 in/4 in HWDP for 840 ft at 46.90 lb/ft; 5 in/3.625 in pipe at 20 lb/ft), casing/open-hole friction 0.39, the cited 9.8/8.33 SG fluid conversion and WOB 10,000 N, bottom torque 2,712 N m, overpull 50,000 N. Its wellbore assembly references 8.5 in nominal diameter, while tooljoint diameters are separately included. The plotted T&D curves are not a published machine-readable per-station force/torque table in the article, and the source explicitly omits high-dogleg sections from the original paper.
+
+**Physical equivalence verdict: NOT COMPARABLE as a full 3D weighted validation target.** All survey azimuths are constant, making it a planar case. The skill's constant-mass/two-station per section model omits tooljoint distributions and bottom torque, WOB/overpull and other nuances of the example, so simply matching selected values by tuning missing details would be misleading. An independently executed `welleng` reference with explicit outputs might qualify as a restricted **planar software comparator** only after documenting precise boundary and unit mappings, and it would **not satisfy** the outstanding combined inclination+azimuth 3D field/independent benchmark acceptance gate. No solver output comparison or qualified sign-off is claimed in this review.
+
 ## Next acceptance substeps
 
 - [x] Identify and read independent published source candidates and record **exactly what each supports and lacks**.
