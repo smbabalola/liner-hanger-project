@@ -1,0 +1,42 @@
+{
+  "fluid": {
+    "density_kg_m3": 1050,
+    "consistency_pa_s_n": 0.15,
+    "flow_behavior_index": 0.7,
+    "rheology": "power_law"
+  },
+  "flow_m3_s": 0.0001,
+  "components_in_flow_order": [
+    {
+      "type": "pipe_or_annulus",
+      "name": "synthetic_pipe",
+      "kind": "pipe",
+      "length_m": 10,
+      "outer_diameter_m": 0.1,
+      "inner_diameter_m": 0,
+      "flow_leg": "downstream"
+    },
+    {
+      "type": "nozzle_orifice",
+      "name": "synthetic_nozzle",
+      "total_flow_area_m2": 0.0002,
+      "discharge_coefficient": 0.8,
+      "coefficient_source_id": "SYNTHETIC-ONLY",
+      "flow_leg": "downstream",
+      "geometry": "orifice_approach_velocity_negligible"
+    },
+    {
+      "type": "pipe_or_annulus",
+      "name": "synthetic_annulus",
+      "kind": "concentric_annulus",
+      "length_m": 10,
+      "outer_diameter_m": 0.2,
+      "inner_diameter_m": 0.1,
+      "flow_leg": "return"
+    }
+  ],
+  "laminar_evidence_by_section": {
+    "synthetic_pipe": "SYNTHETIC-PIPE-REGIME",
+    "synthetic_annulus": "SYNTHETIC-ANNULUS-REGIME"
+  }
+}
