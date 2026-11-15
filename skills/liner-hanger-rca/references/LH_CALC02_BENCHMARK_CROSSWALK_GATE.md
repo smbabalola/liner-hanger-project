@@ -62,6 +62,10 @@ py -m pytest -rs -q tests
 
 **The numbers 0, 0 and 1 above are placeholders demonstrating the JSON shape, not a valid benchmark.** Do not run the template as an external validation claim. For rotation contact torque, use `observable=rotation_contact_torque_nm`, `mode=rotation`, `unit=N*m`. A reference in lbf or ft-lbf must first be explicitly converted to SI with a documented source and conversion calculation.
 
+## Complete regression verification superseding isolated-only status
+
+At commit `2fab5b6`, [GitHub Actions run 43718419410](https://github.com/smbabalola/liner-hanger-project/actions/runs/43718419410) executed the complete skill suite including all 37 crosswalk cases and the two Playwright browser cases, using installed Chromium. The actual job logs report **605 passed, 0 skipped on Python 3.11 (27.26s)** and **605 passed, 0 skipped on Python 3.12 (17.32s)**. The isolated-run evidence below remains a historical account of initial development; it is **no longer the latest software verification state**. No published nonzero-weight 3D physical case was reproduced and the numerical comparability gate remains strictly research-only.
+
 ## Independent isolated test execution
 
 37 test cases were run in a reconstructed **isolated copy of exactly these two new files**, using local Python/pytest, resulting in **37 passed** (including 12 missing physical-basis fields, 5 source-evidence omissions, malformed/nonfinite/oversized numeric values, mode/unit errors, CLI exit behaviour and no implied field acceptance). This is **not** an execution of the repository's existing 568 expected tests, nor a proof that the new files pass together with the entire skill on Windows or GitHub Actions. The full suite must be run in a genuine checkout and its actual count recorded.
