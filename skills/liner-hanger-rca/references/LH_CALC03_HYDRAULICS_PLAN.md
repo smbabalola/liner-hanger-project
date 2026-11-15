@@ -2,6 +2,21 @@
 
 **Status:** IN PROGRESS — scope and engineering contract established 2026-11-15. No implementation, numerical benchmark or acceptance claimed by this document.
 
+## Development checkpoint — 2026-11-15
+
+**Implemented in GitHub, but NOT yet full-regression verified or physically accepted.**
+- `scripts/circulating_hydraulics.py`: strict SI Newtonian fluid and pipe/concentric-annulus geometry; laminar analytical pressure drop, velocity, Reynolds and per-segment audit trail; conservative rejection above Reynolds 2000 and malformed/nonfinite inputs.
+- `scripts/run_circulating_hydraulics.py`: strict JSON offline entry point and failure exit codes.
+- `examples/synthetic_laminar_circuit.json`: fictional two-leg (internal flow + return annulus) demonstration.
+- `tests/test_circulating_hydraulics.py` and `tests/test_run_circulating_hydraulics.py`: independent closed-form Poiseuille / concentric annulus calculations, boundary/sensitivity and fail-closed CLI tests.
+- Commits: `4e11ed7`, `02e032c`, `7b1d833`, `05308b4`, `ecd9e86`.
+
+**Validated status:** no passing Python CI job has yet been verified for this new batch. A GitHub commit-status query produced no statuses; this is NOT a passing test. Do not infer success from committed test files.
+
+**Physical scope:** straight constant-section fully developed, fixed-wall, isothermal incompressible Newtonian laminar flow only. Calculated laminar Reynolds uses hydraulic diameter for concentric annulus as a conservative screening gate, not a qualified annular transition prediction. No Bingham/Herschel–Bulkley/power-law flow, eccentric annular geometry, turbulent regime, bit/nozzle/fitting pressure loss, surface circuit, temperature/pressure-dependent rheology, solids, rotation or actual rig comparison. Output always sets `standpipe_pressure_pa=null`. The total is explicitly **partial modeled straight-segment friction**, never a validated circulating SPP.
+
+**Remaining stage work:** run full regression and fix faults, add sourced rheology and realistic annular/pipe transition model and losses, implement complete input-audited rig-to-return circuit including bit/restrictions and pressure datum, independently reproduce reference calculations under equivalent assumptions, then qualified engineering review. LH-CALC-03 is **IN PROGRESS, not accepted**. LH-CALC-02 remains **PARKED OPEN 6/7**.
+
 ## Outcome and scope
 Create portable skill-local circulating-hydraulics calculations for an explicitly described fluid and flow circuit. Model pressure losses separately for each validated segment of a rig → drillstring/running-tool/liner → annular return path, and sum comparable contributions to estimate circulating standpipe pressure **only where all required components, boundary conditions and measurement locations are identified**.
 
