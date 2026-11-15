@@ -210,15 +210,44 @@ function runRules(){
    group.push(row);
   }flush();out.push(entry);
  }
+ // Procedure-event checks are *reported chronology*, not proof of a downhole step.
+ // Absence from an incomplete log remains an evidence gap, never an asserted omission.
+ const required=book.required_event_sequence;
+ if(Array.isArray(required)){
+  let previous=null;
+  for(const requiredStep of required){
+   const id=requiredStep.code;
+   const entry={id:"EVENT-"+(id||"?"),step:requiredStep.step||id||"Reported event",
+    description:"Chronological reported procedure step (not independently verified)",
+    source:requiredStep.source_reference||"",status:"unverifiable",instances:[],reasons:[]};
+   if(!approved||!aligned||requiredStep.approved!==true||!entry.source)
+    entry.reasons.push("Approved source/clock alignment or step reference not established");
+   if(!id||typeof id!=="string")entry.reasons.push("Required event code missing");
+   const matching=data.events.filter(e=>e.code===id);
+   if(!matching.length)entry.reasons.push("Required step not found in supplied chronology; absence does not prove omission");
+   if(matching.length>1)entry.reasons.push("Duplicate reported step events; exact sequence requires engineer review");
+   if(matching.length===1){
+    const t=Date.parse(matching[0].time||"");
+    if(!Number.isFinite(t)||!matching[0].source)entry.reasons.push("Reported event time or source not verified");
+    else if(!entry.reasons.length){
+     entry.status=previous!==null&&t<previous?"reported_order_question":"reported_in_sequence";
+     if(entry.status==="reported_order_question")
+      entry.reasons.push("Reported event precedes a previous required step; confirm chronology and procedure");
+    }
+    if(Number.isFinite(t))previous=t;
+   }
+   out.push(entry);
+  }
+ }
  return out;
 }
 function findings(){
  const results=runRules();const root=$("findings");root.replaceChildren();
- $("ruleSummary").textContent=results.length?results.filter(r=>r.status==="deviation_candidate").length+
+ $("ruleSummary").textContent=results.length?results.filter(r=>r.status==="deviation_candidate"||r.status==="reported_order_question").length+
  " rule(s) with apparent deviation candidates; "+results.filter(r=>r.status==="unverifiable").length+
  " unverifiable. All findings require independent review.":"No job-specific procedure rulebook loaded. Compliance cannot be assessed.";
  for(const r of results){
-  const box=document.createElement("article");box.className=r.status==="deviation_candidate"?"flag":r.status==="met"?"met":"gap";
+  const box=document.createElement("article");box.className=r.status==="deviation_candidate"||r.status==="reported_order_question"?"flag":r.status==="met"||r.status==="reported_in_sequence"?"met":"gap";
   const h=document.createElement("strong");h.textContent=r.id+" · "+r.step+" · "+r.status.replace(/_/g," ");box.append(h);
   const p=document.createElement("p");p.textContent=r.description+" · source: "+(r.source||"unavailable");box.append(p);
   for(const reason of r.reasons){const x=document.createElement("p");x.className="danger";x.textContent=reason;box.append(x)}
