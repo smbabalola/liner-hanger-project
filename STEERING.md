@@ -1,7 +1,7 @@
 # STEERING — Liner Hanger Investigation MVP
 
 **Decision:** 2026-11-15 — User-approved scope reduction to finish a usable **entire application MVP**, not all nine research/calculation stages.  
-**Primary goal:** Deliver and test a locally runnable retrospective liner-hanger investigation application as soon as feasible, with **today as the target**. Do not claim it is finished until a working end-to-end demonstration passes.  
+**Primary goal:** Deliver and test a locally runnable retrospective liner-hanger investigation application. **Reduced local-browser demo MVP verified 2026-11-15**: [GitHub Actions run 43764373475](https://github.com/smbabalola/liner-hanger-project/actions/runs/43764373475), 939 tests passed on Python 3.11 and 939 on 3.12, including actual Chromium file:// normal/anomalous case, annotations, report and standalone-folder tests. Windows user smoke and any engineering/field certification remain open.  
 **Repository:** `smbabalola/liner-hanger-project`; existing Windows checkout `C:\dev\liner-hanger-project`.  
 **Task authority:** This file and [TODO.md](TODO.md) supersede the old nine-stage calculation-first execution order. Retain prior work and engineering evidence in Git history and existing skill references.
 
@@ -34,7 +34,7 @@ If any item fails, mark the MVP **NOT COMPLETE**, fix it or report the exact blo
 
 **MVP-01 Inventory/choose:** Inspect the **existing** UI prototypes, telemetry replay, moving assembly, annotation, evidence and reporting components. Reuse working code; do not rewrite validated parts or start another disconnected prototype. Identify the smallest local runtime and single case format.
 
-**MVP-02 Wire the app:** Link existing parsers/skill functions to the chosen application shell and provide a single open-case/import workflow.
+**MVP-02 Wire the app:** For the intentionally reduced *offline browser demo*, implement the established telemetry/source/procedure/evidence contracts in the single browser shell and provide a single open-case/import workflow. Direct calls to the full Python investigation skill are deferred; document this architecture exception. Do not claim full Python-backend parity.
 
 **MVP-03 Replay + procedure review:** Synchronize telemetry, assembly view and job logs; show deviation candidates with a concrete source/time/step and explicit uncertainty.
 
@@ -60,6 +60,6 @@ Preserve historical implementation and review records via Git history and skill 
 
 ## Status and autonomy
 
-**MVP STATUS: NOT YET VERIFIED COMPLETE.** The existing skill and partial prototypes provide reusable building blocks. No end-to-end local application acceptance is asserted by this steering change. Today's target is ambitious and depends on what already works; report blockers rather than claiming completion or continuing endless physics research.
+**MVP STATUS: COMPLETE AT REDUCED LOCAL OFFLINE BROWSER-DEMO SCOPE — AUTOMATED UI ACCEPTANCE VERIFIED.** The app at `skills/liner-hanger-rca/app/index.html` passed end-to-end normal/anomalous, modal annotation persistence, report download, invalid CSV/schema gates, reported-step chronology and isolated-copy case JSON portability. Full run [43764373475](https://github.com/smbabalola/liner-hanger-project/actions/runs/43764373475) at implementation commit `519de543` passed **939/939 per interpreter** on Python 3.11 and 3.12. This **does not mean** Windows user manual acceptance, full Python backend API integration, real case/OEM calibration, physical model/field approval, deployment or a commercially complete platform; see [release evidence](docs/mvp-local-release-evidence.md). If any platform-specific first-use defect emerges, reopen that MVP gate.
 
 Do not assume continuous work occurs between chat messages. If a scheduled automation operates on the repository, it must follow this **MVP-first** steering order and must not resume deferred LH-CALC research until explicitly reprioritized by the user.
