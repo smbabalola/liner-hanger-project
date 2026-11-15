@@ -101,6 +101,10 @@ def assess_benchmark(data: dict) -> dict:
         raise BenchmarkError("tolerance rationale required")
     delta = model - target
     threshold = atol + rtol * abs(target)
+    # Finite inputs can still overflow during subtraction or tolerance scaling.
+    # An infinite threshold would otherwise silently accept any finite result.
+    if not math.isfinite(delta) or not math.isfinite(threshold):
+        raise BenchmarkError("comparison difference or tolerance overflowed finite range")
     within = abs(delta) <= threshold
     return {
         "status": "numerical_agreement_only" if within else "numerical_disagreement",
