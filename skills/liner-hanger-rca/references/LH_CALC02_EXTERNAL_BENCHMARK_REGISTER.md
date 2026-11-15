@@ -34,6 +34,17 @@ Published 2,715m three-dimensional example, friction coefficient 0.25 in casing 
 
 Separate high-precision SciPy DOP853 evaluation of our own fictional 100m combined build/turn with documented OD, ID, linear mass, density, friction, radius and end tension. Exact output table and math in `LH_CALC02_MINIMUM_CURVATURE_3D_MODEL.md`. This is a **proper independent numerical method comparison**, not an independent physical or field truth source.
 
+
+## Candidate E — NORCE / SPE Open-Source Drilling Community, published 2026 transient 4n-DOF simulator
+
+**E. Cayeux, S. Moi, L. P. Volpi, G. Pelfrene (2026), _An Open Source, Online, Near Real-Time 4n Degree of Freedom Transient Torque and Drag Model_, IADC/SPE-230785-MS, published 10 March 2026.** DOI: https://doi.org/10.2118/230785-MS ; reference implementation: https://github.com/Open-Source-Drilling-Community/Simulator4nDOF (Apache-2.0 per source repository/paper; check specific subcomponent licensing before reuse).
+
+The paper describes a publicly inspectable, containerized transient axial/torsional/lateral model and reports validation against field high-frequency measurements from North Sea fixed and floating platforms. The public repository includes model and test projects and interfaces for simulation cases. This is a credible **independent physics and test-harness comparison candidate**, rather than the synthetic data sets or the already documented self-ODE DOP853 reproduction.
+
+**Crucial comparability restriction:** this model includes transient motion, stiffness, radial clearance/contact and coupled physical effects absent in our quasi-static soft-string solver. A matching numerical result cannot be claimed without extracting a reproducible **quasi-static, frictional, nonzero-weight 3D limit** and matching complete survey/pipe/fluid/friction/contact/bottom-load data, boundary and observable definitions, units and numerical tolerance. Its published field validation does **not transfer** to this project's solver. Public availability of the source does not establish availability of the underlying North Sea field records or their redistribution rights.
+
+**Decision (2026-11-15):** source and repository identified; **no simulator run, data extraction, input crosswalk, force match or review performed**. Record as an external validation lead only. Next: inspect the upstream ModelTest/SimulatorTest fixtures and associated 2026 paper examples, select a reproducible static limit if available, compare explicitly with our supported contact regime, and reject non-equivalent cases. Do not commit upstream source or field data to this project.
+
 ## Next acceptance substeps
 
 - [x] Identify and read independent published source candidates and record **exactly what each supports and lacks**.
