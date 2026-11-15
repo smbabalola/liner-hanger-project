@@ -70,6 +70,14 @@ GitHub Actions [run 43718419410](https://github.com/smbabalola/liner-hanger-proj
 
 External source Candidate B was inspected more deeply (see `LH_CALC02_EXTERNAL_BENCHMARK_REGISTER.md`). The public `welleng` example is azimuth-constant/planar, differs in detailed BHA/tooljoint/bottom-boundary construction and does not constitute an independently reproduced combined-build-and-turn weighted 3D well. **No published nonzero-weight full 3D contact-force/torque profile has been matched** on identical physical inputs and assumptions, and no qualified reviewer has approved contact-state/stiffness/field applicability. Therefore **LH-CALC-02 remains 6/7 (~86%) OPEN; programme 2/9 (~22%)**. Do not treat the regression success as rig-hookload or OEM engineering approval.
 
+## 2026-11-15 — real North Sea published 3D geometry reproduction verified
+
+**Independent source:** Knut Tveitan, University of Stavanger (2011), Table A-1 printed p.57, Well A. The table's five consecutive MD/inclination/azimuth/TVD/N/E readings at 1202.50–1318.10m were compared against the skill's minimum-curvature survey and the independent numerical great-circle integration in `trajectory_interpolation_audit.py`. The computed 12 independent component increments (4 intervals × north/east/down) agree with published differences within **0.008m**, below the explicit **0.02m** transcription/rounding tolerance. The skill's native `directional_survey.integrate_minimum_curvature` reproduces the five published TVD station positions within the same tolerance, using the *published starting TVD* as anchor. These are real 3D survey geometry values, not synthetic plotted curves.
+
+`tests/test_published_tveitan_survey_geometry.py` introduced **14 tests** at commit `0effcf7`. Verified complete GitHub Actions [run 43722944618](https://github.com/smbabalola/liner-hanger-project/actions/runs/43722944618), Python **3.11 622 passed, 0 skipped in 16.99s** and Python **3.12 622 passed, 0 skipped in 26.60s**, from actual CI job logs. Source and discrepancy table: `LH_CALC02_EXTERNAL_BENCHMARK_REGISTER.md`.
+
+**Acceptance is still OPEN (6/7).** Survey XYZ interpolation agreement proves neither the soft-string 3D wall normal/contact law nor a weighted pickup/slackoff or rotary torque response. The thesis fits friction to actual hookload data and contains pressure, changing fluids, tooljoint, missing-survey and surface blockweight effects; it does not supply a fully source-equivalent independent tabulated force profile ready for this solver. No engineering sign-off or field release may be claimed. Only remaining direction is a physically comparable weighted force benchmark and an external qualified applicability decision; don't advance hydraulics yet.
+
 ## Acceptance gate — next bounded sequence
 
 - [x] Basic straight, co-linear, exact weightless bend and planar weighted module implemented, with full updated user Windows regression of **432 passed in 13.82 s** at `bf7838e`.
