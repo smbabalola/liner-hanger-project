@@ -1,0 +1,66 @@
+name: LH-CALC-03 Skill-Only Hydraulics Smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/liner-hanger-rca/scripts/*hydraulic*'
+      - 'skills/liner-hanger-rca/scripts/*circulation*'
+      - 'skills/liner-hanger-rca/scripts/*power_law*'
+      - 'skills/liner-hanger-rca/scripts/*bingham*'
+      - 'skills/liner-hanger-rca/examples/synthetic_*'
+      - '.github/workflows/lh-calc03-portable.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hydraulic-skill-only:
+    name: Hydraulics skill-only (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Execute all seven restricted hydraulics APIs from isolated skill copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          isolated="$(mktemp -d)"
+          cp -a skills/liner-hanger-rca "$isolated/liner-hanger-rca"
+          cd "$isolated/liner-hanger-rca"
+          unset PYTHONPATH || true
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          cases = (
+              ("run_circulating_hydraulics.py", "synthetic_laminar_circuit.json"),
+              ("run_bingham_laminar_pipe.py", "synthetic_bingham_laminar_pipe.json"),
+              ("run_power_law_laminar_pipe.py", "synthetic_power_law_laminar_pipe.json"),
+              ("run_power_law_laminar_annulus.py", "synthetic_power_law_laminar_annulus.json"),
+              ("run_circulation_budget.py", "synthetic_newtonian_component_budget.json"),
+              ("run_power_law_circulation_budget.py", "synthetic_power_law_circulation_budget.json"),
+              ("run_circulation_hydrostatics.py", "synthetic_hydrostatic_column_balance.json"),
+          )
+          for script, example in cases:
+              result = subprocess.run(
+                  [sys.executable, str(Path("scripts")/script),
+                   str(Path("examples")/example)],
+                  check=True, capture_output=True, text=True)
+              value = json.loads(result.stdout)
+              assert value["standpipe_pressure_pa"] is None, script
+              assert value["engineering_acceptance"] is False, script
+              print("PASS", script, example)
+          assert len(cases) == 7
+          print("7/7 restricted hydraulics entrypoints pass from isolated skill only")
+          PY
