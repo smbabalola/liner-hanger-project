@@ -1,5 +1,9 @@
 # AGENTS.md — Working Rules for All Coding Assistants
 
+## CURRENT USER-APPROVED OVERRIDE — 2026-11-15 (TAKES PRECEDENCE)
+
+**The active task is the whole local liner-hanger investigation MVP, NOT the former calculation-first LH-CALC sequence or a skill-only prerelease.** Read `STEERING.md` and the five `MVP-01..05` tasks in `TODO.md` first. UI construction and integration are **now expressly authorized**; earlier prohibitions on UI work in this file and older docs are superseded. Previously developed hydraulics/torque-drag modules are retained, but further research, external model validation and full OEM/field release are deferred unless essential to the narrow MVP. Reuse existing HTML/replay/assembly/annotations and skill evidence/report modules, only in the established repo/checkout. Build, run and test one connected application and verify normal/anomalous fictional cases and report export. A labelled local engineering-demo MVP need not await unavailable operator/OEM field approval; never fabricate approved tool limits or assert field readiness. Preserve confidential assets and Git history.
+
 ## CURRENT STEERING OVERRIDE — approved 2026-11-14
 
 **Read [STEERING.md](STEERING.md) first.** It is now the canonical current engineering objective for Codex. The user explicitly approved an integrated **planned engineering calculation → verification → optional historical fault investigation** workstream, staged as `LH-CALC` tasks in `TODO.md`. Earlier statements in this file saying **all broad calculations must be deferred**, or demanding **fault-investigation-only release before any calculation code**, are **superseded for this approved workstream only**. Do not discard retrospective safety/evidence rules or the existing tested RCA skill. UI construction and additional OEMs remain deferred.
