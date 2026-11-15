@@ -52,8 +52,11 @@ def nozzle_orifice_loss(rho_kg_m3:float, nozzle:NozzleOrifice, flow_m3_s:float) 
     rho = _finite(rho_kg_m3,"density_kg_m3",positive=True)
     q = _finite(flow_m3_s,"flow_m3_s",nonnegative=True)
     velocity=q/nozzle.total_flow_area_m2
-    dp=(rho/2)*(velocity/nozzle.discharge_coefficient)**2
-    if not isfinite(dp):
+    try:
+        dp=(rho/2)*(velocity/nozzle.discharge_coefficient)**2
+    except OverflowError as exc:
+        raise HydraulicsUnavailable("nozzle pressure differential overflow") from exc
+    if not isfinite(dp) or not isfinite(velocity):
         raise HydraulicsUnavailable("nonfinite nozzle pressure differential")
     return {
         "name":nozzle.name,
