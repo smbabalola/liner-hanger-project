@@ -1,0 +1,18 @@
+{
+  "fluid": {
+    "density_kg_m3": 1000,
+    "dynamic_viscosity_pa_s": 0.001,
+    "rheology": "newtonian"
+  },
+  "segment": {
+    "name": "fictional_turbulent_pipe",
+    "kind": "pipe",
+    "length_m": 100,
+    "outer_diameter_m": 0.1,
+    "inner_diameter_m": 0,
+    "flow_leg": "downstream"
+  },
+  "flow_m3_s": 0.004,
+  "absolute_roughness_m": 0.00002,
+  "roughness_source_id": "SYNTHETIC-NOT-A-CALIBRATION"
+}
