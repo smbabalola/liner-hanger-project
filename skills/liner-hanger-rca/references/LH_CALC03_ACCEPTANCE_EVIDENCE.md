@@ -20,6 +20,16 @@
 | Qualified human physical/OEM applicability sign-off | No appropriately qualified external hydraulics engineer/operator/OEM release decision attached | **UNMET**; AI/test pass is not approval |
 | Hosted regression | [GitHub Actions 43753403289](https://github.com/smbabalola/liner-hanger-project/actions/runs/43753403289) code commit `55f78b7`, complete Python 3.11 **766 passed (23.76s)** and 3.12 **766 passed (26.34s)**, both job logs directly reviewed | **PASS — SOFTWARE ONLY** |
 
+## Verified 2026-11-15 annular and multi-leg checkpoint
+
+**Full hosted skill regression:** [run 43758960627](https://github.com/smbabalola/liner-hanger-project/actions/runs/43758960627) at source-code commit `7f21a52`: Python **3.11: 866 passed in 23.81s**, Python **3.12: 866 passed in 31.86s**, 0 failed/skipped, checked from actual job logs. This supersedes the historic 766-case baseline listed above.
+
+**What was shown:** The experimental concentric stationary power-law annular radial-momentum solver reproduces the separately derived Newtonian concentric-annulus closed form for `n=1` at several radius ratios, and the expected non-Newtonian `Q^n` scaling in its restricted numerical domain. The new power-law circulation budget composes internal pipe, one explicitly characterized nozzle and annulus **only when each leg has its own caller-declared laminar regime source ID**. These IDs do not authenticate field conditions. Every result labels `standpipe_pressure_pa=null` and `engineering_acceptance=false`.
+
+**Recorded failure and correction:** The first integrated negative test exposed raw `OverflowError` from `nozzle_orifice_loss` under extremely large finite flow instead of the fail-closed `HydraulicsUnavailable` exception. This was fixed at commit `7cda496` and a dedicated test committed at `7f21a52`. Earlier red CI runs must not be claimed successful.
+
+**Physical acceptance remains OPEN:** No complete exact OEM/tool hydraulic path, stage-dependent mud rheology and genuine per-section flow regimes, pressure sensor location/datum, tool restrictions, thermal/multiphase/hydrostatic return terms, field reference pressure profile or qualified engineering sign-off has been provided or independently validated. Source-equation match is **not** an end-to-end hydraulic model approval.
+
 ## Source registers and methodological scope
 
 - **Newtonian pipe:** Hagen–Poiseuille `DeltaP = 128 mu L Q / (pi D^4)`, steady fully developed laminar circular tube; checked against separately expressed velocity/radius formulation.
