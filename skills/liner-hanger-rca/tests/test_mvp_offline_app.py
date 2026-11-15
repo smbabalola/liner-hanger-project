@@ -173,3 +173,50 @@ def test_chart_drag_opens_interval_annotation_modal():
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_reported_procedure_sequence_distinguishes_missing_from_out_of_order(tmp_path):
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            sequence = tmp_path / "steps.json"
+            book = json.loads((ROOT / "examples" / "synthetic_procedure_demo_rules.json").read_text())
+            # Do not use published/commercial rig rules for this synthetic UI sequence test.
+            book = {
+                "procedure": {"approved": True, "revision": "FICTIONAL-1",
+                              "approval_reference": "SYNTHETIC-NOT-OEM"},
+                "telemetry_clock_alignment_verified": True,
+                "channel_units": {},
+                "rules": [],
+                "required_event_sequence": [
+                    {"code": "A", "step": "Run liner", "approved": True,
+                     "source_reference": "FICTIONAL/STEP-A"},
+                    {"code": "B", "step": "Circulate", "approved": True,
+                     "source_reference": "FICTIONAL/STEP-B"},
+                    {"code": "C", "step": "Release", "approved": True,
+                     "source_reference": "FICTIONAL/STEP-C"}
+                ]
+            }
+            rules = tmp_path / "rules.json"
+            rules.write_text(json.dumps(book))
+            page.locator("#rulesFile").set_input_files(rules)
+            events = [
+                {"code": "A", "time": "2026-11-10T09:20:00Z",
+                 "label": "Run liner", "source": "SYNTHETIC-LOG"},
+                {"code": "B", "time": "2026-11-10T09:10:00Z",
+                 "label": "Circulate", "source": "SYNTHETIC-LOG"}
+            ]
+            sequence.write_text(json.dumps(events))
+            page.locator("#eventsFile").set_input_files(sequence)
+            page.locator('[data-tab="deviations"]').click()
+            displayed = page.locator("#findings").inner_text()
+            assert "reported order question" in displayed
+            assert "not found in supplied chronology" in displayed
+            assert page.locator("#findings article.flag").count() == 1
+            assert page.locator("#findings article.gap").count() == 1
+            assert not errors, errors
+        finally:
+            instance.close()
