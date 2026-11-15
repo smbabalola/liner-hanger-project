@@ -1,0 +1,36 @@
+# LH-CALC-03 — Circulating hydraulics: evidence and release decision
+
+**Checkpoint:** 2026-11-15. **Engineering stage: OPEN / IN PROGRESS**. This file is an *acceptance evidence register*, not permission for well operations. The user requested work through completion, but engineering and operator approval require evidence and persons that cannot be invented by the implementation.
+
+## Acceptance matrix
+
+| Acceptance requirement | Evidence available now | Current decision |
+| --- | --- | --- |
+| Unit-defined Newtonian straight-pipe steady laminar friction | Hagen–Poiseuille SI equation, independent closed-form tests, strict validation/CLI | Research-only calculation implemented and regression-tested |
+| Newtonian concentric fully developed laminar annulus | Exact annular throughput solution independently checked; stable thin-gap series with independent slit limit and sensitivity tests | Research-only calculation implemented; no eccentricity or rotation |
+| Bingham-plastic laminar circular pipe | Perry's *Chemical Engineers' Handbook* 7th ed. Eq.6-59, independent inverse/forward reference, Newtonian zero-yield and static plug pressure boundary; source-labelled flow regime declaration | Restricted source-equation calculation implemented, **NOT** validated field flow regime |
+| Bingham/Herschel–Bulkley/power-law annulus and transition/turbulence | No reviewed reliable input-matched validated model/benchmark bundled | **UNAVAILABLE**; no Newtonian fallback |
+| Bit nozzle/orifice pressure differential | Public `Q = Cd A sqrt(2 DeltaP/rho)`, independent known-answer and sensitivity tests; requires externally established `Cd` and area | Restricted source-equation calculation, **NOT validated tool/OEM parameters** |
+| Complete circulating path including surface system, running tool, liner, annular return and bypasses | Fictional ordered pipe → nozzle → annulus component-budget contract; missing real-well original equipment path, pressure datum and hydrostatic conditions | **UNAVAILABLE** for full rig design; partial losses only |
+| Source-complete independent numerical benchmark | Independent published **individual** model equations and fictional forward/inverse benchmarks; *no exact independent full-rig case with matched rheology, geometry and measured outputs* | **UNMET** end-to-end physical validation |
+| Real measurement comparison and calibration | No authorized compatible measured rig SPP trace with true sensor location, pressure/flow conditions and uncertainty in this calculation workstream | **UNMET**, no SPP prediction/comparison |
+| Qualified human physical/OEM applicability sign-off | No appropriately qualified external hydraulics engineer/operator/OEM release decision attached | **UNMET**; AI/test pass is not approval |
+| Hosted regression | [GitHub Actions 43753403289](https://github.com/smbabalola/liner-hanger-project/actions/runs/43753403289) code commit `55f78b7`, complete Python 3.11 **766 passed (23.76s)** and 3.12 **766 passed (26.34s)**, both job logs directly reviewed | **PASS — SOFTWARE ONLY** |
+
+## Source registers and methodological scope
+
+- **Newtonian pipe:** Hagen–Poiseuille `DeltaP = 128 mu L Q / (pi D^4)`, steady fully developed laminar circular tube; checked against separately expressed velocity/radius formulation.
+- **Newtonian concentric annulus:** exact integrated laminar throughput `Q = pi DeltaP [Ro^4-Ri^4-(Ro^2-Ri^2)^2/ln(Ro/Ri)]/(8 mu L)`; thin-gap cross-check `DeltaP ~ 6 mu L Q/(pi Ro h^3)`, `h=Ro-Ri`. The latter is an asymptotic limit, not an independently field validated clearance.
+- **Bingham plastic:** *Perry's Chemical Engineers' Handbook*, 7th ed., Fluid and Particle Dynamics, Eq.6-59; educational reference https://schneider.cheme.cmu.edu/Files/Perry%27s%20Chemical%20Engineers%27%20Handbook%207th%20Edition/6.%20Fluid%20and%20Particle%20Dynamics.pdf . Only steady, laminar, fully-developed circular **pipe**; no Bingham annular or generalized regime inference. At zero flow, positive yield stress admits multiple pressure gradients; fail closed.
+- **Orifice/nozzle:** Canada Mortgage and Housing Corporation, *Vents and Orifice Flow*, §2.2, https://publications.gc.ca/collections/collection_2018/schl-cmhc/nh17/NH17-201-1995-eng.pdf . `Q=C_d A sqrt(2 DeltaP/rho)` holds only with valid calibrated coefficient, upstream-velocity model, single-phase steady incompressible flow and no cavitation. Not a manufacturer-specific downhole restriction formula. For drilling context, see *Applied Drilling Circulation Systems: Hydraulics, Calculations and Models*, bit-nozzle model https://ndl.ethernet.edu.et/bitstream/123456789/3543/1/Applied%20Drilling%20Circulation%20Systems%20Hydraulics%2C%20Calculations%2C.pdf . The books are third-party copyrighted: do not copy full texts or tables into the repository.
+- **Synthetic fixtures:** `examples/synthetic_laminar_circuit.json`, `examples/synthetic_bingham_laminar_pipe.json`, `examples/synthetic_newtonian_component_budget.json`. Neither mud density nor tool diameter nor discharge coefficient in these fixtures is an actual operator or Baker Hughes value.
+
+## Required evidence for next owner/reviewer decision
+
+1. A **licensed/authorized exact job flow-path drawing** covering pump-to-standpipe instrument, drillstring/running-tool/liner bore restrictions, circulation bypasses/returns, true MD/TVD and sizes at the planned stage. An OEM guide's general example is not an as-built/approved equipment dimensional record.
+2. **Actual stage-specific fluid properties** from approved rheology measurements, temperature and pressure context and an engineer-reviewed non-Newtonian model with a source-backed laminar/transitional/turbulent regime methodology. Do not assume pipe and annulus have the same regime.
+3. Independently calculated **matched-reference** pressure drops including friction, nozzle/tool components, backpressure/hydrostatic and surface boundaries, with explicit sources and uncertainty tolerances. Document at least one complete real-equivalent nontrivial circuit and discrepancies for every component.
+4. **Authorized independent reviewer** to assess rheological model, geometry/flow splits, pressure transducer location, rig-vs-cement distinction, physical applicability and unsafe omission risks. Recorded approval must identify reviewer, date, scope and permitted use.
+5. Clean install from `skills/liner-hanger-rca/` and regression/CLI exercise without root-only dependencies or protected OEM assets.
+
+**Decision:** Software milestone demonstrated; **LH-CALC-03 acceptance remains OPEN**. The only numerical sum emitted by the current complete example is `modeled_component_pressure_losses_pa`; `standpipe_pressure_pa` is always `null`. Source references are not an endorsement, and no manufacturer parameter/field authorization was claimed. **LH-CALC-02 remains parked OPEN 6/7; programme accepted 2/9.**
