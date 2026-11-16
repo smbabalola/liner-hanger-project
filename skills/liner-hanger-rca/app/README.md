@@ -19,6 +19,19 @@ py -m http.server 8765
 
 Then open `http://localhost:8765`. All processing happens inside your browser and nothing is uploaded to a server.
 
+## Optional Python BHA tally integration (REAL-03)
+
+The existing browser application still runs without a server. For **source-gated static as-run component boundary calculations**, open a separate Windows PowerShell window in the existing checkout:
+
+```powershell
+cd C:\\dev\\liner-hanger-project
+py skills\\liner-hanger-rca\\app\\tally_bridge.py
+```
+
+Keep that window running while you use the **Assembly tally — planned versus as run** section. Register the original equipment/tally source and enter components in top-to-bottom order. Then select a source-supported **as-run** component top/bottom reference, measured depth, unit (`m` or `ft`), depth datum, exact document/page, reviewer identity and confirm source review. Click **Calculate with local Python tally engine**. The browser sends only this entered tally and anchor to `http://127.0.0.1:8766/v1/tally/positions`, where the existing `scripts/bha_tally.py` validates each component and calculates static boundaries using Decimal arithmetic. The service binds only to loopback and makes no remote requests; it does not read the actual source files or perform source authentication.
+
+**No verified source / missing length / uncertain anchor means missing or rejected positions, never estimates.** Planned components cannot be evaluated as actual installation. The source-reviewed anchor and result survive portable case JSON and appear in the draft report, explicitly marked *investigator-declared, not engineering approved*. Replacing as-run tally entries invalidates prior calculations. This does **not** establish movement of individual tools, running-depth alignment, BHA stretch, tool setting or a root cause. Those are separate REAL-03/05 verification gates. If Python is not running, the rest of the browser app remains functional, and the calculation button clearly reports the missing local service.
+
 ## Five-minute walkthrough
 
 1. Under **Import case**, choose **Load synthetic normal example**. Switch to **Replay**; move the time cursor and inspect the shared trend and assembly schematic. Then open **Deviations**. The fictional normal case has zero apparent pressure deviations.

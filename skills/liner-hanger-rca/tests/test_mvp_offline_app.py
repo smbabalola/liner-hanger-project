@@ -15,7 +15,10 @@ def test_offline_app_assets_and_no_network_dependencies():
     js = JS.read_text(encoding="utf-8")
     assert '<script src="app.js"></script>' in html
     assert "https://" not in html and "http://" not in html
-    assert 'fetch(' not in js and 'XMLHttpRequest' not in js
+    # The only optional network call is to a read-only local Python tally calculator.
+    assert js.count("fetch(") == 1
+    assert 'fetch("http://127.0.0.1:8766/v1/tally/positions"' in js
+    assert "XMLHttpRequest" not in js
     for label in ("telemetryFile", "eventsFile", "rulesFile", "seek", "charts",
                   "assembly", "findings", "noteDialog", "downloadReport"):
         assert 'id="' + label + '"' in html
@@ -609,6 +612,12 @@ def test_manual_sop_source_sequence_and_report_from_browser(tmp_path):
             page.locator("#procedureClockChecked").check()
             page.locator("#procedureReviewer").fill("Test reviewer, fictional")
             page.locator("#saveProcedureReview").click()
+            # Procedure review does not authenticate the independent job-report clock.
+            page.locator("#eventClockOffset").fill("0")
+            page.locator("#eventClockSource").fill("FICTIONAL-DAILY-LOG/P3 and rig CSV clock checked")
+            page.locator("#eventClockReviewer").fill("Test reviewer, fictional")
+            page.locator("#eventClockVerified").check()
+            page.locator("#saveEventClock").click()
             page.locator('[data-tab="deviations"]').click()
             assert "reported in sequence" in page.locator("#findings").inner_text()
             page.locator('[data-tab="report"]').click()
@@ -737,6 +746,472 @@ def test_evidence_reattachment_rejects_wrong_file(tmp_path):
             page.locator("#evidenceList input[type=file]").set_input_files(wrong)
             assert "Reattachment rejected" in page.locator("#evidenceStatus").inner_text()
             assert page.locator("#evidenceList button", has_text="Preview local source").count() == 0
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real03_zoom_controls_and_chart_selection_follow_visible_source_window():
+    """Viewport changes plot samples, while cursor and note range retain source indices."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator("#seek").evaluate("(el) => { el.value = '30'; el.dispatchEvent(new Event('input', {bubbles: true})); }")
+            assert "sample 31/61" in page.locator("#cursorTime").inner_text()
+            full = page.locator("#visibleRange").inner_text()
+            assert "61 samples" in full
+            page.locator("#zoomIn").click()
+            assert "61 samples" not in page.locator("#visibleRange").inner_text()
+            first = page.locator("#charts canvas").first
+            rect = first.bounding_box()
+            assert rect is not None
+            # A click at the middle of a zoomed plot must target a source index
+            # inside that window, not reinterpret the x coordinate as the full job.
+            first.click(position={"x": rect["width"] / 2, "y": rect["height"] / 2})
+            assert "sample 31/61" in page.locator("#cursorTime").inner_text()
+            page.locator("#zoomReset").click()
+            assert page.locator("#visibleRange").inner_text() == full
+            page.locator("#zoomOut").click()
+            assert "61 samples" in page.locator("#visibleRange").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real04_hypothesis_review_persists_through_case_export_and_reload(tmp_path):
+    """No fabricated conclusion: reviewer alternatives and dispositions survive reload."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#anomalous").click()
+            page.locator('[data-tab="notes"]').click()
+            page.locator("#noteFrom").fill("22")
+            page.locator("#noteTo").fill("29")
+            page.locator("#rangeNote").click()
+            page.locator("#noteTitle").fill("Alternative mechanism under review")
+            page.locator("#noteKind").select_option("hypothesis")
+            page.locator("#noteBody").fill("Surface pressure rise may have multiple causes.")
+            page.locator("#noteSource").fill("FICTIONAL-CSV rows 24-31")
+            page.locator("#noteAlternative").fill("Possible flow restriction; no downhole proof.")
+            page.locator("#noteConfidence").select_option("low")
+            page.locator("#noteDisposition").select_option("needs_evidence")
+            page.locator("#noteReviewer").fill("Fictional reviewer")
+            page.locator('#noteForm button[type="submit"]').click()
+            assert "Possible flow restriction" in page.locator("#notesList").inner_text()
+            with page.expect_download() as download:
+                page.locator('[data-tab="import"]').click()
+                page.locator("#exportCase").click()
+            saved = tmp_path / "case.json"
+            download.value.save_as(saved)
+            case = json.loads(saved.read_text())
+            note = case["notes"][0]
+            assert note["alternative"] == "Possible flow restriction; no downhole proof."
+            assert note["disposition"] == "needs_evidence"
+            assert note["confidence"] == "low"
+            page.reload()
+            page.locator("#caseFile").set_input_files(saved)
+            page.locator('[data-tab="notes"]').click()
+            assert "Fictional reviewer" in page.locator("#notesList").inner_text()
+            page.locator("#notesList button", has_text="Edit").click()
+            assert page.locator("#noteAlternative").input_value() == note["alternative"]
+            assert page.locator("#noteDisposition").input_value() == "needs_evidence"
+            page.locator("#cancelNote").click()
+            page.locator('[data-tab="report"]').click()
+            report = page.locator("#reportText").input_value()
+            assert "Possible flow restriction" in report
+            assert "Reviewer: Fictional reviewer" in report
+            assert "Root cause:** UNDETERMINED" in report
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real03_irregular_telemetry_uses_elapsed_time_not_row_index(tmp_path):
+    """Screen selection respects recorded UTC spacing on nonuniform rig samples."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            timestamps = ("2026-11-10T09:00:00Z", "2026-11-10T09:01:00Z",
+                          "2026-11-10T09:09:00Z", "2026-11-10T09:10:00Z")
+            case = {"schema": "liner-mvp-case-1", "id": "FICTIONAL-IRREGULAR",
+                    "well": "fictional", "source": "fictional clock",
+                    "rows": [{"t": t, "spp": i * 10} for i, t in enumerate(timestamps)],
+                    "columns": ["spp"], "channel_units": {"spp": "psi"},
+                    "events": [], "notes": [], "warnings": [],
+                    "rules": None, "evidence": [], "case_kind": "imported"}
+            file = tmp_path / "fictional_case.json"
+            file.write_text(json.dumps(case), encoding="utf-8")
+            page.locator("#caseFile").set_input_files(file)
+            page.wait_for_function("document.querySelector('#importSummary').textContent.includes('4 timestamped samples')")
+            page.locator('[data-tab="replay"]').click()
+            canvas = page.locator("#charts canvas").first
+            bounds = canvas.bounding_box()
+            assert bounds
+            # 75% elapsed time is ~09:07:30, nearest recorded sample is 09:09.
+            # An index-spaced chart would incorrectly select the last sample.
+            canvas.click(position={"x": bounds["width"] * .75,
+                                   "y": bounds["height"] / 2})
+            assert "sample 3/4" in page.locator("#cursorTime").inner_text()
+            assert "2026-11-10T09:09:00Z" in page.locator("#cursorTime").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real03_playback_uses_recorded_utc_and_holds_sample_across_long_gap(tmp_path):
+    """At 60x, five minutes of missing readings is not compressed into one tick."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            timestamps = ("2026-11-10T09:00:00Z", "2026-11-10T09:00:01Z",
+                          "2026-11-10T09:05:01Z", "2026-11-10T09:05:02Z")
+            case = {"schema": "liner-mvp-case-1", "id": "FICTIONAL-GAPPED",
+                    "well": "fictional", "source": "explicit UTC",
+                    "rows": [{"t": t, "spp": i * 10} for i, t in enumerate(timestamps)],
+                    "columns": ["spp"], "channel_units": {"spp": "psi"},
+                    "events": [], "notes": [], "warnings": [], "rules": None,
+                    "evidence": [], "case_kind": "imported"}
+            saved = tmp_path / "gapped_case.json"
+            saved.write_text(json.dumps(case), encoding="utf-8")
+            page.locator("#caseFile").set_input_files(saved)
+            page.wait_for_function("document.querySelector('#importSummary').textContent.includes('4 timestamped samples')")
+            page.locator('[data-tab="replay"]').click()
+            page.locator("#speed").select_option("60")
+            page.locator("#play").click()
+            page.wait_for_function("document.querySelector('#cursorTime').textContent.includes('sample 2/4')")
+            assert "Playing 60× recorded time" in page.locator("#playbackClock").inner_text()
+            # Missing 5-minute segment must not be interpreted as an immediately
+            # subsequent sample. The source clock, not row count, drives replay.
+            page.wait_for_timeout(200)
+            assert "sample 2/4" in page.locator("#cursorTime").inner_text()
+            page.locator("#play").click()
+            assert "Paused" in page.locator("#playbackClock").inner_text()
+            assert "sample 2/4" in page.locator("#cursorTime").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real03_manual_seek_cancels_active_timed_replay():
+    """Manual inspection always takes ownership from an active playback timer."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator("#speed").select_option("60")
+            page.locator("#play").click()
+            assert "Playing 60× recorded time" in page.locator("#playbackClock").inner_text()
+            page.locator("#seek").evaluate(
+                "(el) => { el.value = '30'; el.dispatchEvent(new Event('input', {bubbles: true})); }")
+            assert "Paused" in page.locator("#playbackClock").inner_text()
+            assert "sample 31/61" in page.locator("#cursorTime").inner_text()
+            page.wait_for_timeout(120)
+            assert "sample 31/61" in page.locator("#cursorTime").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real03_assembly_holds_last_observed_running_depth_through_missing_sample(tmp_path):
+    """A missing running-depth record must not falsely reset the liner assembly."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            times = ("2026-11-10T09:00:00Z", "2026-11-10T09:01:00Z",
+                     "2026-11-10T09:02:00Z")
+            case = {"schema": "liner-mvp-case-1", "id": "FICTIONAL-DEPTH-GAP",
+                    "well": "fictional", "source": "explicit UTC",
+                    "rows": [{"t": t, "running_depth": depth}
+                             for t, depth in zip(times, (1000, None, 1004))],
+                    "columns": ["running_depth"],
+                    "channel_units": {"running_depth": "m MD"},
+                    "events": [], "notes": [], "warnings": [], "rules": None,
+                    "evidence": [], "case_kind": "imported"}
+            saved = tmp_path / "depth_gap_case.json"
+            saved.write_text(json.dumps(case), encoding="utf-8")
+            page.locator("#caseFile").set_input_files(saved)
+            page.wait_for_function("document.querySelector('#importSummary').textContent.includes('3 timestamped samples')")
+            page.locator('[data-tab="replay"]').click()
+            first_position = page.locator("#moving").get_attribute("transform")
+            page.locator("#next").click()
+            held_position = page.locator("#moving").get_attribute("transform")
+            assert held_position == first_position
+            assert "Holding last recorded running depth" in page.locator("#assemblyStatus").inner_text()
+            assert "no depth interpolation" in page.locator("#assemblyStatus").inner_text()
+            page.locator("#next").click()
+            assert page.locator("#moving").get_attribute("transform") != first_position
+            assert "Running-depth-sourced movement" in page.locator("#assemblyStatus").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real03_event_clock_review_controls_timeline_alignment_and_reopen(tmp_path):
+    """Reported event clocks stay untrusted until user records a sourced correction."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            case = {"schema": "liner-mvp-case-1", "id": "CLOCK-TEST-FICTIONAL",
+                    "well": "fictional", "source": "recorded UTC rig clock",
+                    "rows": [{"t": "2026-11-10T09:00:00Z", "spp": 100},
+                             {"t": "2026-11-10T09:05:00Z", "spp": 110},
+                             {"t": "2026-11-10T09:10:00Z", "spp": 120}],
+                    "columns": ["spp"], "channel_units": {"spp": "psi"},
+                    "events": [{"time": "2026-11-10T09:00:00Z",
+                                "label": "Reported event on separate clock",
+                                "source": "FICTIONAL-LOG p.2", "code": "STEP-A"}],
+                    "notes": [], "warnings": [], "rules": None,
+                    "evidence": [], "case_kind": "imported"}
+            fixture = tmp_path / "clock_case.json"
+            fixture.write_text(json.dumps(case))
+            page.locator("#caseFile").set_input_files(fixture)
+            page.wait_for_function("document.querySelector('#importSummary').textContent.includes('3 timestamped samples')")
+            page.locator('[data-tab="replay"]').click()
+            event = page.locator("#timeline button").first
+            assert event.is_disabled()
+            assert "clock not verified" in event.inner_text()
+            page.locator('[data-tab="import"]').click()
+            page.locator("#eventClockOffset").fill("5")
+            page.locator("#eventClockVerified").check()
+            page.locator("#saveEventClock").click()
+            assert "Clock review rejected" in page.locator("#eventClockStatus").inner_text()
+            page.locator("#eventClockSource").fill("FICTIONAL-LOG p.2 / RIG-CLOCK p.1")
+            page.locator("#eventClockReviewer").fill("Fictional engineer")
+            page.locator("#saveEventClock").click()
+            page.locator('[data-tab="replay"]').click()
+            event = page.locator("#timeline button").first
+            assert event.is_enabled()
+            assert "aligned rig time: 2026-11-10T09:05:00.000Z" in event.inner_text()
+            event.click()
+            assert "sample 2/3" in page.locator("#cursorTime").inner_text()
+            with page.expect_download() as download:
+                page.locator('[data-tab="import"]').click()
+                page.locator("#exportCase").click()
+            saved = tmp_path / "saved_clock.json"
+            download.value.save_as(saved)
+            archived = json.loads(saved.read_text())
+            assert archived["events"][0]["time"] == "2026-11-10T09:00:00Z"
+            assert archived["event_clock"]["verified"] is True
+            assert archived["event_clock"]["offset_minutes"] == 5
+            page.reload()
+            page.locator("#caseFile").set_input_files(saved)
+            page.locator('[data-tab="replay"]').click()
+            assert page.locator("#timeline button").first.is_enabled()
+            page.locator('[data-tab="report"]').click()
+            text = page.locator("#reportText").input_value()
+            assert "FICTIONAL-LOG p.2 / RIG-CLOCK p.1" in text
+            assert "Reported: 2026-11-10T09:00:00Z" in text
+            assert "aligned to rig: 2026-11-10T09:05:00.000Z" in text
+            page.locator('[data-tab="import"]').click()
+            page.locator("#eventLabel").fill("Further reported event")
+            page.locator("#eventSource").fill("FICTIONAL-LOG p.3")
+            page.locator("#eventTime").fill("2026-11-10T09:02:00Z")
+            page.locator("#addEvent").click()
+            page.locator('[data-tab="replay"]').click()
+            assert page.locator("#timeline button").first.is_disabled()
+            assert "clock not verified" in page.locator("#timeline").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real03_source_linked_planned_and_as_run_assembly_tallies_survive_reopen(tmp_path):
+    """Separate inventories, explicit units and unknown dimensions survive portable case export."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            drawing = tmp_path / "fictional_tally.txt"
+            drawing.write_text("FICTIONAL RIG PACKAGE; no OEM dimensions or rig data")
+            page.locator("#evidenceType").select_option("equipment")
+            page.locator("#evidenceReference").fill("FICTIONAL-TALLY")
+            page.locator("#evidenceFile").set_input_files(drawing)
+            page.locator("#addEvidence").click()
+            page.wait_for_function(
+                "document.querySelector('#assemblySource').querySelectorAll('option').length === 2")
+            page.locator("#assemblySource").select_option("FICTIONAL-TALLY")
+            page.locator("#assemblyBasis").select_option("planned")
+            page.locator("#assemblyComponentId").fill("PLANNED-TOOL")
+            page.locator("#assemblyRole").select_option("running_tool")
+            page.locator("#assemblyLength").fill("12.5")
+            page.locator("#assemblyUnit").select_option("ft")
+            page.locator("#assemblyPage").fill("p.1")
+            page.locator("#addAssemblyComponent").click()
+            assert "Planned · 1 component" in page.locator("#assemblyComponentList").inner_text()
+            page.locator("#assemblyBasis").select_option("as_run")
+            page.locator("#assemblyComponentId").fill("ACTUAL-LINER")
+            page.locator("#assemblyRole").select_option("liner")
+            page.locator("#assemblyPage").fill("p.3")
+            page.locator("#addAssemblyComponent").click()
+            assert "length unknown" in page.locator("#assemblyComponentList").inner_text()
+            page.locator('[data-tab="replay"]').click()
+            assert "As-run source-linked tally" in page.locator("#assemblyTallySummary").inner_text()
+            assert "ACTUAL-LINER" in page.locator("#assemblyReplayComponents").inner_text()
+            assert page.locator('#moving rect[data-component-id="ACTUAL-LINER"][data-role="liner"]').count() == 1
+            assert "length unknown" in page.locator("#assemblyReplayComponents").inner_text()
+            page.locator("#assemblyDisplayBasis").select_option("planned")
+            assert "PLANNED tally" in page.locator("#assemblyTallySummary").inner_text()
+            assert "12.5 ft" in page.locator("#assemblyReplayComponents").inner_text()
+            assert page.locator('#moving rect[data-component-id="PLANNED-TOOL"][data-role="running_tool"]').count() == 1
+            with page.expect_download() as download:
+                page.locator('[data-tab="import"]').click()
+                page.locator("#exportCase").click()
+            saved = tmp_path / "assembly_case.json"
+            download.value.save_as(saved)
+            archived = json.loads(saved.read_text())
+            assert archived["assembly_tallies"]["planned"][0]["length_unit"] == "ft"
+            assert archived["assembly_tallies"]["as_run"][0]["length"] is None
+            page.reload()
+            page.locator("#caseFile").set_input_files(saved)
+            page.locator('[data-tab="replay"]').click()
+            assert "ACTUAL-LINER" in page.locator("#assemblyReplayComponents").inner_text()
+            page.locator('[data-tab="report"]').click()
+            report = page.locator("#reportText").input_value()
+            assert "PLANNED-TOOL" in report and "ACTUAL-LINER" in report
+            assert "As-run anchor review: not supplied" in report
+            assert "Python tally static boundaries: not calculated" in report
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real03_assembly_tally_requires_provenance_and_preserves_linked_sources(tmp_path):
+    """No guessed dimensions or orphaned evidence references."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            page.locator("#assemblyComponentId").fill("UNKNOWN-TOOL")
+            page.locator("#assemblyPage").fill("p.2")
+            page.locator("#addAssemblyComponent").click()
+            assert "Register and select" in page.locator("#assemblyBuilderStatus").inner_text()
+            drawing = tmp_path / "evidence.txt"
+            drawing.write_text("Fictional equipment reference only")
+            page.locator("#evidenceType").select_option("equipment")
+            page.locator("#evidenceReference").fill("EQUIP-SRC")
+            page.locator("#evidenceFile").set_input_files(drawing)
+            page.locator("#addEvidence").click()
+            page.wait_for_function(
+                "document.querySelector('#assemblySource').querySelectorAll('option').length === 2")
+            page.locator("#assemblySource").select_option("EQUIP-SRC")
+            page.locator("#assemblyLength").fill("-3")
+            page.locator("#assemblyUnit").select_option("m")
+            page.locator("#addAssemblyComponent").click()
+            assert "positive" in page.locator("#assemblyBuilderStatus").inner_text()
+            assert "As run · 0 component" in page.locator("#assemblyComponentList").inner_text()
+            page.locator("#assemblyLength").fill("")
+            page.locator("#assemblyUnit").select_option("")
+            page.locator("#addAssemblyComponent").click()
+            assert "As run · 1 component" in page.locator("#assemblyComponentList").inner_text()
+            page.locator("#evidenceList button", has_text="Remove from register").click()
+            assert "Cannot remove EQUIP-SRC" in page.locator("#evidenceStatus").inner_text()
+            assert "EQUIP-SRC" in page.locator("#evidenceList").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real03_tally_bridge_ui_case_roundtrip_and_investigation(tmp_path):
+    """Local tally bridge result is auditable and the investigation survives reopening."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            # Mock only the transport here. The separate Python tests execute the
+            # actual bha_tally.py code and HTTP endpoint.
+            captured = []
+            def respond(route):
+                if route.request.method == "OPTIONS":
+                    route.fulfill(status=204, headers={
+                        "Access-Control-Allow-Origin": "null",
+                        "Access-Control-Allow-Methods": "POST, OPTIONS",
+                        "Access-Control-Allow-Headers": "Content-Type",
+                    })
+                    return
+                payload = route.request.post_data_json
+                captured.append(payload)
+                route.fulfill(status=200, content_type="application/json",
+                              headers={"Access-Control-Allow-Origin": "null"},
+                              body=json.dumps({
+                                  "basis": "as_run", "engine": "bha_tally.py/Tally.position_m",
+                                  "boundaries": [
+                                      {"component_id": "RT-1", "role": "running_tool",
+                                       "top_md_m": "991.00", "bottom_md_m": "1000.0",
+                                       "source_ref": "EQUIP p.1"},
+                                  ],
+                                  "review_level": "investigator-declared",
+                              }))
+            page.route("http://127.0.0.1:8766/v1/tally/positions", respond)
+            page.locator("#anomalous").click()
+            page.locator('[data-tab="import"]').click()
+            equipment = tmp_path / "source.txt"
+            equipment.write_text("FICTIONAL AS-RUN TALLY, not actual rig data")
+            page.locator("#evidenceType").select_option("equipment")
+            page.locator("#evidenceReference").fill("EQUIP")
+            page.locator("#evidenceFile").set_input_files(equipment)
+            page.locator("#addEvidence").click()
+            page.wait_for_function("document.querySelector('#assemblySource').querySelectorAll('option').length === 2")
+            page.locator("#assemblySource").select_option("EQUIP")
+            page.locator("#assemblyComponentId").fill("RT-1")
+            page.locator("#assemblyRole").select_option("running_tool")
+            page.locator("#assemblyLength").fill("9")
+            page.locator("#assemblyUnit").select_option("m")
+            page.locator("#assemblyPage").fill("p.1")
+            page.locator("#addAssemblyComponent").click()
+            page.locator("#anchorComponent").select_option("RT-1")
+            page.locator("#anchorDepth").fill("1000")
+            page.locator("#anchorUnit").select_option("m")
+            page.locator("#anchorDatum").fill("RKB")
+            page.locator("#anchorSource").fill("EQUIP p.1")
+            page.locator("#anchorReviewer").fill("Test engineer")
+            page.locator("#evaluateTally").click()
+            assert "Tally not calculated" in page.locator("#tallyBridgeStatus").inner_text()
+            page.locator("#anchorReviewed").check()
+            page.locator("#evaluateTally").click()
+            page.wait_for_function("document.querySelector('#tallyPositionList').textContent.includes('991.00')")
+            assert captured and captured[0]["basis"] == "as_run"
+            assert captured[0]["anchor"]["reviewed"] is True
+            assert captured[0]["anchor"]["source_ref"] == "EQUIP p.1"
+            page.locator('[data-tab="notes"]').click()
+            page.locator("#noteFrom").fill("24")
+            page.locator("#noteTo").fill("29")
+            page.locator("#rangeNote").click()
+            page.locator("#noteTitle").fill("Review pressure response with assembly source")
+            page.locator("#noteKind").select_option("hypothesis")
+            page.locator("#noteSource").fill("EQUIP p.1; synthetic pressure samples")
+            page.locator("#noteAlternative").fill("Pump restriction alternative; no downhole proof")
+            page.locator("#noteReviewer").fill("Test engineer")
+            page.locator('#noteForm button[type="submit"]').click()
+            with page.expect_download() as download:
+                page.locator('[data-tab="import"]').click()
+                page.locator("#exportCase").click()
+            saved = tmp_path / "reviewed_case.json"
+            download.value.save_as(saved)
+            case = json.loads(saved.read_text())
+            assert case["assembly_positions"]["boundaries"][0]["top_md_m"] == "991.00"
+            assert case["assembly_anchor"]["datum"] == "RKB"
+            assert case["notes"][0]["alternative"].startswith("Pump restriction alternative")
+            page.reload()
+            page.locator("#caseFile").set_input_files(saved)
+            page.locator('[data-tab="import"]').click()
+            assert "991.00" in page.locator("#tallyPositionList").inner_text()
+            page.locator('[data-tab="report"]').click()
+            report = page.locator("#reportText").input_value()
+            assert "Python tally static boundaries: investigator-declared" in report
+            assert "Pump restriction alternative" in report
+            assert "Root cause:** UNDETERMINED" in report
             assert not errors, errors
         finally:
             instance.close()

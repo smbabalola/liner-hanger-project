@@ -20,8 +20,45 @@ const synonyms={
   returns:["returns","return_flow","flow_out"]
 };
 const units=Object.fromEntries(channels.map(x=>[x[0],x[2]]));
-const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],channel_units:{},telemetry_mapping:null,case_kind:"imported"});
+const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],channel_units:{},telemetry_mapping:null,event_clock:null,assembly_tallies:{planned:[],as_run:[]},assembly_anchor:null,assembly_positions:null,case_kind:"imported"});
 let data=defaultCase(),idx=0,timer=null,rangeStart=null,plotCanvases=[],pendingTelemetry=null;
+let viewStart=0,viewEnd=null,playStartWall=0,playStartRecorded=0;
+function viewBounds(){return [Math.max(0,viewStart),Math.min(data.rows.length-1,viewEnd??data.rows.length-1)]}
+function setView(a,b){if(!data.rows.length)return;viewStart=Math.max(0,Math.floor(a));viewEnd=Math.min(data.rows.length-1,Math.max(viewStart+1,Math.ceil(b)));renderCharts();renderCursor()}
+function resetView(){viewStart=0;viewEnd=null;renderCharts();renderCursor()}
+function timeFraction(i,start,end){const a=Date.parse(data.rows[start].t),b=Date.parse(data.rows[end].t);return b>a?(Date.parse(data.rows[i].t)-a)/(b-a):0}
+function pausePlayback(){
+ if(timer!==null){clearInterval(timer);timer=null}
+ $("play").textContent="▶ Play";
+ $("playbackClock").textContent="Paused · recorded-sample cursor";
+}
+function sourceIndexAtOrBefore(utcMs){
+ let lo=0,hi=data.rows.length;
+ while(lo<hi){const mid=Math.floor((lo+hi)/2);
+  if(Date.parse(data.rows[mid].t)<=utcMs)lo=mid+1;else hi=mid}
+ return Math.max(0,lo-1);
+}
+function playbackStep(){
+ if(!data.rows.length){pausePlayback();return}
+ const last=data.rows.length-1,rate=Number($("speed").value)||1;
+ const elapsed=(performance.now()-playStartWall)*rate;
+ const target=playStartRecorded+elapsed;
+ const end=Date.parse(data.rows[last].t);
+ idx=target>=end?last:sourceIndexAtOrBefore(target);
+ renderCursor();
+ if(target>=end){pausePlayback();$("playbackClock").textContent="End of recorded job reached"}
+ else $("playbackClock").textContent="Playing "+rate+"× recorded time · holding actual sample "+(idx+1)+"/"+data.rows.length;
+}
+function beginPlayback(){
+ if(!data.rows.length){tab("import");msg("Load a case before replay");return}
+ if(timer!==null){pausePlayback();return}
+ if(idx>=data.rows.length-1)idx=0;
+ playStartWall=performance.now();playStartRecorded=Date.parse(data.rows[idx].t);
+ $("play").textContent="Ⅱ Pause";
+ timer=setInterval(playbackStep,50);
+ playbackStep();
+}
+function visibleIndexAt(fraction,start,end){const a=Date.parse(data.rows[start].t),b=Date.parse(data.rows[end].t),target=a+Math.max(0,Math.min(1,fraction))*(b-a);let nearestIndex=start,delta=Infinity;for(let j=start;j<=end;j++){const d=Math.abs(Date.parse(data.rows[j].t)-target);if(d<delta){delta=d;nearestIndex=j}}return nearestIndex}
 const attachedSourceFiles=new Map();let previewUrl=null;
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safe=x=>String(x??"").replace(/[^a-z0-9_.-]+/gi,"_").slice(0,80)||"case";
@@ -137,8 +174,9 @@ function importCSV(text,source,explicit=null,sourceUnits=null){
  return {records:rows.length,usable:rows.length,found};
 }
 function acceptImportedCSV(text,source,mapping=null,sourceUnits=null){
- loadState();const wasSynthetic=data.case_kind==="synthetic",hadAnnotations=data.notes.length>0;
+ pausePlayback();loadState();const wasSynthetic=data.case_kind==="synthetic",hadAnnotations=data.notes.length>0;
  const result=importCSV(text,source,mapping,sourceUnits);
+ invalidateEventClock("Telemetry stream replaced");
  if(wasSynthetic){
   data.events=[];data.rules=null;data.notes=[];data.evidence=[];data.case_kind="imported";
   data.id="";data.well="";data.warnings.push("Fictional case identity, procedure, events and annotations were cleared for real telemetry.");
@@ -146,7 +184,7 @@ function acceptImportedCSV(text,source,mapping=null,sourceUnits=null){
  }else if(hadAnnotations){
   data.notes=[];data.warnings.push("Prior range annotations were cleared because telemetry was replaced; restore the previous case to recover them.");
  }
- idx=0;describe();renderEvidence();renderCharts();renderEvents();findings();notes();renderCursor();persist();
+ idx=0;viewStart=0;viewEnd=null;describe();renderEvidence();renderCharts();renderEvents();findings();notes();renderCursor();persist();
  msg("Imported "+result.usable+" of "+result.records+" readings; previously entered independent sources were retained. Review units and clock alignment.");
  return result;
 }
@@ -161,6 +199,38 @@ function persist(){try{localStorage.setItem("liner_mvp_case_v1",JSON.stringify(d
 function loadState(){data.id=$("caseName").value.trim();data.well=$("wellName").value.trim();data.source=$("sourceLabel").value.trim()}
 function toFields(){$("caseName").value=data.id;$("wellName").value=data.well;$("sourceLabel").value=data.source}
 function current(){return data.rows[idx]}
+function clockVerified(){return data.case_kind==="synthetic"||data.event_clock?.verified===true}
+function alignedEventTime(event){
+ if(!clockVerified()||!event?.time||!Number.isFinite(Date.parse(event.time)))return null;
+ const shift=data.case_kind==="synthetic"?0:Number(data.event_clock.offset_minutes)*60000;
+ if(!Number.isFinite(shift))return null;
+ return new Date(Date.parse(event.time)+shift).toISOString();
+}
+function renderEventClock(){
+ const review=data.event_clock||{};
+ $("eventClockOffset").value=Number.isFinite(Number(review.offset_minutes))?String(review.offset_minutes):"0";
+ $("eventClockSource").value=review.source||"";
+ $("eventClockReviewer").value=review.reviewer||"";
+ $("eventClockVerified").checked=review.verified===true;
+ $("eventClockStatus").textContent=review.verified===true?
+  "Investigator-declared correction "+review.offset_minutes+" min; not independently authenticated.":
+  "Unverified: reported event times cannot be mapped to rig telemetry.";
+}
+function invalidateEventClock(reason){
+ if(data.case_kind==="synthetic")return;
+ if(data.event_clock?.verified===true){
+  data.event_clock={...data.event_clock,verified:false};
+  data.warnings.push(reason+"; prior event/rig clock verification withdrawn.");
+ }
+}
+function saveEventClock(){
+ const raw=$("eventClockOffset").value.trim(),offset=Number(raw),verified=$("eventClockVerified").checked;
+ const source=$("eventClockSource").value.trim(),reviewer=$("eventClockReviewer").value.trim();
+ if(raw===""||!Number.isFinite(offset)||Math.abs(offset)>1440)throw Error("Enter a finite correction within ±1440 minutes.");
+ if(verified&&(!source||!reviewer))throw Error("A source clock comparison reference and reviewer are required before verification.");
+ data.event_clock={offset_minutes:offset,verified,source,reviewer};
+ renderEventClock();renderEvents();findings();persist();
+}
 function timestampAt(i){return data.rows[i]?.t||"unavailable"}
 
 function closeDocumentPreview(){
@@ -235,11 +305,12 @@ function renderEvidence(){
    };card.append(reattach);
   }
   const remove=document.createElement("button");remove.type="button";remove.textContent="Remove from register";
-  remove.onclick=()=>{attachedSourceFiles.delete(item.source_id);data.evidence=data.evidence.filter(x=>x.source_id!==item.source_id);closeDocumentPreview();renderEvidence();describe();persist()};card.append(remove);
+  remove.onclick=()=>{if(["planned","as_run"].some(b=>assemblyRows(b).some(x=>x.source_id===item.source_id))){$("evidenceStatus").textContent="Cannot remove "+item.source_id+" while assembly tally components reference it; remove those components first.";return}attachedSourceFiles.delete(item.source_id);data.evidence=data.evidence.filter(x=>x.source_id!==item.source_id);closeDocumentPreview();renderEvidence();describe();persist()};card.append(remove);
   root.append(card);
  }
  $("evidenceStatus").textContent=items.length+" source file(s) registered; originals must be retained separately.";
  procedureSourceOptions();
+ assemblySourceOptions();
 }
 async function registerEvidence(file,kind,source_id,review_status){
  if(!file)throw Error("Choose a source file first");
@@ -257,6 +328,167 @@ async function registerEvidence(file,kind,source_id,review_status){
   original_bytes_embedded:false,authentication:"caller_supplied_not_verified"});
  attachedSourceFiles.set(source_id,file);
  renderEvidence();describe();persist();
+}
+
+const assemblyRoleLabels={drill_pipe:"Drill pipe",running_tool:"Running tool",liner:"Liner",other:"Other / unclassified"};
+function assemblySourceOptions(){
+ const select=$("assemblySource"),selected=select.value;
+ select.replaceChildren();
+ const blank=document.createElement("option");blank.value="";blank.textContent="Choose source document";select.append(blank);
+ for(const src of data.evidence||[]){
+  if(src.kind!=="equipment"&&src.kind!=="other")continue;
+  const opt=document.createElement("option");opt.value=src.source_id;opt.textContent=src.source_id+" · "+src.file_name;select.append(opt);
+ }
+ if([...select.options].some(x=>x.value===selected))select.value=selected;
+}
+function assemblyRows(basis){
+ const tallies=data.assembly_tallies||{};return Array.isArray(tallies[basis])?tallies[basis]:[];
+}
+function invalidateAssemblyPositions(){
+ data.assembly_positions=null;
+ $("tallyPositionList").replaceChildren();
+ $("tallyBridgeStatus").textContent="Tally changed. Run the Python calculation again after verifying the as-run anchor.";
+}
+function renderAnchorEditor(){
+ const current=$("anchorComponent").value,select=$("anchorComponent");
+ select.replaceChildren();
+ const empty=document.createElement("option");empty.value="";empty.textContent="Select as-run component";select.append(empty);
+ for(const item of assemblyRows("as_run")){
+  const option=document.createElement("option");option.value=item.component_id;option.textContent=item.component_id;select.append(option);
+ }
+ const review=data.assembly_anchor||{};
+ select.value=[...select.options].some(x=>x.value===current)?current:review.component_id||"";
+ $("anchorEnd").value=review.end||"top";
+ $("anchorDepth").value=review.measured_depth??"";
+ $("anchorUnit").value=review.depth_unit||"";
+ $("anchorDatum").value=review.datum||"";
+ $("anchorSource").value=review.source_ref||"";
+ $("anchorReviewer").value=review.reviewer||"";
+ $("anchorReviewed").checked=review.reviewed===true;
+ renderTallyPositions();
+}
+function renderTallyPositions(){
+ const root=$("tallyPositionList");root.replaceChildren();
+ const result=data.assembly_positions;
+ if(!result||!Array.isArray(result.boundaries)){
+  $("tallyBridgeStatus").textContent="No Python-calculated static boundaries. Source review or local bridge required.";
+  return;
+ }
+ $("tallyBridgeStatus").textContent="Python tally calculated (reviewer-declared, NOT engineering approved). No dynamic position or tool-state inference.";
+ for(const item of result.boundaries){
+  const p=document.createElement("p");p.className="sub";
+  p.textContent=item.component_id+" · top "+(item.top_md_m??"unknown")+" m MD; bottom "+(item.bottom_md_m??"unknown")+" m MD · "+item.source_ref;
+  root.append(p);
+ }
+}
+async function evaluateTally(){
+ const basis="as_run",components=assemblyRows(basis);
+ const measured_depth=$("anchorDepth").value.trim(),depth_unit=$("anchorUnit").value,
+  source_ref=$("anchorSource").value.trim(),datum=$("anchorDatum").value.trim(),
+  reviewer=$("anchorReviewer").value.trim(),component_id=$("anchorComponent").value,
+  end=$("anchorEnd").value,reviewed=$("anchorReviewed").checked;
+ if(!components.length)throw Error("Enter an as-run component tally before calculating boundaries.");
+ if(!component_id||!["top","bottom"].includes(end)||measured_depth===""||
+   !Number.isFinite(Number(measured_depth))||Number(measured_depth)<0||!["m","ft"].includes(depth_unit)||
+   !source_ref||!datum||!reviewer||!reviewed)
+  throw Error("Component boundary, non-negative depth, explicit unit/datum/source, reviewer and check declaration are all required.");
+ const anchor={component_id,end,measured_depth,depth_unit,datum,source_ref,reviewer,reviewed};
+ data.assembly_anchor=anchor;invalidateAssemblyPositions();persist();
+ $("tallyBridgeStatus").textContent="Requesting local Python BHA tally engine…";
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),3500);
+ try{
+  const response=await fetch("http://127.0.0.1:8766/v1/tally/positions",{
+   method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({basis,components,anchor}),signal:controller.signal});
+  const result=await response.json();
+  if(!response.ok)throw Error(result.error||"Tally rejected");
+  if(result.basis!=="as_run"||!Array.isArray(result.boundaries))throw Error("Unexpected tally response");
+  data.assembly_positions=result;renderTallyPositions();persist();
+ }finally{clearTimeout(timeout)}
+}
+function renderAssemblyTallies(){
+ assemblySourceOptions();
+ const root=$("assemblyComponentList");root.replaceChildren();
+ for(const basis of ["planned","as_run"]){
+  const entries=assemblyRows(basis),header=document.createElement("h3");
+  header.textContent=(basis==="as_run"?"As run":"Planned")+" · "+entries.length+" component(s) in reported top-to-bottom order";root.append(header);
+  for(const [i,item] of entries.entries()){
+   const row=document.createElement("div");row.className="row";
+   const label=document.createElement("span");label.textContent=(i+1)+". "+item.component_id+" · "+assemblyRoleLabels[item.role]+
+    " · "+(item.length===null?"length unknown":item.length+" "+item.length_unit)+" · "+item.source_ref;row.append(label);
+   const remove=document.createElement("button");remove.type="button";remove.textContent="Remove "+item.component_id;
+   remove.onclick=()=>{data.assembly_tallies[basis].splice(i,1);data.assembly_tallies[basis].forEach((c,j)=>c.sequence=j+1);if(basis==="as_run"){data.assembly_anchor=null;invalidateAssemblyPositions()}renderAssemblyTallies();renderAssemblyDisplay();persist()};
+   row.append(remove);root.append(row);
+  }
+ }
+ renderAnchorEditor();
+ $("assemblyBuilderStatus").textContent="Planned: "+assemblyRows("planned").length+
+  " component(s); as run: "+assemblyRows("as_run").length+
+  ". Source-linked inventory only; no unverified depth offsets.";
+}
+function addAssemblyComponent(){
+ const basis=$("assemblyBasis").value,source=$("assemblySource").value,
+  component_id=$("assemblyComponentId").value.trim(),role=$("assemblyRole").value,
+  lengthText=$("assemblyLength").value.trim(),unit=$("assemblyUnit").value,
+  page=$("assemblyPage").value.trim();
+ if(!["planned","as_run"].includes(basis)||!Object.hasOwn(assemblyRoleLabels,role))throw Error("Invalid assembly basis or role.");
+ if(!data.evidence.some(x=>x.source_id===source&&(x.kind==="equipment"||x.kind==="other")))
+  throw Error("Register and select the drawing/tally source before adding a component.");
+ if(!component_id||!page)throw Error("Component ID and source page/row reference are required.");
+ if(assemblyRows(basis).some(x=>x.component_id===component_id))
+  throw Error("Duplicate component ID in this tally; top-to-bottom sequence must be unambiguous.");
+ const length=lengthText===""?null:Number(lengthText);
+ if(length!==null&&(!Number.isFinite(length)||length<=0||!["m","ft"].includes(unit)))
+  throw Error("A documented length must be positive with explicit m or ft unit.");
+ if(length===null&&unit)throw Error("Leave the unit unselected when length is unknown.");
+ if(!data.assembly_tallies)data.assembly_tallies={planned:[],as_run:[]};
+ if(!Array.isArray(data.assembly_tallies[basis]))data.assembly_tallies[basis]=[];
+ if(basis==="as_run"){data.assembly_anchor=null;invalidateAssemblyPositions()}
+ data.assembly_tallies[basis].push({component_id,role,length,length_unit:length===null?null:unit,
+  source_id:source,source_ref:source+" / "+page,sequence:data.assembly_tallies[basis].length+1});
+ $("assemblyComponentId").value="";$("assemblyLength").value="";$("assemblyUnit").value="";$("assemblyPage").value="";
+ renderAssemblyTallies();renderAssemblyDisplay();persist();
+}
+const originalAssemblyShapes=[...$("moving").childNodes].map(node=>node.cloneNode(true));
+function renderAssemblyGeometry(components,basis){
+ const moving=$("moving");
+ if(!components.length){moving.replaceChildren(...originalAssemblyShapes.map(node=>node.cloneNode(true)));return}
+ const ns="http://www.w3.org/2000/svg";
+ moving.replaceChildren();
+ // Symbolic component order only. Equal-size blocks are NOT physical lengths or downhole positions.
+ const spacing=2,top=8,span=278,block=Math.max(5,(span-(components.length-1)*spacing)/components.length);
+ const palette={drill_pipe:"#658dad",running_tool:"#f3b86d",liner:"#a890e1",other:"#8d9ba8"};
+ for(const [i,item] of components.entries()){
+  const rect=document.createElementNS(ns,"rect");rect.setAttribute("x","139");
+  rect.setAttribute("y",String(top+i*(block+spacing)));rect.setAttribute("width","42");
+  rect.setAttribute("height",String(block));rect.setAttribute("fill",palette[item.role]);
+  rect.setAttribute("data-role",item.role);rect.setAttribute("data-component-id",item.component_id);
+  const title=document.createElementNS(ns,"title");
+  title.textContent=(basis==="planned"?"PLANNED only: ":"As-run reported: ")+item.component_id+
+   " · "+(item.length===null?"length unknown":item.length+" "+item.length_unit)+" · "+item.source_ref+
+   " · equal-size symbolic block, not to scale";
+  rect.append(title);moving.append(rect);
+ }
+}
+function renderAssemblyDisplay(){
+ const basis=$("assemblyDisplayBasis").value||"as_run",components=assemblyRows(basis);
+ const root=$("assemblyReplayComponents");root.replaceChildren();
+ renderAssemblyGeometry(components,basis);
+ if(!components.length){
+  $("assemblyTallySummary").textContent=basis==="planned"?
+   "No planned component tally. Generic assembly is illustrative only.":
+   "No as-run component tally. Generic assembly is illustrative only; planned equipment is not evidence of actual installation.";
+  return;
+ }
+ const verified=components.every(x=>x.length!==null&&["m","ft"].includes(x.length_unit));
+ $("assemblyTallySummary").textContent=(basis==="as_run"?"As-run source-linked tally":"PLANNED tally — not proof of actual equipment")+
+  "; "+components.length+" component(s) · "+(verified?"all entered lengths explicitly sourced":"one or more lengths unknown")+
+  ". Colored blocks show top-to-bottom order at equal symbolic height, not actual component dimensions. Running-depth source remains a separate measurement, not a BHA anchor.";
+ for(const item of components){
+  const entry=document.createElement("p");entry.className="sub";entry.textContent=
+   item.sequence+". "+assemblyRoleLabels[item.role]+" ("+item.component_id+") · "+
+   (item.length===null?"length unknown":item.length+" "+item.length_unit)+" · "+item.source_ref;root.append(entry);
+ }
 }
 
 function procedureSourceOptions(){
@@ -382,15 +614,14 @@ function renderCharts(){
   const label=document.createElement("strong");const sourceUnit=data.case_kind==="synthetic"?unit:(data.channel_units?.[key]||"unknown unit");label.textContent=name+" ("+sourceUnit+"; original reading, no conversion)";
   const value=document.createElement("span");value.className="tag";value.style.float="right";box.append(label,value);
   const canvas=document.createElement("canvas");canvas.width=540;canvas.height=112;canvas.setAttribute("aria-label",name+" trend");box.append(canvas);root.append(box);
-  const indexAt=e=>{const bounds=canvas.getBoundingClientRect();return Math.min(data.rows.length-1,
-   Math.max(0,Math.round((e.clientX-bounds.left)/bounds.width*(data.rows.length-1))))};
+  const indexAt=e=>{const bounds=canvas.getBoundingClientRect(),[start,end]=viewBounds();return visibleIndexAt((e.clientX-bounds.left)/bounds.width,start,end)};
   let pressed=null;
   canvas.addEventListener("pointerdown",e=>{pressed={index:indexAt(e),x:e.clientX};canvas.setPointerCapture(e.pointerId)});
   canvas.addEventListener("pointerup",e=>{
     if(!pressed)return;const a=pressed.index,b=indexAt(e),distance=Math.abs(e.clientX-pressed.x);
     pressed=null;
-    if(distance>=12&&Math.abs(b-a)>=1){tab("notes");openNote(Math.min(a,b),Math.max(a,b));return}
-    idx=b;renderCursor();
+    if(distance>=12&&Math.abs(b-a)>=1){pausePlayback();tab("notes");openNote(Math.min(a,b),Math.max(a,b));return}
+    pausePlayback();idx=b;renderCursor();
   });
   canvas.addEventListener("pointermove",e=>{
     if(pressed)return;const point=indexAt(e),hit=data.notes.find(n=>point>=n.a&&point<=n.b);
@@ -402,27 +633,30 @@ function drawCharts(){
  for(const {key,canvas,value} of plotCanvases){
   const ctx=canvas.getContext("2d"),w=canvas.width,h=canvas.height;
   ctx.clearRect(0,0,w,h);ctx.strokeStyle="#314d62";ctx.beginPath();ctx.moveTo(0,h-16);ctx.lineTo(w,h-16);ctx.stroke();
-  const vals=data.rows.map(r=>r[key]);const valid=vals.filter(Number.isFinite);
+  const [start,end]=viewBounds(),visible=data.rows.slice(start,end+1),vals=visible.map(r=>r[key]);const valid=vals.filter(Number.isFinite);
   value.textContent=fmt(current()?.[key]);if(!valid.length)continue;
   let lo=Math.min(...valid),hi=Math.max(...valid);if(lo===hi){lo-=1;hi+=1}
   ctx.strokeStyle="#79cbea";ctx.lineWidth=1.5;ctx.beginPath();let connected=false;
   vals.forEach((v,i)=>{if(!Number.isFinite(v)){connected=false;return}
-   const x=i*w/Math.max(1,vals.length-1),y=(h-18)-(v-lo)/(hi-lo)*(h-27);
+   const x=timeFraction(start+i,start,end)*w,y=(h-18)-(v-lo)/(hi-lo)*(h-27);
    if(connected)ctx.lineTo(x,y);else ctx.moveTo(x,y);connected=true;
   });ctx.stroke();
-  for(const m of data.notes){const a=m.a*w/Math.max(1,vals.length-1),b=m.b*w/Math.max(1,vals.length-1);ctx.fillStyle="rgba(255,195,126,.17)";ctx.fillRect(a,0,Math.max(2,b-a),h-15)}
-  ctx.strokeStyle="#ffcb90";ctx.beginPath();ctx.moveTo(idx*w/Math.max(1,vals.length-1),0);ctx.lineTo(idx*w/Math.max(1,vals.length-1),h-12);ctx.stroke();
+  for(const m of data.notes){if(m.b<start||m.a>end)continue;const a=timeFraction(Math.max(start,m.a),start,end)*w,b=timeFraction(Math.min(end,m.b),start,end)*w;ctx.fillStyle="rgba(255,195,126,.17)";ctx.fillRect(a,0,Math.max(2,b-a),h-15)}
+  ctx.strokeStyle="#ffcb90";ctx.beginPath();ctx.moveTo(timeFraction(idx,start,end)*w,0);ctx.lineTo(timeFraction(idx,start,end)*w,h-12);ctx.stroke();
  }
 }
 function assembly(){
  const sample=current();const svg=$("moving"),label=$("assemblyStatus");
  if(!sample){svg.setAttribute("transform","translate(0 0)");label.textContent="No case loaded";return}
- let verified=Number.isFinite(sample.running_depth)&&(data.case_kind==="synthetic"||!!data.channel_units?.running_depth),depth=sample.running_depth;
- if(verified){
+ const unitVerified=data.case_kind==="synthetic"||!!data.channel_units?.running_depth;
+ let observedIndex=-1;
+ if(unitVerified){for(let j=idx;j>=0;j--){if(Number.isFinite(data.rows[j].running_depth)){observedIndex=j;break}}}
+ if(observedIndex>=0){
+  const depth=data.rows[observedIndex].running_depth;
   const valid=data.rows.map(r=>r.running_depth).filter(Number.isFinite),min=Math.min(...valid),max=Math.max(...valid);
   const y=40+(max>min?(depth-min)/(max-min)*35:0);
   svg.setAttribute("transform","translate(0 "+y+")");
-  label.textContent="Running-depth-sourced movement at "+fmt(depth)+" "+(data.channel_units?.running_depth||"m MD")+". Assembly geometry remains schematic, not to scale.";
+  label.textContent=(observedIndex===idx?"Running-depth-sourced movement at ":"Holding last recorded running depth (sample "+(observedIndex+1)+", "+timestampAt(observedIndex)+") at ")+fmt(depth)+" "+(data.channel_units?.running_depth||"m MD")+". Assembly geometry remains schematic, not to scale; no depth interpolation.";
  }else{
   svg.setAttribute("transform","translate(0 0)");
   label.textContent="No confirmed running-string depth AND unit. Assembly is a stationary schematic; hole/bit depth cannot establish liner-hanger position.";
@@ -435,6 +669,7 @@ function renderCursor(){
  $("noteFrom").max=$("noteTo").max=data.rows.length-1;
  $("cursorValues").textContent=channels.filter(x=>data.columns.includes(x[0])).map(x=>x[1]+": "+fmt(current()[x[0]])+" "+(data.case_kind==="synthetic"?x[2]:(data.channel_units?.[x[0]]||"unit unverified"))).join("  ·  ");
  drawCharts();assembly();
+ const [a,b]=viewBounds();$("visibleRange").textContent=data.rows.length?("Viewing "+timestampAt(a)+" – "+timestampAt(b)+" · "+(b-a+1)+" samples"):"No range";
  document.querySelectorAll("#timeline button").forEach(b=>b.classList.toggle("active",Number(b.dataset.sample)===idx));
 }
 function nearest(t){if(!data.rows.length)return 0;let closest=0,best=Infinity;
@@ -444,11 +679,13 @@ function renderEvents(){
  if(!data.events.length){root.textContent="No job chronology supplied.";return}
  for(const event of data.events){
   const button=document.createElement("button");button.type="button";
-  const index=Number.isFinite(Date.parse(event.time))?nearest(event.time):null;
+  const matched=alignedEventTime(event),index=matched&&data.rows.length?nearest(matched):null;
   button.dataset.sample=index??-1;
+  button.disabled=index===null;
   button.textContent=(event.time||"Time not verified")+" · "+(event.label||event.description||"Reported event")+
-    " — source: "+(event.source||"not supplied");
-  button.onclick=()=>{if(index!==null){idx=index;renderCursor()}};
+    " — source: "+(event.source||"not supplied")+
+    (matched?" · aligned rig time: "+matched+" (reviewer-declared)": " · clock not verified / time unavailable");
+  button.onclick=()=>{if(index!==null){pausePlayback();idx=index;renderCursor()}};
   root.append(button)
  }
 }
@@ -496,15 +733,15 @@ function runRules(){
    const entry={id:"EVENT-"+(id||"?"),step:requiredStep.step||id||"Reported event",
     description:"Chronological reported procedure step (not independently verified)",
     source:requiredStep.source_reference||"",status:"unverifiable",instances:[],reasons:[]};
-   if(!approved||!aligned||requiredStep.approved!==true||!entry.source)
+   if(!approved||!aligned||!clockVerified()||requiredStep.approved!==true||!entry.source)
     entry.reasons.push("Approved source/clock alignment or step reference not established");
    if(!id||typeof id!=="string")entry.reasons.push("Required event code missing");
    const matching=data.events.filter(e=>e.code===id);
    if(!matching.length)entry.reasons.push("Required step not found in supplied chronology; absence does not prove omission");
    if(matching.length>1)entry.reasons.push("Duplicate reported step events; exact sequence requires engineer review");
    if(matching.length===1){
-    const t=Date.parse(matching[0].time||"");
-    if(!Number.isFinite(t)||!matching[0].source)entry.reasons.push("Reported event time or source not verified");
+    const t=Date.parse(alignedEventTime(matching[0])||"");
+    if(!Number.isFinite(t)||!matching[0].source)entry.reasons.push("Reported event time/source or clock reconciliation not verified");
     else if(!entry.reasons.length){
      entry.status=previous!==null&&t<previous?"reported_order_question":"reported_in_sequence";
      if(entry.status==="reported_order_question")
@@ -529,7 +766,7 @@ function findings(){
   for(const reason of r.reasons){const x=document.createElement("p");x.className="danger";x.textContent=reason;box.append(x)}
   for(const instance of r.instances){const x=document.createElement("button");x.type="button";x.textContent=instance.start+" to "+instance.end+
    " · "+instance.count+" failing reading(s) · "+fmt(instance.low)+"–"+fmt(instance.high);
-   x.onclick=()=>{idx=nearest(instance.start);tab("replay");renderCursor()};box.append(x)}
+   x.onclick=()=>{pausePlayback();idx=nearest(instance.start);tab("replay");renderCursor()};box.append(x)}
   root.append(box);
  }
  return results;
@@ -540,9 +777,11 @@ function notes(){
  for(const [i,n] of data.notes.entries()){
   const block=document.createElement("article");const head=document.createElement("strong");head.textContent=n.title+" · "+n.kind;block.append(head);
   const p=document.createElement("p");p.textContent=timestampAt(n.a)+" — "+timestampAt(n.b)+" · "+(n.source||"No external source");block.append(p);
+   const review=document.createElement("p");review.textContent="Confidence: "+(n.confidence||"undetermined")+" · Disposition: "+(n.disposition||"open")+" · Reviewer: "+(n.reviewer||"unassigned");block.append(review);
+   if(n.alternative){const alternative=document.createElement("p");alternative.textContent="Alternative / contrary evidence: "+n.alternative;block.append(alternative)}
   const body=document.createElement("p");body.textContent=n.body;block.append(body);
   const edit=document.createElement("button");edit.textContent="Edit";edit.onclick=()=>openNote(n.a,n.b,i);block.append(edit);
-  const jump=document.createElement("button");jump.textContent="Go to range";jump.onclick=()=>{idx=n.a;tab("replay");renderCursor()};block.append(jump);
+  const jump=document.createElement("button");jump.textContent="Go to range";jump.onclick=()=>{pausePlayback();idx=n.a;tab("replay");renderCursor()};block.append(jump);
   root.append(block);
  }
 }
@@ -552,6 +791,7 @@ function openNote(a,b,edit=null){
  $("noteFrom").value=a;$("noteTo").value=b;$("editIndex").value=edit===null?"":String(edit);
  const n=edit===null?null:data.notes[edit];$("noteTitle").value=n?.title||"";$("noteBody").value=n?.body||"";
  $("noteKind").value=n?.kind||"observation";$("noteSource").value=n?.source||"";
+  $("noteAlternative").value=n?.alternative||"";$("noteConfidence").value=n?.confidence||"undetermined";$("noteDisposition").value=n?.disposition||"open";$("noteReviewer").value=n?.reviewer||"";
  $("noteInterval").textContent=timestampAt(a)+" — "+timestampAt(b)+" (recorded sample indices "+a+"–"+b+")";
  $("noteDialog").showModal();
 }
@@ -581,7 +821,16 @@ function report(){
  ...data.warnings.map(w=>"- Evidence gap: "+w),
  "",
  "## Chronological reported events",
- ...data.events.map(e=>"- "+(e.time||"Time unverified")+" — "+(e.label||e.description||"Event")+" [source: "+(e.source||"not supplied")+"]"),
+ "Event/rig clock check: "+(clockVerified()?"investigator-declared; source "+(data.event_clock?.source||"synthetic only")+"; reviewer "+(data.event_clock?.reviewer||"fictional"):"unverified; no aligned event interpretation")+
+ " · correction "+(clockVerified()?(data.event_clock?.offset_minutes??0):"not applied")+" minutes.",
+ ...data.events.map(e=>"- Reported: "+(e.time||"Time unverified")+"; aligned to rig: "+(alignedEventTime(e)||"unverified")+" — "+(e.label||e.description||"Event")+" [source: "+(e.source||"not supplied")+"]"),
+ "",
+ "## Assembly tally (source linked, independent of depth positioning)",
+ ...["planned","as_run"].flatMap(b=>["### "+(b==="as_run"?"As run":"Planned") ,...(assemblyRows(b).length?assemblyRows(b).map(x=>"- "+x.sequence+". "+x.component_id+" ["+x.role+"] "+(x.length===null?"length unknown":x.length+" "+x.length_unit)+" · "+x.source_ref):["No "+b+" component tally entered."])]),
+  "Source-listed lengths do not establish actual downhole placement or activation.",
+ "As-run anchor review: "+(data.assembly_anchor?(JSON.stringify(data.assembly_anchor)):"not supplied")+".",
+ "Python tally static boundaries: "+(data.assembly_positions?"investigator-declared, not engineering approved":"not calculated; no verified positions")+".",
+ ...(data.assembly_positions?.boundaries||[]).map(x=>"- "+x.component_id+" top "+(x.top_md_m??"unknown")+" m MD; bottom "+(x.bottom_md_m??"unknown")+" m MD; source "+x.source_ref),
  "",
  "## Entered operating procedure",
  "Source: "+(data.rules?.procedure?.approval_reference||"not supplied")+
@@ -605,7 +854,7 @@ function report(){
  lines.push("","## Annotated evidence");
  if(!data.notes.length)lines.push("No engineer annotations recorded.");
  for(const n of data.notes)lines.push("- **"+n.title+"** ("+n.kind+") "+timestampAt(n.a)+" to "+timestampAt(n.b)+
-  "\n  - "+(n.body||"No explanation recorded")+"\n  - Source: "+(n.source||"not supplied"));
+  "\n  - "+(n.body||"No explanation recorded")+"\n  - Source: "+(n.source||"not supplied")+"\n  - Alternative/contrary evidence: "+(n.alternative||"not recorded")+"\n  - Confidence: "+(n.confidence||"undetermined")+"\n  - Disposition: "+(n.disposition||"open")+"\n  - Reviewer: "+(n.reviewer||"unassigned"));
  lines.push("","## Competing explanations / unknowns",
  "Surface signals and procedure flags alone cannot confirm hanger actuation or internal failure.",
  "Possible alternative mechanisms must be reviewed against job-specific OEM documents and independent rig reports.",
@@ -615,6 +864,7 @@ function report(){
  return lines.join("\n")+"\n";
 }
 function tab(name){
+ if(name!=="replay")pausePlayback();
  document.querySelectorAll(".tab").forEach(x=>x.hidden=x.id!==name);
  document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===name));
  // Import forms may be long: reset scroll so the new replay canvas is in view and interactive.
@@ -622,8 +872,9 @@ function tab(name){
  if(name==="replay")renderCursor();if(name==="deviations")findings();if(name==="notes")notes();if(name==="report")$("reportText").value=report();
 }
 function loadData(next){
+ pausePlayback();
  if(timer){clearInterval(timer);timer=null;$("play").textContent="▶ Play"}
- attachedSourceFiles.clear();closeDocumentPreview();validateCase(next);idx=0;toFields();describe();renderEvidence();renderProcedureSteps();renderCharts();renderEvents();findings();notes();renderCursor();persist();
+ attachedSourceFiles.clear();closeDocumentPreview();validateCase(next);idx=0;viewStart=0;viewEnd=null;toFields();describe();renderEvidence();renderProcedureSteps();renderEventClock();renderAssemblyTallies();renderAssemblyDisplay();renderCharts();renderEvents();findings();notes();renderCursor();persist();
  msg("Loaded "+data.rows.length+" recorded samples into "+(data.id||"case")+". Data are not independently authenticated.");
 }
 function demo(anomaly){
@@ -656,6 +907,16 @@ $("addEvidence").onclick=async()=>{
  }catch(err){$("evidenceStatus").textContent="Evidence not added: "+err.message}
 };
 $("closeDocument").onclick=closeDocumentPreview;
+$("addAssemblyComponent").onclick=()=>{try{addAssemblyComponent()}catch(e){$("assemblyBuilderStatus").textContent="Component rejected: "+e.message}};
+$("assemblyDisplayBasis").onchange=renderAssemblyDisplay;
+$("evaluateTally").onclick=async()=>{
+ try{await evaluateTally()}
+ catch(e){$("tallyBridgeStatus").textContent="Tally not calculated: "+(e.name==="AbortError"?"local bridge timed out":e.message)+
+  ". Start the optional local Python bridge to enable source-gated boundaries."}
+};
+$("saveEventClock").onclick=()=>{
+ try{saveEventClock()}catch(e){$("eventClockStatus").textContent="Clock review rejected: "+e.message}
+};
 $("normal").onclick=()=>{loadData(demo(false));tab("replay")};
 $("anomalous").onclick=()=>{loadData(demo(true));tab("replay")};
 $("restore").onclick=()=>{try{const value=localStorage.getItem("liner_mvp_case_v1");if(!value)throw Error("No saved local case");loadData(JSON.parse(value))}catch(e){msg(e.message)}};
@@ -708,16 +969,17 @@ $("addEvent").onclick=()=>{
   $("eventStatus").textContent="Use a timestamp with explicit UTC Z or timezone offset, or leave time unknown.";return}
  const time=raw?Date.parse(raw):NaN;
  if(raw&&!Number.isFinite(time)){$("eventStatus").textContent="Invalid reported timestamp; nothing added.";return}
+ invalidateEventClock("Reported chronology changed");
  data.events.push({time:raw?new Date(time).toISOString():null,label,source,code:$("eventCode").value.trim()||undefined,
   time_status:raw?"reported_unverified":"unknown",evidence_class:"reported_not_measured"});
- renderEvents();describe();persist();
+ renderEventClock();renderEvents();findings();describe();persist();
  $("eventLabel").value="";$("eventTime").value="";$("eventCode").value="";
  $("eventStatus").textContent="Reported event registered. Time and event are source assertions, not verified downhole actions.";
 };
 $("eventsFile").onchange=async e=>{
  try{const events=JSON.parse(await e.target.files[0].text());if(!Array.isArray(events)||events.some(x=>typeof x!=="object"||x===null))
    throw Error("Expected JSON array of {time,label,source} events");
- data.events.push(...events);renderEvents();describe();persist();msg("Added "+events.length+" reported events to the case; times are source assertions.")
+ invalidateEventClock("Reported chronology changed");data.events.push(...events);renderEventClock();renderEvents();findings();describe();persist();msg("Added "+events.length+" reported events to the case; times are source assertions.")
  }catch(err){msg("Event import rejected: "+err.message)}
 };
 $("procedureCheck").onchange=()=>{$("procedureSignalInputs").hidden=$("procedureCheck").value!=="signal"};
@@ -736,18 +998,15 @@ $("rulesFile").onchange=async e=>{
  data.rules=book;renderProcedureSteps();findings();describe();persist();msg("Loaded "+book.rules.length+" user-supplied procedure rules; approvals not authenticated.")
  }catch(err){msg("Procedure import rejected: "+err.message)}
 };
-$("seek").oninput=e=>{idx=Number(e.target.value);renderCursor()};
-$("start").onclick=()=>{idx=0;renderCursor()};
-$("prev").onclick=()=>{idx--;renderCursor()};
-$("next").onclick=()=>{idx++;renderCursor()};
-$("play").onclick=()=>{
- if(timer){clearInterval(timer);timer=null;$("play").textContent="▶ Play";return}
- if(!data.rows.length){tab("import");msg("Load a case before replay");return}
- $("play").textContent="Ⅱ Pause";timer=setInterval(()=>{
-  idx+=Number($("speed").value)||1;if(idx>=data.rows.length-1){idx=data.rows.length-1;clearInterval(timer);timer=null;$("play").textContent="▶ Play"}
-  renderCursor();
- },220)
-};
+$("seek").oninput=e=>{pausePlayback();idx=Number(e.target.value);renderCursor()};
+$("zoomIn").onclick=()=>{if(!data.rows.length)return;const [a,b]=viewBounds(),span=Math.max(2,Math.floor((b-a)/2));setView(Math.max(0,idx-Math.floor(span/2)),Math.min(data.rows.length-1,idx+Math.ceil(span/2)))};
+$("zoomOut").onclick=()=>{if(!data.rows.length)return;const [a,b]=viewBounds(),span=b-a+1;setView(Math.max(0,a-Math.ceil(span/2)),Math.min(data.rows.length-1,b+Math.ceil(span/2)))};
+$("zoomReset").onclick=resetView;
+$("start").onclick=()=>{pausePlayback();idx=0;renderCursor()};
+$("prev").onclick=()=>{pausePlayback();idx--;renderCursor()};
+$("next").onclick=()=>{pausePlayback();idx++;renderCursor()};
+$("play").onclick=beginPlayback;
+$("speed").onchange=()=>{if(timer!==null){playStartRecorded=Date.parse(data.rows[idx].t);playStartWall=performance.now();playbackStep()}};
 $("newNote").onclick=()=>openNote(idx,idx);
 $("rangeNote").onclick=()=>openNote($("noteFrom").value,$("noteTo").value);
 $("cancelNote").onclick=()=>$("noteDialog").close();
@@ -755,11 +1014,13 @@ $("noteForm").onsubmit=e=>{
  e.preventDefault();const i=$("editIndex").value,n={
   a:Number($("noteFrom").value),b:Number($("noteTo").value),
   title:$("noteTitle").value.trim(),body:$("noteBody").value.trim(),
-  source:$("noteSource").value.trim(),kind:$("noteKind").value};
+  source:$("noteSource").value.trim(),kind:$("noteKind").value,
+  alternative:$("noteAlternative").value.trim(),confidence:$("noteConfidence").value,
+  disposition:$("noteDisposition").value,reviewer:$("noteReviewer").value.trim()};
  if(!n.title)return;
  if(i!=="")data.notes[Number(i)]=n;else data.notes.push(n);
  $("noteDialog").close();persist();notes();renderCursor();
 };
 $("downloadReport").onclick=()=>{loadState();$("reportText").value=report();filename(safe(data.id)+"_investigation.md",report(),"text/markdown")};
-tab("import");describe();renderEvidence();renderProcedureSteps();
+tab("import");describe();renderEvidence();renderProcedureSteps();renderEventClock();renderAssemblyTallies();renderAssemblyDisplay();
 })();
