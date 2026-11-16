@@ -26,6 +26,8 @@ let viewStart=0,viewEnd=null;
 function viewBounds(){return [Math.max(0,viewStart),Math.min(data.rows.length-1,viewEnd??data.rows.length-1)]}
 function setView(a,b){if(!data.rows.length)return;viewStart=Math.max(0,Math.floor(a));viewEnd=Math.min(data.rows.length-1,Math.max(viewStart+1,Math.ceil(b)));renderCharts();renderCursor()}
 function resetView(){viewStart=0;viewEnd=null;renderCharts();renderCursor()}
+function timeFraction(i,start,end){const a=Date.parse(data.rows[start].t),b=Date.parse(data.rows[end].t);return b>a?(Date.parse(data.rows[i].t)-a)/(b-a):0}
+function visibleIndexAt(fraction,start,end){const a=Date.parse(data.rows[start].t),b=Date.parse(data.rows[end].t),target=a+Math.max(0,Math.min(1,fraction))*(b-a);let nearestIndex=start,delta=Infinity;for(let j=start;j<=end;j++){const d=Math.abs(Date.parse(data.rows[j].t)-target);if(d<delta){delta=d;nearestIndex=j}}return nearestIndex}
 const attachedSourceFiles=new Map();let previewUrl=null;
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safe=x=>String(x??"").replace(/[^a-z0-9_.-]+/gi,"_").slice(0,80)||"case";
@@ -386,8 +388,7 @@ function renderCharts(){
   const label=document.createElement("strong");const sourceUnit=data.case_kind==="synthetic"?unit:(data.channel_units?.[key]||"unknown unit");label.textContent=name+" ("+sourceUnit+"; original reading, no conversion)";
   const value=document.createElement("span");value.className="tag";value.style.float="right";box.append(label,value);
   const canvas=document.createElement("canvas");canvas.width=540;canvas.height=112;canvas.setAttribute("aria-label",name+" trend");box.append(canvas);root.append(box);
-  const indexAt=e=>{const bounds=canvas.getBoundingClientRect(),[start,end]=viewBounds();return Math.min(end,
-   Math.max(start,Math.round(start+(e.clientX-bounds.left)/bounds.width*(end-start))))};
+  const indexAt=e=>{const bounds=canvas.getBoundingClientRect(),[start,end]=viewBounds();return visibleIndexAt((e.clientX-bounds.left)/bounds.width,start,end)};
   let pressed=null;
   canvas.addEventListener("pointerdown",e=>{pressed={index:indexAt(e),x:e.clientX};canvas.setPointerCapture(e.pointerId)});
   canvas.addEventListener("pointerup",e=>{
@@ -411,11 +412,11 @@ function drawCharts(){
   let lo=Math.min(...valid),hi=Math.max(...valid);if(lo===hi){lo-=1;hi+=1}
   ctx.strokeStyle="#79cbea";ctx.lineWidth=1.5;ctx.beginPath();let connected=false;
   vals.forEach((v,i)=>{if(!Number.isFinite(v)){connected=false;return}
-   const x=i*w/Math.max(1,vals.length-1),y=(h-18)-(v-lo)/(hi-lo)*(h-27);
+   const x=timeFraction(start+i,start,end)*w,y=(h-18)-(v-lo)/(hi-lo)*(h-27);
    if(connected)ctx.lineTo(x,y);else ctx.moveTo(x,y);connected=true;
   });ctx.stroke();
-  for(const m of data.notes){if(m.b<start||m.a>end)continue;const a=(Math.max(start,m.a)-start)*w/Math.max(1,vals.length-1),b=(Math.min(end,m.b)-start)*w/Math.max(1,vals.length-1);ctx.fillStyle="rgba(255,195,126,.17)";ctx.fillRect(a,0,Math.max(2,b-a),h-15)}
-  ctx.strokeStyle="#ffcb90";ctx.beginPath();ctx.moveTo((idx-start)*w/Math.max(1,vals.length-1),0);ctx.lineTo((idx-start)*w/Math.max(1,vals.length-1),h-12);ctx.stroke();
+  for(const m of data.notes){if(m.b<start||m.a>end)continue;const a=timeFraction(Math.max(start,m.a),start,end)*w,b=timeFraction(Math.min(end,m.b),start,end)*w;ctx.fillStyle="rgba(255,195,126,.17)";ctx.fillRect(a,0,Math.max(2,b-a),h-15)}
+  ctx.strokeStyle="#ffcb90";ctx.beginPath();ctx.moveTo(timeFraction(idx,start,end)*w,0);ctx.lineTo(timeFraction(idx,start,end)*w,h-12);ctx.stroke();
  }
 }
 function assembly(){
