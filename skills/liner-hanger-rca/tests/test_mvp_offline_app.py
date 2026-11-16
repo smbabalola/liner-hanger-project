@@ -851,3 +851,59 @@ def test_real03_irregular_telemetry_uses_elapsed_time_not_row_index(tmp_path):
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_real03_playback_uses_recorded_utc_and_holds_sample_across_long_gap(tmp_path):
+    """At 60x, five minutes of missing readings is not compressed into one tick."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            timestamps = ("2026-11-10T09:00:00Z", "2026-11-10T09:00:01Z",
+                          "2026-11-10T09:05:01Z", "2026-11-10T09:05:02Z")
+            case = {"schema": "liner-mvp-case-1", "id": "FICTIONAL-GAPPED",
+                    "well": "fictional", "source": "explicit UTC",
+                    "rows": [{"t": t, "spp": i * 10} for i, t in enumerate(timestamps)],
+                    "columns": ["spp"], "channel_units": {"spp": "psi"},
+                    "events": [], "notes": [], "warnings": [], "rules": None,
+                    "evidence": [], "case_kind": "imported"}
+            saved = tmp_path / "gapped_case.json"
+            saved.write_text(json.dumps(case), encoding="utf-8")
+            page.locator("#caseFile").set_input_files(saved)
+            page.wait_for_function("document.querySelector('#importSummary').textContent.includes('4 timestamped samples')")
+            page.locator('[data-tab="replay"]').click()
+            page.locator("#speed").select_option("60")
+            page.locator("#play").click()
+            page.wait_for_function("document.querySelector('#cursorTime').textContent.includes('sample 2/4')")
+            assert "Playing 60× recorded time" in page.locator("#playbackClock").inner_text()
+            # Missing 5-minute segment must not be interpreted as an immediately
+            # subsequent sample. The source clock, not row count, drives replay.
+            page.wait_for_timeout(200)
+            assert "sample 2/4" in page.locator("#cursorTime").inner_text()
+            page.locator("#play").click()
+            assert "Paused" in page.locator("#playbackClock").inner_text()
+            assert "sample 2/4" in page.locator("#cursorTime").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real03_manual_seek_cancels_active_timed_replay():
+    """Manual inspection always takes ownership from an active playback timer."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator("#speed").select_option("60")
+            page.locator("#play").click()
+            assert "Playing 60× recorded time" in page.locator("#playbackClock").inner_text()
+            page.locator("#seek").evaluate(
+                "(el) => { el.value = '30'; el.dispatchEvent(new Event('input', {bubbles: true})); }")
+            assert "Paused" in page.locator("#playbackClock").inner_text()
+            assert "sample 31/61" in page.locator("#cursorTime").inner_text()
+            page.wait_for_timeout(120)
+            assert "sample 31/61" in page.locator("#cursorTime").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
