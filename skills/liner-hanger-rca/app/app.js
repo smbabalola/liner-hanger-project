@@ -519,6 +519,19 @@ $("applyMapping").onclick=()=>{
  }catch(err){$("mappingStatus").textContent="Mapping rejected: "+err.message}
 };
 $("cancelMapping").onclick=()=>{pendingTelemetry=null;$("telemetryMappingPanel").hidden=true};
+$("addEvent").onclick=()=>{
+ const label=$("eventLabel").value.trim(),source=$("eventSource").value.trim(),raw=$("eventTime").value.trim();
+ if(!label||!source){$("eventStatus").textContent="Action and report/page source reference are both required.";return}
+ if(raw&&!/(?:Z|[+-]\d{2}:\d{2})$/i.test(raw)){
+  $("eventStatus").textContent="Use a timestamp with explicit UTC Z or timezone offset, or leave time unknown.";return}
+ const time=raw?Date.parse(raw):NaN;
+ if(raw&&!Number.isFinite(time)){$("eventStatus").textContent="Invalid reported timestamp; nothing added.";return}
+ data.events.push({time:raw?new Date(time).toISOString():null,label,source,
+  time_status:raw?"reported_unverified":"unknown",evidence_class:"reported_not_measured"});
+ renderEvents();describe();persist();
+ $("eventLabel").value="";$("eventTime").value="";
+ $("eventStatus").textContent="Reported event registered. Time and event are source assertions, not verified downhole actions.";
+};
 $("eventsFile").onchange=async e=>{
  try{const events=JSON.parse(await e.target.files[0].text());if(!Array.isArray(events)||events.some(x=>typeof x!=="object"||x===null))
    throw Error("Expected JSON array of {time,label,source} events");
