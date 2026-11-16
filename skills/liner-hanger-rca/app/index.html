@@ -78,6 +78,22 @@ canvas{width:100%;height:112px;display:block;cursor:crosshair;margin-top:5px}#as
     </div>
     <div class="row"><button id="addAssemblyComponent" type="button">Append source-linked component</button><small id="assemblyBuilderStatus" role="status">No as-run assembly entered.</small></div>
     <div id="assemblyComponentList"></div>
+    <div class="panel" id="assemblyAnchorPanel">
+      <h3>Source-linked measured-depth anchor (as-run only)</h3>
+      <p>Optional local Python calculation. Identify one component boundary and the specific source datum. This calculates static tally boundaries only, not observed downhole tool motion or release.</p>
+      <div class="three">
+        <div class="field"><label for="anchorComponent">Anchored component</label><select id="anchorComponent"><option value="">Select as-run component</option></select></div>
+        <div class="field"><label for="anchorEnd">Anchor at component</label><select id="anchorEnd"><option value="top">Top</option><option value="bottom">Bottom</option></select></div>
+        <div class="field"><label for="anchorDepth">Recorded measured depth</label><input id="anchorDepth" type="number" min="0" step="any" placeholder="Source value, no estimate"></div>
+        <div class="field"><label for="anchorUnit">Source depth unit</label><select id="anchorUnit"><option value="">Select unit</option><option value="m">m MD</option><option value="ft">ft MD</option></select></div>
+        <div class="field"><label for="anchorDatum">Depth datum</label><input id="anchorDatum" placeholder="Rig floor / RKB (source-defined)"></div>
+        <div class="field"><label for="anchorSource">Evidence ID / page supporting anchor</label><input id="anchorSource" placeholder="AS-RUN-TALLY p.3"></div>
+        <div class="field"><label for="anchorReviewer">Reviewing engineer</label><input id="anchorReviewer" placeholder="Engineer name or initials"></div>
+      </div>
+      <label><input id="anchorReviewed" type="checkbox"> I checked this as-run component boundary, depth, datum and source reference</label>
+      <div class="row"><button id="evaluateTally" type="button">Calculate with local Python tally engine</button><small id="tallyBridgeStatus" role="status">No verified anchor. Static component positions unavailable.</small></div>
+      <div id="tallyPositionList"></div>
+    </div>
   </div>
   <div class="field"><label for="rulesFile">Job-specific procedure rulebook JSON (optional; not assumed approved)</label><input type="file" id="rulesFile" accept=".json,application/json"></div>
   <div class="panel" id="procedureBuilder">
