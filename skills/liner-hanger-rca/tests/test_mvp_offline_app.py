@@ -749,7 +749,7 @@ def test_real03_zoom_controls_and_chart_selection_follow_visible_source_window()
         instance, page, errors = start_page(driver, chromium)
         try:
             page.locator("#normal").click()
-            page.locator("#seek").fill("30")
+            page.locator("#seek").evaluate("(el) => { el.value = '30'; el.dispatchEvent(new Event('input', {bubbles: true})); }")
             assert "sample 31/61" in page.locator("#cursorTime").inner_text()
             full = page.locator("#visibleRange").inner_text()
             assert "61 samples" in full
