@@ -22,6 +22,10 @@ const synonyms={
 const units=Object.fromEntries(channels.map(x=>[x[0],x[2]]));
 const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],channel_units:{},telemetry_mapping:null,case_kind:"imported"});
 let data=defaultCase(),idx=0,timer=null,rangeStart=null,plotCanvases=[],pendingTelemetry=null;
+let viewStart=0,viewEnd=null;
+function viewBounds(){return [Math.max(0,viewStart),Math.min(data.rows.length-1,viewEnd??data.rows.length-1)]}
+function setView(a,b){if(!data.rows.length)return;viewStart=Math.max(0,Math.floor(a));viewEnd=Math.min(data.rows.length-1,Math.max(viewStart+1,Math.ceil(b)));renderCharts();renderCursor()}
+function resetView(){viewStart=0;viewEnd=null;renderCharts();renderCursor()}
 const attachedSourceFiles=new Map();let previewUrl=null;
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safe=x=>String(x??"").replace(/[^a-z0-9_.-]+/gi,"_").slice(0,80)||"case";
@@ -146,7 +150,7 @@ function acceptImportedCSV(text,source,mapping=null,sourceUnits=null){
  }else if(hadAnnotations){
   data.notes=[];data.warnings.push("Prior range annotations were cleared because telemetry was replaced; restore the previous case to recover them.");
  }
- idx=0;describe();renderEvidence();renderCharts();renderEvents();findings();notes();renderCursor();persist();
+ idx=0;viewStart=0;viewEnd=null;describe();renderEvidence();renderCharts();renderEvents();findings();notes();renderCursor();persist();
  msg("Imported "+result.usable+" of "+result.records+" readings; previously entered independent sources were retained. Review units and clock alignment.");
  return result;
 }
@@ -382,8 +386,8 @@ function renderCharts(){
   const label=document.createElement("strong");const sourceUnit=data.case_kind==="synthetic"?unit:(data.channel_units?.[key]||"unknown unit");label.textContent=name+" ("+sourceUnit+"; original reading, no conversion)";
   const value=document.createElement("span");value.className="tag";value.style.float="right";box.append(label,value);
   const canvas=document.createElement("canvas");canvas.width=540;canvas.height=112;canvas.setAttribute("aria-label",name+" trend");box.append(canvas);root.append(box);
-  const indexAt=e=>{const bounds=canvas.getBoundingClientRect();return Math.min(data.rows.length-1,
-   Math.max(0,Math.round((e.clientX-bounds.left)/bounds.width*(data.rows.length-1))))};
+  const indexAt=e=>{const bounds=canvas.getBoundingClientRect(),[start,end]=viewBounds();return Math.min(end,
+   Math.max(start,Math.round(start+(e.clientX-bounds.left)/bounds.width*(end-start))))};
   let pressed=null;
   canvas.addEventListener("pointerdown",e=>{pressed={index:indexAt(e),x:e.clientX};canvas.setPointerCapture(e.pointerId)});
   canvas.addEventListener("pointerup",e=>{
@@ -402,7 +406,7 @@ function drawCharts(){
  for(const {key,canvas,value} of plotCanvases){
   const ctx=canvas.getContext("2d"),w=canvas.width,h=canvas.height;
   ctx.clearRect(0,0,w,h);ctx.strokeStyle="#314d62";ctx.beginPath();ctx.moveTo(0,h-16);ctx.lineTo(w,h-16);ctx.stroke();
-  const vals=data.rows.map(r=>r[key]);const valid=vals.filter(Number.isFinite);
+  const [start,end]=viewBounds(),visible=data.rows.slice(start,end+1),vals=visible.map(r=>r[key]);const valid=vals.filter(Number.isFinite);
   value.textContent=fmt(current()?.[key]);if(!valid.length)continue;
   let lo=Math.min(...valid),hi=Math.max(...valid);if(lo===hi){lo-=1;hi+=1}
   ctx.strokeStyle="#79cbea";ctx.lineWidth=1.5;ctx.beginPath();let connected=false;
@@ -410,8 +414,8 @@ function drawCharts(){
    const x=i*w/Math.max(1,vals.length-1),y=(h-18)-(v-lo)/(hi-lo)*(h-27);
    if(connected)ctx.lineTo(x,y);else ctx.moveTo(x,y);connected=true;
   });ctx.stroke();
-  for(const m of data.notes){const a=m.a*w/Math.max(1,vals.length-1),b=m.b*w/Math.max(1,vals.length-1);ctx.fillStyle="rgba(255,195,126,.17)";ctx.fillRect(a,0,Math.max(2,b-a),h-15)}
-  ctx.strokeStyle="#ffcb90";ctx.beginPath();ctx.moveTo(idx*w/Math.max(1,vals.length-1),0);ctx.lineTo(idx*w/Math.max(1,vals.length-1),h-12);ctx.stroke();
+  for(const m of data.notes){if(m.b<start||m.a>end)continue;const a=(Math.max(start,m.a)-start)*w/Math.max(1,vals.length-1),b=(Math.min(end,m.b)-start)*w/Math.max(1,vals.length-1);ctx.fillStyle="rgba(255,195,126,.17)";ctx.fillRect(a,0,Math.max(2,b-a),h-15)}
+  ctx.strokeStyle="#ffcb90";ctx.beginPath();ctx.moveTo((idx-start)*w/Math.max(1,vals.length-1),0);ctx.lineTo((idx-start)*w/Math.max(1,vals.length-1),h-12);ctx.stroke();
  }
 }
 function assembly(){
@@ -435,6 +439,7 @@ function renderCursor(){
  $("noteFrom").max=$("noteTo").max=data.rows.length-1;
  $("cursorValues").textContent=channels.filter(x=>data.columns.includes(x[0])).map(x=>x[1]+": "+fmt(current()[x[0]])+" "+(data.case_kind==="synthetic"?x[2]:(data.channel_units?.[x[0]]||"unit unverified"))).join("  ·  ");
  drawCharts();assembly();
+ const [a,b]=viewBounds();$("visibleRange").textContent=data.rows.length?("Viewing "+timestampAt(a)+" – "+timestampAt(b)+" · "+(b-a+1)+" samples"):"No range";
  document.querySelectorAll("#timeline button").forEach(b=>b.classList.toggle("active",Number(b.dataset.sample)===idx));
 }
 function nearest(t){if(!data.rows.length)return 0;let closest=0,best=Infinity;
@@ -540,6 +545,8 @@ function notes(){
  for(const [i,n] of data.notes.entries()){
   const block=document.createElement("article");const head=document.createElement("strong");head.textContent=n.title+" · "+n.kind;block.append(head);
   const p=document.createElement("p");p.textContent=timestampAt(n.a)+" — "+timestampAt(n.b)+" · "+(n.source||"No external source");block.append(p);
+   const review=document.createElement("p");review.textContent="Confidence: "+(n.confidence||"undetermined")+" · Disposition: "+(n.disposition||"open")+" · Reviewer: "+(n.reviewer||"unassigned");block.append(review);
+   if(n.alternative){const alternative=document.createElement("p");alternative.textContent="Alternative / contrary evidence: "+n.alternative;block.append(alternative)}
   const body=document.createElement("p");body.textContent=n.body;block.append(body);
   const edit=document.createElement("button");edit.textContent="Edit";edit.onclick=()=>openNote(n.a,n.b,i);block.append(edit);
   const jump=document.createElement("button");jump.textContent="Go to range";jump.onclick=()=>{idx=n.a;tab("replay");renderCursor()};block.append(jump);
@@ -552,6 +559,7 @@ function openNote(a,b,edit=null){
  $("noteFrom").value=a;$("noteTo").value=b;$("editIndex").value=edit===null?"":String(edit);
  const n=edit===null?null:data.notes[edit];$("noteTitle").value=n?.title||"";$("noteBody").value=n?.body||"";
  $("noteKind").value=n?.kind||"observation";$("noteSource").value=n?.source||"";
+  $("noteAlternative").value=n?.alternative||"";$("noteConfidence").value=n?.confidence||"undetermined";$("noteDisposition").value=n?.disposition||"open";$("noteReviewer").value=n?.reviewer||"";
  $("noteInterval").textContent=timestampAt(a)+" — "+timestampAt(b)+" (recorded sample indices "+a+"–"+b+")";
  $("noteDialog").showModal();
 }
@@ -605,7 +613,7 @@ function report(){
  lines.push("","## Annotated evidence");
  if(!data.notes.length)lines.push("No engineer annotations recorded.");
  for(const n of data.notes)lines.push("- **"+n.title+"** ("+n.kind+") "+timestampAt(n.a)+" to "+timestampAt(n.b)+
-  "\n  - "+(n.body||"No explanation recorded")+"\n  - Source: "+(n.source||"not supplied"));
+  "\n  - "+(n.body||"No explanation recorded")+"\n  - Source: "+(n.source||"not supplied")+"\n  - Alternative/contrary evidence: "+(n.alternative||"not recorded")+"\n  - Confidence: "+(n.confidence||"undetermined")+"\n  - Disposition: "+(n.disposition||"open")+"\n  - Reviewer: "+(n.reviewer||"unassigned"));
  lines.push("","## Competing explanations / unknowns",
  "Surface signals and procedure flags alone cannot confirm hanger actuation or internal failure.",
  "Possible alternative mechanisms must be reviewed against job-specific OEM documents and independent rig reports.",
@@ -623,7 +631,7 @@ function tab(name){
 }
 function loadData(next){
  if(timer){clearInterval(timer);timer=null;$("play").textContent="▶ Play"}
- attachedSourceFiles.clear();closeDocumentPreview();validateCase(next);idx=0;toFields();describe();renderEvidence();renderProcedureSteps();renderCharts();renderEvents();findings();notes();renderCursor();persist();
+ attachedSourceFiles.clear();closeDocumentPreview();validateCase(next);idx=0;viewStart=0;viewEnd=null;toFields();describe();renderEvidence();renderProcedureSteps();renderCharts();renderEvents();findings();notes();renderCursor();persist();
  msg("Loaded "+data.rows.length+" recorded samples into "+(data.id||"case")+". Data are not independently authenticated.");
 }
 function demo(anomaly){
@@ -737,6 +745,9 @@ $("rulesFile").onchange=async e=>{
  }catch(err){msg("Procedure import rejected: "+err.message)}
 };
 $("seek").oninput=e=>{idx=Number(e.target.value);renderCursor()};
+$("zoomIn").onclick=()=>{if(!data.rows.length)return;const [a,b]=viewBounds(),span=Math.max(2,Math.floor((b-a)/2));setView(Math.max(0,idx-Math.floor(span/2)),Math.min(data.rows.length-1,idx+Math.ceil(span/2)))};
+$("zoomOut").onclick=()=>{if(!data.rows.length)return;const [a,b]=viewBounds(),span=b-a+1;setView(Math.max(0,a-Math.ceil(span/2)),Math.min(data.rows.length-1,b+Math.ceil(span/2)))};
+$("zoomReset").onclick=resetView;
 $("start").onclick=()=>{idx=0;renderCursor()};
 $("prev").onclick=()=>{idx--;renderCursor()};
 $("next").onclick=()=>{idx++;renderCursor()};
@@ -755,7 +766,9 @@ $("noteForm").onsubmit=e=>{
  e.preventDefault();const i=$("editIndex").value,n={
   a:Number($("noteFrom").value),b:Number($("noteTo").value),
   title:$("noteTitle").value.trim(),body:$("noteBody").value.trim(),
-  source:$("noteSource").value.trim(),kind:$("noteKind").value};
+  source:$("noteSource").value.trim(),kind:$("noteKind").value,
+  alternative:$("noteAlternative").value.trim(),confidence:$("noteConfidence").value,
+  disposition:$("noteDisposition").value,reviewer:$("noteReviewer").value.trim()};
  if(!n.title)return;
  if(i!=="")data.notes[Number(i)]=n;else data.notes.push(n);
  $("noteDialog").close();persist();notes();renderCursor();
