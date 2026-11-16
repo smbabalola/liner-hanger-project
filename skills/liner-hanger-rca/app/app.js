@@ -425,8 +425,8 @@ function renderCharts(){
   canvas.addEventListener("pointerup",e=>{
     if(!pressed)return;const a=pressed.index,b=indexAt(e),distance=Math.abs(e.clientX-pressed.x);
     pressed=null;
-    if(distance>=12&&Math.abs(b-a)>=1){tab("notes");openNote(Math.min(a,b),Math.max(a,b));return}
-    idx=b;renderCursor();
+    if(distance>=12&&Math.abs(b-a)>=1){pausePlayback();tab("notes");openNote(Math.min(a,b),Math.max(a,b));return}
+    pausePlayback();idx=b;renderCursor();
   });
   canvas.addEventListener("pointermove",e=>{
     if(pressed)return;const point=indexAt(e),hit=data.notes.find(n=>point>=n.a&&point<=n.b);
@@ -485,7 +485,7 @@ function renderEvents(){
   button.dataset.sample=index??-1;
   button.textContent=(event.time||"Time not verified")+" · "+(event.label||event.description||"Reported event")+
     " — source: "+(event.source||"not supplied");
-  button.onclick=()=>{if(index!==null){idx=index;renderCursor()}};
+  button.onclick=()=>{if(index!==null){pausePlayback();idx=index;renderCursor()}};
   root.append(button)
  }
 }
@@ -566,7 +566,7 @@ function findings(){
   for(const reason of r.reasons){const x=document.createElement("p");x.className="danger";x.textContent=reason;box.append(x)}
   for(const instance of r.instances){const x=document.createElement("button");x.type="button";x.textContent=instance.start+" to "+instance.end+
    " · "+instance.count+" failing reading(s) · "+fmt(instance.low)+"–"+fmt(instance.high);
-   x.onclick=()=>{idx=nearest(instance.start);tab("replay");renderCursor()};box.append(x)}
+   x.onclick=()=>{pausePlayback();idx=nearest(instance.start);tab("replay");renderCursor()};box.append(x)}
   root.append(box);
  }
  return results;
@@ -581,7 +581,7 @@ function notes(){
    if(n.alternative){const alternative=document.createElement("p");alternative.textContent="Alternative / contrary evidence: "+n.alternative;block.append(alternative)}
   const body=document.createElement("p");body.textContent=n.body;block.append(body);
   const edit=document.createElement("button");edit.textContent="Edit";edit.onclick=()=>openNote(n.a,n.b,i);block.append(edit);
-  const jump=document.createElement("button");jump.textContent="Go to range";jump.onclick=()=>{idx=n.a;tab("replay");renderCursor()};block.append(jump);
+  const jump=document.createElement("button");jump.textContent="Go to range";jump.onclick=()=>{pausePlayback();idx=n.a;tab("replay");renderCursor()};block.append(jump);
   root.append(block);
  }
 }
@@ -655,6 +655,7 @@ function report(){
  return lines.join("\n")+"\n";
 }
 function tab(name){
+ if(name!=="replay")pausePlayback();
  document.querySelectorAll(".tab").forEach(x=>x.hidden=x.id!==name);
  document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===name));
  // Import forms may be long: reset scroll so the new replay canvas is in view and interactive.
