@@ -46,6 +46,13 @@
 - Verification: GitHub Actions regression run [43823618640](https://github.com/smbabalola/liner-hanger-project/actions/runs/43823618640) started on PR commit `b44948ee73144a825c8d8ed7d805cc1dc0ac2d26`; **result to be confirmed** before gate acceptance. Browser-specific tests for zoom/extra fields, exported/reloaded notes, current schematic and alignment are required.
 - REAL-02, REAL-03 and REAL-04 remain OPEN. REAL-05 remains OPEN. Do not merge or mark complete based on code changes alone.
 
+## REAL-03/04 browser verification batch — 2026-11-16
+
+- On commit `9f8eff76a0c0ae32287d39315198a08f4d5fa189`, [GitHub Actions 43824517464](https://github.com/smbabalola/liner-hanger-project/actions/runs/43824517464) completed **955 passed on Python 3.11 (42.05s)** and **955 passed on Python 3.12 (42.99s)**. Logs were inspected for both jobs.
+- Added two Chromium tests in `skills/liner-hanger-rca/tests/test_mvp_offline_app.py`: zoomed chart click retains source-sample alignment, zoom reset restores full window; hypothesis note's alternatives, confidence, reviewer disposition and reviewer survive JSON case download and reimport and appear in draft report. Synthetic data only; no real job interpretation.
+- A test-only range-input event correction was subsequently committed as `adca62910054a2956076fe8ba1a334fb8ba92c54`; latest CI rerun [43824597570](https://github.com/smbabalola/liner-hanger-project/actions/runs/43824597570) must be checked independently.
+- Gate classification stays **IN PROGRESS**: require engineer review of real timestamp spacing and assembly position, independent recorded events/source documents, full source-matched investigation and user Windows acceptance. REAL-02 also remains open.
+
 ## Immediately next work
 
 1. Inspect which original assembly animation, chart interaction and investigation modules were never surfaced in the stripped-down offline demo. Reconnect proven components before implementing replacements.
