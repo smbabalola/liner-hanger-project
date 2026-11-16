@@ -175,6 +175,7 @@ function renderEvidence(){
   root.append(card);
  }
  $("evidenceStatus").textContent=items.length+" source file(s) registered; originals must be retained separately.";
+ procedureSourceOptions();
 }
 async function registerEvidence(file,kind,source_id,review_status){
  if(!file)throw Error("Choose a source file first");
@@ -196,6 +197,114 @@ async function registerEvidence(file,kind,source_id,review_status){
   media_type:file.type||"unknown",last_modified_ms:file.lastModified,sha256,
   original_bytes_embedded:false,authentication:"caller_supplied_not_verified"});
  renderEvidence();describe();persist();
+}
+
+function procedureSourceOptions(){
+ const select=$("procedureSource"),choice=select.value;select.replaceChildren();
+ const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Choose a registered SOP";select.append(placeholder);
+ for(const item of data.evidence||[]){
+  if(item.kind!=="procedure")continue;
+  const option=document.createElement("option");option.value=item.source_id;
+  option.textContent=item.source_id+" · "+item.file_name;select.append(option);
+ }
+ if([...select.options].some(op=>op.value===choice))select.value=choice;
+}
+function ensureManualProcedure(){
+ if(!data.rules||!Array.isArray(data.rules.rules))data.rules={
+  procedure:{approved:false,revision:"",approval_reference:"",reviewer:""},telemetry_clock_alignment_verified:false,
+  channel_units:{},rules:[],required_event_sequence:[],manual_input:true};
+ if(!Array.isArray(data.rules.required_event_sequence))data.rules.required_event_sequence=[];
+ if(!data.rules.channel_units)data.rules.channel_units={};
+}
+function renderProcedureSteps(){
+ procedureSourceOptions();
+ const root=$("procedureSteps");root.replaceChildren();
+ const book=data.rules||{},entries=[
+  ...(book.required_event_sequence||[]).map(x=>({...x,kind:"event"})),
+  ...(book.rules||[]).map(x=>({...x,kind:"signal",code:x.id}))
+ ];
+ for(const item of entries){
+  const article=document.createElement("article");article.className="panel";article.style.margin="7px 0";article.style.padding="10px";
+  const strong=document.createElement("strong");strong.textContent=item.code+" · "+(item.step||"Unnamed step")+" · "+item.kind;article.append(strong);
+  const p=document.createElement("p");p.textContent=(item.source_reference||"No page supplied")+
+   " · "+(item.approved===true?"source declared reviewed":"draft/not verified");
+  article.append(p);
+  if(item.kind==="signal"){
+   const second=document.createElement("p");second.textContent=item.channel+" "+item.operator+" "+item.value+" "+item.unit+
+    " (from "+(item.window?.start||"?")+" to "+(item.window?.end||"?")+")";article.append(second);
+  }
+  if(book.manual_input===true){
+   const remove=document.createElement("button");remove.type="button";remove.textContent="Remove this draft step";
+   remove.onclick=()=>{
+    if(item.kind==="event")book.required_event_sequence=book.required_event_sequence.filter(x=>x.code!==item.code);
+    else book.rules=book.rules.filter(x=>x.id!==item.code);
+    book.procedure.approved=false;book.telemetry_clock_alignment_verified=false;
+    (book.rules||[]).forEach(x=>x.approved=false);
+    (book.required_event_sequence||[]).forEach(x=>x.approved=false);
+    renderProcedureSteps();describe();findings();persist();
+   };article.append(remove);
+  }
+  root.append(article);
+ }
+ $("procedureStatus").textContent=entries.length+" source-linked step(s) entered. "+(
+   book.procedure?.approved===true?"Investigator declares source procedure checked; external approval unverified.":"Draft/unreviewed — deviations cannot be confirmed.");
+}
+function addManualProcedureStep(){
+ const source=$("procedureSource").value,revision=$("procedureRevision").value.trim(),
+  page=$("procedurePage").value.trim(),code=$("procedureCode").value.trim(),
+  step=$("procedureStep").value.trim(),kind=$("procedureCheck").value;
+ if(!source||!data.evidence.some(x=>x.kind==="procedure"&&x.source_id===source))
+  throw Error("Register and select the applicable SOP source file first");
+ if(!revision||!page||!code||!step)throw Error("Procedure revision, page/section, code and step label are required");
+ if(!/^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(code))throw Error("Step code must be 1–80 letters, digits, dots, dashes or underscores");
+ // Do not overwrite a separately imported rulebook with draft steps.
+ if(data.rules?.manual_input!==true&&data.rules&&(
+   data.rules.rules?.length||data.rules.required_event_sequence?.length))
+  throw Error("A separate JSON procedure is already loaded; export that case before starting an independent manual rulebook");
+ ensureManualProcedure();const book=data.rules;
+ if(book.procedure.approval_reference&&book.procedure.approval_reference!==source)
+  throw Error("This case already uses another procedure source; create a separate case or clear the draft");
+ if(book.procedure.revision&&book.procedure.revision!==revision)
+  throw Error("Procedure revision changed: do not mix different SOP revisions in one rulebook");
+ if(book.rules.some(x=>x.id===code)||book.required_event_sequence.some(x=>x.code===code))
+  throw Error("Step code already exists");
+ const ref=source+" / "+page;
+ if(kind==="event"){
+  book.required_event_sequence.push({code,step,approved:false,source_reference:ref});
+ }else{
+  const channel=$("procedureChannel").value,operator=$("procedureOperator").value,
+   unit=$("procedureUnit").value.trim(),raw=$("procedureThreshold").value.trim(),
+   start=$("procedureStart").value.trim(),end=$("procedureEnd").value.trim(),
+   value=number(raw);
+  if(raw===""||value===null||!unit)throw Error("Documented numeric limit and source unit are required");
+  if(!/(?:Z|[+-]\d{2}:\d{2})$/i.test(start)||!/(?:Z|[+-]\d{2}:\d{2})$/i.test(end)||
+    !Number.isFinite(Date.parse(start))||!Number.isFinite(Date.parse(end))||Date.parse(end)<=Date.parse(start))
+    throw Error("Valid chronological start/end timestamps with explicit timezone are required");
+  book.rules.push({id:code,step,description:"Investigator-entered source-linked comparison; not automatically OEM approved",
+   approved:false,source_reference:ref,channel,operator,value,unit,window:{
+    start:new Date(start).toISOString(),end:new Date(end).toISOString()}});
+  book.channel_units[channel]=data.channel_units?.[channel]||"";
+ }
+ book.procedure={approved:false,revision,approval_reference:source,reviewer:""};
+ book.telemetry_clock_alignment_verified=false;
+ (book.rules||[]).forEach(x=>x.approved=false);
+ (book.required_event_sequence||[]).forEach(x=>x.approved=false);
+ $("procedurePage").value="";$("procedureCode").value="";$("procedureStep").value="";
+ renderProcedureSteps();describe();findings();persist();
+}
+function saveManualProcedureReview(){
+ if(!data.rules||data.rules.manual_input!==true)throw Error("Enter draft steps through this form before recording review");
+ const book=data.rules,verified=$("procedureApprovalChecked").checked,
+  clock=$("procedureClockChecked").checked,reviewer=$("procedureReviewer").value.trim();
+ if((verified||clock)&&!reviewer)throw Error("A reviewer identifier is required for source/clock declarations");
+ if(verified&&!data.evidence.some(x=>x.kind==="procedure"&&x.source_id===book.procedure.approval_reference))
+  throw Error("The registered SOP source must remain attached to the case");
+ book.procedure.approved=verified;book.procedure.reviewer=reviewer;
+ book.telemetry_clock_alignment_verified=clock;
+ for(const rule of book.rules){rule.approved=verified;
+  book.channel_units[rule.channel]=data.channel_units?.[rule.channel]||"";}
+ for(const step of book.required_event_sequence)step.approved=verified;
+ $("procedureReviewPanel").hidden=true;renderProcedureSteps();findings();persist();
 }
 function describe(){
  $("importSummary").textContent=data.rows.length+" timestamped samples, "+data.events.length+" reported events, "+
@@ -414,6 +523,15 @@ function report(){
  "## Chronological reported events",
  ...data.events.map(e=>"- "+(e.time||"Time unverified")+" — "+(e.label||e.description||"Event")+" [source: "+(e.source||"not supplied")+"]"),
  "",
+ "## Entered operating procedure",
+ "Source: "+(data.rules?.procedure?.approval_reference||"not supplied")+
+ " · Revision: "+(data.rules?.procedure?.revision||"not supplied")+
+ " · Investigator review: "+(data.rules?.procedure?.approved===true?"declared by investigator, not externally authenticated":"not declared")+
+ " · Clock alignment: "+(data.rules?.telemetry_clock_alignment_verified===true?"investigator declared":"not verified"),
+ ...(data.rules?.required_event_sequence||[]).map(x=>"- Required reported step "+x.code+" · "+x.step+" · "+x.source_reference),
+ ...(data.rules?.rules||[]).map(x=>"- Measured rule "+x.id+" · "+x.step+" · "+x.channel+" "+x.operator+" "+x.value+" "+x.unit+
+  " · "+x.source_reference),
+ "",
  "## Procedure comparison",
  ];
  if(!check.length)lines.push("No procedure rulebook supplied. Compliance cannot be verified.");
@@ -444,7 +562,7 @@ function tab(name){
 }
 function loadData(next){
  if(timer){clearInterval(timer);timer=null;$("play").textContent="▶ Play"}
- validateCase(next);idx=0;toFields();describe();renderEvidence();renderCharts();renderEvents();findings();notes();renderCursor();persist();
+ validateCase(next);idx=0;toFields();describe();renderEvidence();renderProcedureSteps();renderCharts();renderEvents();findings();notes();renderCursor();persist();
  msg("Loaded "+data.rows.length+" recorded samples into "+(data.id||"case")+". Data are not independently authenticated.");
 }
 function demo(anomaly){
@@ -528,10 +646,10 @@ $("addEvent").onclick=()=>{
   $("eventStatus").textContent="Use a timestamp with explicit UTC Z or timezone offset, or leave time unknown.";return}
  const time=raw?Date.parse(raw):NaN;
  if(raw&&!Number.isFinite(time)){$("eventStatus").textContent="Invalid reported timestamp; nothing added.";return}
- data.events.push({time:raw?new Date(time).toISOString():null,label,source,
+ data.events.push({time:raw?new Date(time).toISOString():null,label,source,code:$("eventCode").value.trim()||undefined,
   time_status:raw?"reported_unverified":"unknown",evidence_class:"reported_not_measured"});
  renderEvents();describe();persist();
- $("eventLabel").value="";$("eventTime").value="";
+ $("eventLabel").value="";$("eventTime").value="";$("eventCode").value="";
  $("eventStatus").textContent="Reported event registered. Time and event are source assertions, not verified downhole actions.";
 };
 $("eventsFile").onchange=async e=>{
@@ -540,9 +658,20 @@ $("eventsFile").onchange=async e=>{
  data.events.push(...events);renderEvents();describe();persist();msg("Added "+events.length+" reported events to the case; times are source assertions.")
  }catch(err){msg("Event import rejected: "+err.message)}
 };
+$("procedureCheck").onchange=()=>{$("procedureSignalInputs").hidden=$("procedureCheck").value!=="signal"};
+$("addProcedureStep").onclick=()=>{try{addManualProcedureStep()}catch(e){$("procedureStatus").textContent="Draft step not saved: "+e.message}};
+$("markProcedureReview").onclick=()=>{
+ $("procedureReviewPanel").hidden=!$("procedureReviewPanel").hidden;
+ if(!$("procedureReviewPanel").hidden){
+  $("procedureApprovalChecked").checked=data.rules?.procedure?.approved===true;
+  $("procedureClockChecked").checked=data.rules?.telemetry_clock_alignment_verified===true;
+  $("procedureReviewer").value=data.rules?.procedure?.reviewer||"";
+ }
+};
+$("saveProcedureReview").onclick=()=>{try{saveManualProcedureReview()}catch(e){$("procedureStatus").textContent="Review not saved: "+e.message}};
 $("rulesFile").onchange=async e=>{
  try{const book=JSON.parse(await e.target.files[0].text());if(!book||!Array.isArray(book.rules))throw Error("Expected a rulebook object with rules array");
- data.rules=book;findings();describe();persist();msg("Loaded "+book.rules.length+" user-supplied procedure rules; approvals not authenticated.")
+ data.rules=book;renderProcedureSteps();findings();describe();persist();msg("Loaded "+book.rules.length+" user-supplied procedure rules; approvals not authenticated.")
  }catch(err){msg("Procedure import rejected: "+err.message)}
 };
 $("seek").oninput=e=>{idx=Number(e.target.value);renderCursor()};
@@ -570,5 +699,5 @@ $("noteForm").onsubmit=e=>{
  $("noteDialog").close();persist();notes();renderCursor();
 };
 $("downloadReport").onclick=()=>{loadState();$("reportText").value=report();filename(safe(data.id)+"_investigation.md",report(),"text/markdown")};
-tab("import");describe();renderEvidence();
+tab("import");describe();renderEvidence();renderProcedureSteps();
 })();
