@@ -687,6 +687,7 @@ def test_local_evidence_viewer_requires_original_reattachment_after_reload(tmp_p
             page.wait_for_function(
                 "document.querySelector('#evidenceStatus').textContent.includes('1 source file(s) registered')")
             page.locator("#evidenceList button", has_text="Preview local source").click()
+            page.locator("#documentViewer").wait_for(state="visible")
             assert page.locator("#documentViewer").is_visible()
             assert "pumps stopped at 10:15" in page.locator("#documentContent").inner_text()
             page.locator("#closeDocument").click()
