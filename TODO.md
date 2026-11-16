@@ -71,7 +71,7 @@
 
 - Source-matched schematic replay retains the **last actually recorded** running-string depth across missing running-depth samples, rather than abruptly reverting the assembly to a stationary origin. The UI explicitly labels the held sample and timestamp and states no interpolation. Without any source-backed running-depth observation and declared unit the schematic stays stationary/unknown. This is **surface-depth-sourced drawing**, not confirmation of downhole tool state.
 - Added synthetic Chromium regression `test_real03_assembly_holds_last_observed_running_depth_through_missing_sample` in `skills/liner-hanger-rca/tests/test_mvp_offline_app.py`.
-- Commit `2451f708d4c54e4a7d304794b84317d30cf38d64`; **CI evidence pending** at time of this checklist update. Do not claim the depth-gap regression passed until job logs are inspected. REAL-02..05 remain open.
+- **Verified:** [GitHub Actions run 43826013551](https://github.com/smbabalola/liner-hanger-project/actions/runs/43826013551) at implementation/test commit `2451f708d4c54e4a7d304794b84317d30cf38d64`: **Python 3.11: 959 passed (51.40s); Python 3.12: 959 passed (55.54s)**, no failures, both job logs inspected. This verifies the synthetic/browser depth-gap scenario; it does not establish an actual independently reviewed historical rig job. REAL-02..05 remain open.
 
 ## Immediately next work
 
