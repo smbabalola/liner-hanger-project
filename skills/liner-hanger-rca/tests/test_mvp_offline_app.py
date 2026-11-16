@@ -612,7 +612,8 @@ def test_manual_sop_source_sequence_and_report_from_browser(tmp_path):
             report = page.locator("#reportText").input_value()
             assert "SYNTHETIC-SOP-REV-A / P 3, Step 2" in report
             assert "Reported ball dropped" in report
-            assert "Test reviewer" not in report or "not externally authenticated" in report
+            assert "Reviewer declaration: Test reviewer, fictional" in report
+            assert "not externally authenticated" in report
             assert not errors, errors
         finally:
             instance.close()
