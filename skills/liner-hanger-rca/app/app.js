@@ -412,7 +412,7 @@ $("telemetryFile").onchange=async e=>{
 $("addEvent").onclick=()=>{
  const label=$("eventLabel").value.trim(),source=$("eventSource").value.trim(),raw=$("eventTime").value.trim();
  if(!label||!source){$("eventStatus").textContent="Action and report/page source reference are both required.";return}
- if(raw&&!(/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(raw))){$("eventStatus").textContent="Use a timestamp with explicit UTC Z or timezone offset, or leave time unknown.";return}
+ if(raw&&!(/(?:Z|[+-]\d{2}:\d{2})$/i.test(raw))){$("eventStatus").textContent="Use a timestamp with explicit UTC Z or timezone offset, or leave time unknown.";return}
  const time=raw?Date.parse(raw):NaN;
  if(raw&&!Number.isFinite(time)){$("eventStatus").textContent="Invalid reported timestamp; nothing added.";return}
  const event={time:raw?new Date(time).toISOString():null,label,source,
