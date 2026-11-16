@@ -107,6 +107,7 @@ function renderEvidence(){
 }
 async function registerEvidence(file,kind,source_id,review_status){
  if(!file)throw Error("Choose a source file first");
+ $("evidenceStatus").textContent="Registering source and calculating fingerprint; please wait…";
  if(!source_id||!source_id.trim())throw Error("A source ID/reference is required");
  if(!["job_report","procedure","equipment","fluids","telemetry","other"].includes(kind))throw Error("Unsupported evidence category");
  if(!["unreviewed","source_identified"].includes(review_status))throw Error("Unsupported review declaration");
