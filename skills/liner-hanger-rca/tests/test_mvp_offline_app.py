@@ -907,3 +907,38 @@ def test_real03_manual_seek_cancels_active_timed_replay():
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_real03_assembly_holds_last_observed_running_depth_through_missing_sample(tmp_path):
+    """A missing running-depth record must not falsely reset the liner assembly."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            times = ("2026-11-10T09:00:00Z", "2026-11-10T09:01:00Z",
+                     "2026-11-10T09:02:00Z")
+            case = {"schema": "liner-mvp-case-1", "id": "FICTIONAL-DEPTH-GAP",
+                    "well": "fictional", "source": "explicit UTC",
+                    "rows": [{"t": t, "running_depth": depth}
+                             for t, depth in zip(times, (1000, None, 1004))],
+                    "columns": ["running_depth"],
+                    "channel_units": {"running_depth": "m MD"},
+                    "events": [], "notes": [], "warnings": [], "rules": None,
+                    "evidence": [], "case_kind": "imported"}
+            saved = tmp_path / "depth_gap_case.json"
+            saved.write_text(json.dumps(case), encoding="utf-8")
+            page.locator("#caseFile").set_input_files(saved)
+            page.wait_for_function("document.querySelector('#importSummary').textContent.includes('3 timestamped samples')")
+            page.locator('[data-tab="replay"]').click()
+            first_position = page.locator("#moving").get_attribute("transform")
+            page.locator("#next").click()
+            held_position = page.locator("#moving").get_attribute("transform")
+            assert held_position == first_position
+            assert "Holding last recorded running depth" in page.locator("#assemblyStatus").inner_text()
+            assert "no depth interpolation" in page.locator("#assemblyStatus").inner_text()
+            page.locator("#next").click()
+            assert page.locator("#moving").get_attribute("transform") != first_position
+            assert "Running-depth-sourced movement" in page.locator("#assemblyStatus").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
