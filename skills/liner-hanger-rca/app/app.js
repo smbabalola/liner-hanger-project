@@ -486,7 +486,7 @@ $("telemetryFile").onchange=async e=>{
   const text=await file.text(),table=csvRecords(text);
   if(table.length<2)throw Error("CSV needs a header and at least one timestamped row");
   const mapping=guessMapping(table[0]);
-  if(mapping.t===undefined){
+  if(mapping.t===undefined||Object.keys(mapping).length<=1){
    openTelemetryMapping(text,file);
    msg("Review the source headers: select a timestamp and map each measured channel.");
   }else{
@@ -495,6 +495,14 @@ $("telemetryFile").onchange=async e=>{
    $("telemetryMappingPanel").hidden=true;
   }
  }catch(err){msg("CSV import rejected: "+err.message)}
+};
+$("reviewMapping").onclick=async()=>{
+ try{
+  const file=$("telemetryFile").files?.[0];
+  if(!file)throw Error("Select a telemetry CSV before reviewing column mappings");
+  openTelemetryMapping(await file.text(),file);
+  msg("Review all selected source columns and confirm their units; original readings are not modified.");
+ }catch(e){msg(e.message)}
 };
 $("applyMapping").onclick=()=>{
  try{
