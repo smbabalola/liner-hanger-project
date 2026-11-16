@@ -29,6 +29,18 @@ Then open `http://localhost:8765`. All processing happens inside your browser an
 
 Both built-in cases are **purely synthetic**. Their purported approvals and rule thresholds are **fictional test declarations**, not authentic Baker Hughes equipment values or operating limits.
 
+## Import a nonstandard rig telemetry CSV
+
+The importer keeps a **raw column-to-channel mapping** for the current case. It first suggests known aliases (`timestamp`, `spp`, `hookload`, `torque`, `rpm`, `flow`, `returns`, `running_depth`) but **does not assume unknown header names**. If it cannot identify a meaningful time-and-signal mapping, it opens **Review rig-export column mapping**. For a recognized CSV, use **Review source columns and units** to confirm/override the automatic selections.
+
+1. Choose your CSV file, select the recorded timestamp column, and map each measured channel using its exact raw header. Unused columns can stay unassigned; a source column must not represent two signals.
+2. Select the actual source unit shown in the export, e.g. `psi` or `bar`, `m MD` or `ft MD`. **No conversion is performed.** A selected unit is a user-declared value pending engineering review.
+3. Timestamps must be ISO 8601 with `Z` or explicit `±HH:MM` offset. If a vendor export lacks offsets, normalize the timestamps using the documented rig clock source **before** importing; the app refuses an ambiguous clock.
+4. Click **Apply mapping and import telemetry**. The canonical data retains the original CSV row number and the mapping (header, raw column index and declared unit). The original CSV bytes are not embedded in case JSON, so preserve the file independently.
+5. The saved case and Markdown report include the mapping record. Quantitative procedure thresholds remain unverifiable when the relevant source unit is unknown or conflicts with the rulebook. Real-case assembly motion requires an actual running-depth series **and its confirmed source unit**; hole/bit depth alone is not sufficient.
+
+For source PDFs, drawings, daily reports, fluid documents and tally spreadsheets, the **Job evidence register** stores only filename, size, evidence category, source reference and optional SHA-256, **not the document contents or automatic interpretations**. Enter reported job events with their source/time through the form. This is only the first part of REAL-02; full document interpretation and complete case workflow remain in progress.
+
 ## Input files
 
 - Telemetry CSV must contain `timestamp`, `t` or `time` (strictly increasing, unique, valid timestamps). For unambiguous clock handling use ISO 8601 with an explicit UTC `Z` or offset. Optional columns: `depth`, `running_depth`, `spp`, `hookload`, `torque`, `rpm`, `flow`, `volume`, `returns`. Synonyms appear in the UI. Units are **not converted or inferred**: validate the source before comparing a value to a rule.
