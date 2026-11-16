@@ -210,7 +210,7 @@ function renderCharts(){
  if(!available.length){root.textContent="No supported numeric channels found.";return}
  for(const [key,name,unit] of available){
   const box=document.createElement("div");box.className="chart";
-  const label=document.createElement("strong");label.textContent=name+" ("+unit+"; units must be independently confirmed)";
+  const label=document.createElement("strong");const sourceUnit=data.case_kind==="synthetic"?unit:(data.channel_units?.[key]||"unknown unit");label.textContent=name+" ("+sourceUnit+"; original reading, no conversion)";
   const value=document.createElement("span");value.className="tag";value.style.float="right";box.append(label,value);
   const canvas=document.createElement("canvas");canvas.width=540;canvas.height=112;canvas.setAttribute("aria-label",name+" trend");box.append(canvas);root.append(box);
   const indexAt=e=>{const bounds=canvas.getBoundingClientRect();return Math.min(data.rows.length-1,
@@ -248,15 +248,15 @@ function drawCharts(){
 function assembly(){
  const sample=current();const svg=$("moving"),label=$("assemblyStatus");
  if(!sample){svg.setAttribute("transform","translate(0 0)");label.textContent="No case loaded";return}
- let verified=Number.isFinite(sample.running_depth),depth=sample.running_depth;
+ let verified=Number.isFinite(sample.running_depth)&&(data.case_kind==="synthetic"||!!data.channel_units?.running_depth),depth=sample.running_depth;
  if(verified){
   const valid=data.rows.map(r=>r.running_depth).filter(Number.isFinite),min=Math.min(...valid),max=Math.max(...valid);
   const y=40+(max>min?(depth-min)/(max-min)*35:0);
   svg.setAttribute("transform","translate(0 "+y+")");
-  label.textContent="Running-depth-sourced movement at "+fmt(depth)+" m MD. Assembly geometry remains schematic, not to scale.";
+  label.textContent="Running-depth-sourced movement at "+fmt(depth)+" "+(data.channel_units?.running_depth||"m MD")+". Assembly geometry remains schematic, not to scale.";
  }else{
   svg.setAttribute("transform","translate(0 0)");
-  label.textContent="No verified running-string depth. Assembly is a stationary schematic; hole/bit depth cannot establish liner-hanger position.";
+  label.textContent="No confirmed running-string depth AND unit. Assembly is a stationary schematic; hole/bit depth cannot establish liner-hanger position.";
  }
 }
 function renderCursor(){
@@ -264,7 +264,7 @@ function renderCursor(){
  idx=Math.max(0,Math.min(data.rows.length-1,idx));$("seek").max=data.rows.length-1;$("seek").value=idx;
  $("cursorTime").textContent=timestampAt(idx)+" · sample "+(idx+1)+"/"+data.rows.length;
  $("noteFrom").max=$("noteTo").max=data.rows.length-1;
- $("cursorValues").textContent=channels.filter(x=>data.columns.includes(x[0])).map(x=>x[1]+": "+fmt(current()[x[0]])+" "+x[2]).join("  ·  ");
+ $("cursorValues").textContent=channels.filter(x=>data.columns.includes(x[0])).map(x=>x[1]+": "+fmt(current()[x[0]])+" "+(data.case_kind==="synthetic"?x[2]:(data.channel_units?.[x[0]]||"unit unverified"))).join("  ·  ");
  drawCharts();assembly();
  document.querySelectorAll("#timeline button").forEach(b=>b.classList.toggle("active",Number(b.dataset.sample)===idx));
 }
