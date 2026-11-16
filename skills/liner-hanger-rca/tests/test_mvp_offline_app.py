@@ -1018,3 +1018,100 @@ def test_real03_event_clock_review_controls_timeline_alignment_and_reopen(tmp_pa
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_real03_source_linked_planned_and_as_run_assembly_tallies_survive_reopen(tmp_path):
+    """Separate inventories, explicit units and unknown dimensions survive portable case export."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            drawing = tmp_path / "fictional_tally.txt"
+            drawing.write_text("FICTIONAL RIG PACKAGE; no OEM dimensions or rig data")
+            page.locator("#evidenceType").select_option("equipment")
+            page.locator("#evidenceReference").fill("FICTIONAL-TALLY")
+            page.locator("#evidenceFile").set_input_files(drawing)
+            page.locator("#addEvidence").click()
+            page.wait_for_function(
+                "document.querySelector('#assemblySource').querySelectorAll('option').length === 2")
+            page.locator("#assemblySource").select_option("FICTIONAL-TALLY")
+            page.locator("#assemblyBasis").select_option("planned")
+            page.locator("#assemblyComponentId").fill("PLANNED-TOOL")
+            page.locator("#assemblyRole").select_option("running_tool")
+            page.locator("#assemblyLength").fill("12.5")
+            page.locator("#assemblyUnit").select_option("ft")
+            page.locator("#assemblyPage").fill("p.1")
+            page.locator("#addAssemblyComponent").click()
+            assert "Planned · 1 component" in page.locator("#assemblyComponentList").inner_text()
+            page.locator("#assemblyBasis").select_option("as_run")
+            page.locator("#assemblyComponentId").fill("ACTUAL-LINER")
+            page.locator("#assemblyRole").select_option("liner")
+            page.locator("#assemblyPage").fill("p.3")
+            page.locator("#addAssemblyComponent").click()
+            assert "length unknown" in page.locator("#assemblyComponentList").inner_text()
+            page.locator('[data-tab="replay"]').click()
+            assert "As-run source-linked tally" in page.locator("#assemblyTallySummary").inner_text()
+            assert "ACTUAL-LINER" in page.locator("#assemblyReplayComponents").inner_text()
+            assert "length unknown" in page.locator("#assemblyReplayComponents").inner_text()
+            page.locator("#assemblyDisplayBasis").select_option("planned")
+            assert "PLANNED tally" in page.locator("#assemblyTallySummary").inner_text()
+            assert "12.5 ft" in page.locator("#assemblyReplayComponents").inner_text()
+            with page.expect_download() as download:
+                page.locator('[data-tab="import"]').click()
+                page.locator("#exportCase").click()
+            saved = tmp_path / "assembly_case.json"
+            download.value.save_as(saved)
+            archived = json.loads(saved.read_text())
+            assert archived["assembly_tallies"]["planned"][0]["length_unit"] == "ft"
+            assert archived["assembly_tallies"]["as_run"][0]["length"] is None
+            page.reload()
+            page.locator("#caseFile").set_input_files(saved)
+            page.locator('[data-tab="replay"]').click()
+            assert "ACTUAL-LINER" in page.locator("#assemblyReplayComponents").inner_text()
+            page.locator('[data-tab="report"]').click()
+            report = page.locator("#reportText").input_value()
+            assert "PLANNED-TOOL" in report and "ACTUAL-LINER" in report
+            assert "no BHA anchor verified" in report
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real03_assembly_tally_requires_provenance_and_preserves_linked_sources(tmp_path):
+    """No guessed dimensions or orphaned evidence references."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            page.locator("#assemblyComponentId").fill("UNKNOWN-TOOL")
+            page.locator("#assemblyPage").fill("p.2")
+            page.locator("#addAssemblyComponent").click()
+            assert "Register and select" in page.locator("#assemblyBuilderStatus").inner_text()
+            drawing = tmp_path / "evidence.txt"
+            drawing.write_text("Fictional equipment reference only")
+            page.locator("#evidenceType").select_option("equipment")
+            page.locator("#evidenceReference").fill("EQUIP-SRC")
+            page.locator("#evidenceFile").set_input_files(drawing)
+            page.locator("#addEvidence").click()
+            page.wait_for_function(
+                "document.querySelector('#assemblySource').querySelectorAll('option').length === 2")
+            page.locator("#assemblySource").select_option("EQUIP-SRC")
+            page.locator("#assemblyLength").fill("-3")
+            page.locator("#assemblyUnit").select_option("m")
+            page.locator("#addAssemblyComponent").click()
+            assert "positive" in page.locator("#assemblyBuilderStatus").inner_text()
+            assert "As run · 0 component" in page.locator("#assemblyComponentList").inner_text()
+            page.locator("#assemblyLength").fill("")
+            page.locator("#assemblyUnit").select_option("")
+            page.locator("#addAssemblyComponent").click()
+            assert "As run · 1 component" in page.locator("#assemblyComponentList").inner_text()
+            page.locator("#evidenceList button", has_text="Remove from register").click()
+            assert "Cannot remove EQUIP-SRC" in page.locator("#evidenceStatus").inner_text()
+            assert "EQUIP-SRC" in page.locator("#evidenceList").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
