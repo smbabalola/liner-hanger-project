@@ -73,6 +73,13 @@
 - Added synthetic Chromium regression `test_real03_assembly_holds_last_observed_running_depth_through_missing_sample` in `skills/liner-hanger-rca/tests/test_mvp_offline_app.py`.
 - **Verified:** [GitHub Actions run 43826013551](https://github.com/smbabalola/liner-hanger-project/actions/runs/43826013551) at implementation/test commit `2451f708d4c54e4a7d304794b84317d30cf38d64`: **Python 3.11: 959 passed (51.40s); Python 3.12: 959 passed (55.54s)**, no failures, both job logs inspected. This verifies the synthetic/browser depth-gap scenario; it does not establish an actual independently reviewed historical rig job. REAL-02..05 remain open.
 
+## REAL-03 event/rig clock reconciliation — 2026-11-16
+
+- Added optional investigator-controlled signed report-to-rig time correction in minutes, clock-comparison source reference, reviewer attribution and an explicit verification checkbox to the existing Import screen. The input report event timestamp is **never overwritten**. Prior to review, imported event controls cannot jump to a nearest rig sample; a reported time is not proof of clock alignment.
+- Aligned timestamps are derived only after review and are visibly distinguished from reported times in the event chronology and draft RCA. The source-specific correction is included in portable case JSON and report. Importing more reported events or replacing the telemetry stream invalidates prior reconciliation. Procedure sequence checks for imported jobs now additionally require this clock review; synthetic exercises retain their own fictional clock convention.
+- Browser regression added for unreviewed disabled jump, rejected unsourced approval, explicit +5-minute reviewer correction, event-to-rig nearest sample, exported original time plus review metadata, reload, report and automatic invalidation. [CI run 43826769269](https://github.com/smbabalola/liner-hanger-project/actions/runs/43826769269) at commit `10b5b3917a1f376e8f16c228b1d210e7032bd754` **pending verification** at time of entry.
+- This is **reviewer-declared alignment**, not independent authentication or automatic multi-clock reconstruction. Multiple log clocks still require separate evidence or future per-source clock models. REAL-02, REAL-03, REAL-04 and REAL-05 remain open.
+
 ## Immediately next work
 
 1. Inspect which original assembly animation, chart interaction and investigation modules were never surfaced in the stripped-down offline demo. Reconnect proven components before implementing replacements.
