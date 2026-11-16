@@ -803,7 +803,7 @@ $("addEvent").onclick=()=>{
 $("eventsFile").onchange=async e=>{
  try{const events=JSON.parse(await e.target.files[0].text());if(!Array.isArray(events)||events.some(x=>typeof x!=="object"||x===null))
    throw Error("Expected JSON array of {time,label,source} events");
- data.events.push(...events);renderEvents();describe();persist();msg("Added "+events.length+" reported events to the case; times are source assertions.")
+ invalidateEventClock("Reported chronology changed");data.events.push(...events);renderEventClock();renderEvents();findings();describe();persist();msg("Added "+events.length+" reported events to the case; times are source assertions.")
  }catch(err){msg("Event import rejected: "+err.message)}
 };
 $("procedureCheck").onchange=()=>{$("procedureSignalInputs").hidden=$("procedureCheck").value!=="signal"};
