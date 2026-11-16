@@ -78,6 +78,7 @@ def test_anomaly_deviation_annotation_persistence_and_report_export():
             page.locator("#noteFrom").fill("23")
             page.locator("#noteTo").fill("31")
             page.locator("#rangeNote").click()
+            page.locator("#noteDialog").wait_for(state="visible")
             assert page.locator("#noteDialog").is_visible()
             page.locator("#noteTitle").fill("Pressure rise during circulation")
             page.locator("#noteBody").fill("Surface signal. Check flow path and approved job log; do not infer the hanger preset.")
@@ -334,6 +335,7 @@ def test_manual_job_log_entry_preserves_unverified_clock_and_source():
             page.locator("#eventSource").fill("SYNTHETIC-DAILY-LOG/P4")
             page.locator("#eventTime").fill("2026-11-10T09:25:00Z")
             page.locator("#addEvent").click()
+            page.wait_for_function("document.querySelector(\'#eventStatus\').textContent.includes(\'registered\')")
             assert "registered" in page.locator("#eventStatus").inner_text()
             page.locator('[data-tab="replay"]').click()
             assert page.locator("#timeline button").count() == before + 1
@@ -359,10 +361,12 @@ def test_manual_event_rejects_naive_clock_and_missing_provenance():
             page.locator("#eventLabel").fill("Reported circulation")
             page.locator("#eventSource").fill("")
             page.locator("#addEvent").click()
+            page.wait_for_function("document.querySelector(\'#eventStatus\').textContent.includes(\'required\')")
             assert "required" in page.locator("#eventStatus").inner_text()
             page.locator("#eventSource").fill("FICTIONAL-P2")
             page.locator("#eventTime").fill("2026-11-10T09:20:00")
             page.locator("#addEvent").click()
+            page.wait_for_function("document.querySelector(\'#eventStatus\').textContent.includes(\'timezone offset\')")
             assert "timezone offset" in page.locator("#eventStatus").inner_text()
             assert not errors, errors
         finally:
@@ -419,7 +423,8 @@ def test_demo_rules_cannot_leak_into_real_csv_case(tmp_path):
             page.locator('[data-tab="deviations"]').click()
             assert "No job-specific procedure rulebook" in page.locator("#ruleSummary").inner_text()
             page.locator('[data-tab="import"]').click()
-            assert "Fictional example procedure" in page.locator("#diagnostics").inner_text()
+            page.wait_for_function("document.querySelector(\'#diagnostics\').textContent.includes(\'Fictional case identity\')")
+            assert "Fictional case identity" in page.locator("#diagnostics").inner_text()
             assert not errors, errors
         finally:
             instance.close()
