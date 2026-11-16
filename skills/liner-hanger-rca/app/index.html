@@ -37,6 +37,23 @@ canvas{width:100%;height:112px;display:block;cursor:crosshair;margin-top:5px}#as
   <div class="field"><label for="telemetryFile">Rig telemetry CSV (timestamp plus optional depth, pressure, hookload, torque, RPM, pump flow, pumped volume and returns)</label><input type="file" id="telemetryFile" accept=".csv,text/csv"></div>
   <div class="field"><label for="eventsFile">Chronological job events JSON (optional)</label><input type="file" id="eventsFile" accept=".json,application/json"></div>
   <div class="field"><label for="rulesFile">Job-specific procedure rulebook JSON (optional; not assumed approved)</label><input type="file" id="rulesFile" accept=".json,application/json"></div>
+  <div class="panel" id="evidencePanel">
+    <h2>Job evidence register — separate files</h2>
+    <p>Attach a procedure, daily report, equipment schematic, as-run tally, fluids record or other source as a distinct evidence item. This step records its file identity and provenance. PDF drawings are <strong>not automatically interpreted</strong>; original file bytes remain on your computer and are not stored inside a case JSON export.</p>
+    <div class="three">
+      <div class="field"><label for="evidenceType">Evidence type</label><select id="evidenceType">
+        <option value="job_report">Job report / event log</option><option value="procedure">Procedure / approved SOP</option>
+        <option value="equipment">Equipment / BHA / drawing</option><option value="fluids">Drilling fluids / mud report</option>
+        <option value="telemetry">Surface telemetry source</option><option value="other">Other source</option>
+      </select></div>
+      <div class="field"><label for="evidenceReference">Source ID / report reference</label><input id="evidenceReference" placeholder="e.g. DAILY-REPORT-03, SOP-REV-A" maxlength="180"></div>
+      <div class="field"><label for="evidenceReview">Review status</label><select id="evidenceReview"><option value="unreviewed">Unreviewed</option><option value="source_identified">Source identified (not authenticated)</option></select></div>
+    </div>
+    <div class="field"><label for="evidenceFile">Choose separate evidence file</label><input type="file" id="evidenceFile" accept=".pdf,.csv,.txt,.json,.xlsx,.xls,.png,.jpg,.jpeg,.docx,.doc"></div>
+    <div class="row"><button id="addEvidence" type="button">Register evidence file</button><small id="evidenceStatus" role="status">No evidence files registered.</small></div>
+    <div id="evidenceList" aria-label="Case evidence file register"></div>
+    <p class="sub">This is a provenance register, not an OCR/PDF parser or an approved engineering document store. Retain the original files separately; the exported case contains references, filenames, sizes and SHA-256 when browser-supported, but <strong>not the original file data</strong>.</p>
+  </div>
   <div class="row"><button id="normal" class="primary">Load synthetic normal example</button><button id="anomalous">Load synthetic anomalous example</button><button id="restore">Restore saved case</button><button id="saveCase">Save case locally</button><button id="exportCase">Export case JSON</button><label class="button" for="caseFile">Import saved case JSON</label><input id="caseFile" type="file" accept=".json" hidden></div>
   <p id="status" role="status">Choose a synthetic example or import a CSV to begin.</p>
  </div><div class="panel"><h2>Data integrity</h2><p id="importSummary">No telemetry imported yet.</p><div id="diagnostics"></div><h3>Supported input columns</h3><p class="sub">Case-insensitive synonyms: t/timestamp/time; depth/bit_depth; spp/pressure/standpipe_pressure; hookload/hook_load; torque; rpm; flow/pump_rate; volume/pumped_volume; returns/return_flow. Values are not automatically converted between units. Use matching source units in rules.</p><p class="sub">For an exact running-string position, supply a verified running-depth channel. A bit-depth or hole-depth channel alone is not accepted as hanger position.</p></div></div>
