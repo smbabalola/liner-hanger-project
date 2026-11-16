@@ -818,3 +818,35 @@ def test_real04_hypothesis_review_persists_through_case_export_and_reload(tmp_pa
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_real03_irregular_telemetry_uses_elapsed_time_not_row_index(tmp_path):
+    """Screen selection respects recorded UTC spacing on nonuniform rig samples."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            timestamps = ("2026-11-10T09:00:00Z", "2026-11-10T09:01:00Z",
+                          "2026-11-10T09:09:00Z", "2026-11-10T09:10:00Z")
+            case = {"schema": "liner-mvp-case-1", "id": "FICTIONAL-IRREGULAR",
+                    "well": "fictional", "source": "fictional clock",
+                    "rows": [{"t": t, "spp": i * 10} for i, t in enumerate(timestamps)],
+                    "columns": ["spp"], "channel_units": {"spp": "psi"},
+                    "events": [], "notes": [], "warnings": [],
+                    "rules": None, "evidence": [], "case_kind": "imported"}
+            file = tmp_path / "fictional_case.json"
+            file.write_text(json.dumps(case), encoding="utf-8")
+            page.locator("#caseFile").set_input_files(file)
+            page.locator('[data-tab="replay"]').click()
+            canvas = page.locator("#charts canvas").first
+            bounds = canvas.bounding_box()
+            assert bounds
+            # 75% elapsed time is ~09:07:30, nearest recorded sample is 09:09.
+            # An index-spaced chart would incorrectly select the last sample.
+            canvas.click(position={"x": bounds["width"] * .75,
+                                   "y": bounds["height"] / 2})
+            assert "sample 3/4" in page.locator("#cursorTime").inner_text()
+            assert "2026-11-10T09:09:00Z" in page.locator("#cursorTime").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
