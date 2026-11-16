@@ -53,6 +53,13 @@
 - A test-only range-input event correction was subsequently committed as `adca62910054a2956076fe8ba1a334fb8ba92c54`; latest CI rerun [43824597570](https://github.com/smbabalola/liner-hanger-project/actions/runs/43824597570) must be checked independently.
 - Gate classification stays **IN PROGRESS**: require engineer review of real timestamp spacing and assembly position, independent recorded events/source documents, full source-matched investigation and user Windows acceptance. REAL-02 also remains open.
 
+## REAL-03 elapsed-time chart verification — 2026-11-16
+
+- Added elapsed-time-based plot geometry, hover/selection indexing and annotation overlay placement for irregular timestamped telemetry, without interpolation of unavailable sensor values. Chart source clock is the recorded ISO timestamp and no automatic source clock alignment/offset correction is asserted.
+- Added synthetic Chromium regression checking unequal 1-minute/8-minute/1-minute source sample spacing and chart selection at 75% of elapsed time. Existing zoom, hypothesis persistence, procedure review, and report regression remain active.
+- Verified latest code commit `966bfc26fc13de81317b537b03fe624ae6f8986b` in [GitHub Actions run 43824955547](https://github.com/smbabalola/liner-hanger-project/actions/runs/43824955547): **Python 3.11: 956 passed in 42.00s; Python 3.12: 956 passed in 56.76s**, both job logs inspected, no failures. A prior intermediate code run [43824880210](https://github.com/smbabalola/liner-hanger-project/actions/runs/43824880210) also passed 956 on each version.
+- **NOT GATE ACCEPTANCE:** the instrumented replay is browser-tested with synthetic sources, not yet independently checked on an authorized real rig surface dataset; REAL-02, REAL-03, REAL-04 and REAL-05 stay OPEN. Remaining REAL-03 concerns: true operating-time playback speed (currently sample-stepped), complete BHA as-run vs planned geometry, cross-stream alignment and source-document fidelity. REAL-04 still needs investigator-led signed-off case review.
+
 ## Immediately next work
 
 1. Inspect which original assembly animation, chart interaction and investigation modules were never surfaced in the stripped-down offline demo. Reconnect proven components before implementing replacements.
