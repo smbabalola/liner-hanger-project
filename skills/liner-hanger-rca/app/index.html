@@ -64,6 +64,21 @@ canvas{width:100%;height:112px;display:block;cursor:crosshair;margin-top:5px}#as
     <label><input id="eventClockVerified" type="checkbox"> I checked both source clocks and confirm this correction for this case</label>
     <div class="row"><button id="saveEventClock" type="button">Save clock reconciliation</button><small id="eventClockStatus" role="status">Not verified — reported event times are not mapped to telemetry.</small></div>
   </div>
+  <div class="panel" id="assemblyBuilder">
+    <h2>Assembly tally — planned versus as run</h2>
+    <p>Enter top-to-bottom physical components against a registered source drawing or tally. Unknown lengths stay unknown. Components are not converted into downhole positions without a verified depth datum and component anchor; replay geometry remains illustrative.</p>
+    <div class="three">
+      <div class="field"><label for="assemblyBasis">Evidence basis</label><select id="assemblyBasis"><option value="as_run">As run</option><option value="planned">Planned</option></select></div>
+      <div class="field"><label for="assemblySource">Registered equipment/tally source</label><select id="assemblySource"><option value="">Choose source document</option></select></div>
+      <div class="field"><label for="assemblyComponentId">Unique component ID</label><input id="assemblyComponentId" placeholder="DP-01 / RUN-TOOL-01 / LINER-01"></div>
+      <div class="field"><label for="assemblyRole">Physical component</label><select id="assemblyRole"><option value="drill_pipe">Drill pipe</option><option value="running_tool">Running tool</option><option value="liner">Liner</option><option value="other">Other / unclassified</option></select></div>
+      <div class="field"><label for="assemblyLength">Documented component length (optional)</label><input id="assemblyLength" type="number" min="0" step="any" placeholder="Unknown if blank"></div>
+      <div class="field"><label for="assemblyUnit">Source length unit</label><select id="assemblyUnit"><option value="">Not supplied</option><option value="m">m</option><option value="ft">ft</option></select></div>
+      <div class="field"><label for="assemblyPage">Source page / table reference</label><input id="assemblyPage" placeholder="TALLY-01 p.2 / rows 8–12"></div>
+    </div>
+    <div class="row"><button id="addAssemblyComponent" type="button">Append source-linked component</button><small id="assemblyBuilderStatus" role="status">No as-run assembly entered.</small></div>
+    <div id="assemblyComponentList"></div>
+  </div>
   <div class="field"><label for="rulesFile">Job-specific procedure rulebook JSON (optional; not assumed approved)</label><input type="file" id="rulesFile" accept=".json,application/json"></div>
   <div class="panel" id="procedureBuilder">
     <h2>Build job procedure from source documents</h2>
@@ -127,7 +142,7 @@ canvas{width:100%;height:112px;display:block;cursor:crosshair;margin-top:5px}#as
 </section>
 <section id="replay" class="tab" hidden>
 <div class="panel"><div class="row"><button id="play" class="primary">▶ Play</button><button id="start">↶ Start</button><button id="prev">−1 sample</button><button id="next">+1 sample</button><label for="speed">Playback speed</label><select id="speed"><option value="1">1× recorded time</option><option value="5" selected>5× recorded time</option><option value="15">15× recorded time</option><option value="60">60× recorded time</option></select><span id="playbackClock" class="tag" role="status">Paused · recorded-sample cursor</span><strong id="cursorTime">No case loaded</strong><button id="zoomIn" type="button">Zoom in around cursor</button><button id="zoomOut" type="button">Zoom out</button><button id="zoomReset" type="button">Full time range</button><span id="visibleRange" class="tag">Full range</span></div><input id="seek" type="range" min="0" max="0" value="0" aria-label="Synchronized timeline scrubber"><p class="sub">Playback advances through recorded UTC timestamps at the chosen time multiplier, holding the last recorded sample through gaps (no invented readings or interpolated tool motion). All trends, events, notes and the schematic share the source-sample cursor.</p></div>
-<div class="two"><div><div class="panel"><h2>Recorded surface channels</h2><div id="charts"><p>No data loaded</p></div></div><div class="panel"><h2>Job chronology</h2><div id="timeline"></div></div></div><div class="panel"><h2>Assembly replay</h2><svg id="assembly" viewBox="0 0 320 340" role="img" aria-label="Illustrative liner hanger assembly">
+<div class="two"><div><div class="panel"><h2>Recorded surface channels</h2><div id="charts"><p>No data loaded</p></div></div><div class="panel"><h2>Job chronology</h2><div id="timeline"></div></div></div><div class="panel"><h2>Assembly replay</h2><div class="row"><label for="assemblyDisplayBasis">Displayed assembly</label><select id="assemblyDisplayBasis"><option value="as_run">As run (preferred)</option><option value="planned">Planned (not observed)</option></select></div><p id="assemblyTallySummary" class="sub">No source-backed assembly tally; generic roles are schematic.</p><div id="assemblyReplayComponents"></div><svg id="assembly" viewBox="0 0 320 340" role="img" aria-label="Illustrative liner hanger assembly">
 <rect x="85" y="12" width="140" height="312" rx="16" fill="#183347" stroke="#527287"/><path d="M115 0 V340 M195 0 V340" stroke="#7394ad" stroke-width="5"/>
 <g id="moving"><rect x="148" y="0" width="24" height="250" fill="#658dad"/><rect x="139" y="215" width="42" height="18" rx="3" fill="#f3b86d"/><rect x="139" y="234" width="42" height="65" fill="#a890e1"/><rect x="137" y="294" width="46" height="10" fill="#6c56a8"/></g>
 <text x="11" y="25">CASING / HOLE</text><text x="7" y="120">DRILL PIPE</text><text x="193" y="217">RUN TOOL</text><text x="193" y="264">LINER</text>
