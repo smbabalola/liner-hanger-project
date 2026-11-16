@@ -67,6 +67,12 @@
 - **Verification:** [CI run 43825487909](https://github.com/smbabalola/liner-hanger-project/actions/runs/43825487909), commit `836ab1a23897341c583f904e6f6f39533dea97aa`, **Python 3.11: 958 passed in 46.95s; Python 3.12: 958 passed in 40.25s**, no failures; both logs inspected. The immediately preceding [run 43825412406](https://github.com/smbabalola/liner-hanger-project/actions/runs/43825412406) also passed 958 on both versions.
 - **Remaining limitations:** No inferred measurements between samples. With very sparse data, the UI holds the last observed sample during elapsed-time gaps; it does not pretend to interpolate tool displacement. Source time-zone correctness, event clock reconciliation, richer planned vs as-run assembly/tally and **independent real historical job acceptance** are unresolved. REAL-02, REAL-03, REAL-04 and REAL-05 remain OPEN.
 
+## REAL-03 depth-gap safeguard — 2026-11-16
+
+- Source-matched schematic replay retains the **last actually recorded** running-string depth across missing running-depth samples, rather than abruptly reverting the assembly to a stationary origin. The UI explicitly labels the held sample and timestamp and states no interpolation. Without any source-backed running-depth observation and declared unit the schematic stays stationary/unknown. This is **surface-depth-sourced drawing**, not confirmation of downhole tool state.
+- Added synthetic Chromium regression `test_real03_assembly_holds_last_observed_running_depth_through_missing_sample` in `skills/liner-hanger-rca/tests/test_mvp_offline_app.py`.
+- Commit `2451f708d4c54e4a7d304794b84317d30cf38d64`; **CI evidence pending** at time of this checklist update. Do not claim the depth-gap regression passed until job logs are inspected. REAL-02..05 remain open.
+
 ## Immediately next work
 
 1. Inspect which original assembly animation, chart interaction and investigation modules were never surfaced in the stripped-down offline demo. Reconnect proven components before implementing replacements.
