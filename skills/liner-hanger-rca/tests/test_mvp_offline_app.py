@@ -364,3 +364,58 @@ def test_manual_event_rejects_naive_clock_and_missing_provenance():
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_independent_event_and_procedure_inputs_survive_later_real_csv(tmp_path):
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            events = tmp_path / "events.json"
+            events.write_text(json.dumps([
+                {"time":"2026-11-10T09:01:00Z","label":"Circulation reported",
+                 "source":"FICTIONAL-DAILY/P2"}
+            ]))
+            rules = tmp_path / "rules.json"
+            rules.write_text(json.dumps({
+                "procedure":{"approved":False,"revision":"DRAFT","approval_reference":"FICTIONAL"},
+                "telemetry_clock_alignment_verified":False,"channel_units":{"spp":"psi"},
+                "rules":[{"id":"DRAFT","step":"circulation","channel":"spp","unit":"psi",
+                          "operator":"<=","value":500,"source_reference":"FICTIONAL",
+                          "window":{"start":"2026-11-10T09:00:00Z","end":"2026-11-10T09:02:00Z"}}]
+            }))
+            telemetry = tmp_path / "surface.csv"
+            telemetry.write_text(
+                "timestamp,spp\n2026-11-10T09:00:00Z,100\n2026-11-10T09:01:00Z,110\n")
+            page.locator("#eventsFile").set_input_files(events)
+            page.locator("#rulesFile").set_input_files(rules)
+            page.locator("#telemetryFile").set_input_files(telemetry)
+            assert "Imported 2 of 2" in page.locator("#status").inner_text()
+            page.locator('[data-tab="replay"]').click()
+            assert "Circulation reported" in page.locator("#timeline").inner_text()
+            page.locator('[data-tab="deviations"]').click()
+            assert page.locator("#findings article.gap").count() >= 1
+            assert "unverifiable" in page.locator("#findings").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_demo_rules_cannot_leak_into_real_csv_case(tmp_path):
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#anomalous").click()
+            page.locator('[data-tab="import"]').click()
+            telemetry = tmp_path / "real_like.csv"
+            telemetry.write_text(
+                "timestamp,spp\n2026-11-10T09:00:00Z,90\n2026-11-10T09:01:00Z,95\n")
+            page.locator("#telemetryFile").set_input_files(telemetry)
+            page.locator('[data-tab="deviations"]').click()
+            assert "No job-specific procedure rulebook" in page.locator("#ruleSummary").inner_text()
+            page.locator('[data-tab="import"]').click()
+            assert "Fictional example procedure" in page.locator("#diagnostics").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
