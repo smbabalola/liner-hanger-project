@@ -48,6 +48,7 @@ canvas{width:100%;height:112px;display:block;cursor:crosshair;margin-top:5px}#as
     <div class="three">
       <div class="field"><label for="eventTime">Reported time (ISO 8601 with timezone; leave blank if unknown)</label><input id="eventTime" placeholder="2026-11-10T09:20:00Z"></div>
       <div class="field"><label for="eventLabel">Reported action or observation</label><input id="eventLabel" placeholder="Reported ball dropped / circulate / pull up"></div>
+      <div class="field"><label for="eventCode">Procedure step code (optional)</label><input id="eventCode" placeholder="BALL-DROP-01; link to entered SOP step"></div>
       <div class="field"><label for="eventSource">Source report ID and page</label><input id="eventSource" placeholder="DAILY-REPORT-03 p.2"></div>
     </div>
     <div class="row"><button id="addEvent" type="button">Add reported event</button><small id="eventStatus" role="status">Events are reported evidence, not measured tool states.</small></div>
