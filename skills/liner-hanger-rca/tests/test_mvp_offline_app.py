@@ -569,8 +569,12 @@ def test_manual_sop_source_sequence_and_report_from_browser(tmp_path):
     with pw.sync_playwright() as driver:
         instance, page, errors = start_page(driver, chromium)
         try:
-            page.locator("#normal").click()
-            page.locator('[data-tab="import"]').click()
+            rig = tmp_path / "source_measurements.csv"
+            rig.write_text("timestamp,spp\\n2026-11-10T09:00:00Z,120\\n"
+                           "2026-11-10T09:22:00Z,135\\n")
+            page.locator("#caseName").fill("PROCEDURE-REVIEW-TEST")
+            page.locator("#telemetryFile").set_input_files(rig)
+            page.wait_for_function("document.querySelector('#status').textContent.includes('Imported 2 of 2')")
             sop = tmp_path / "SOP.pdf"
             sop.write_bytes(b"%PDF-1.4\nSynthetic source placeholder, no BH material\n")
             page.locator("#evidenceType").select_option("procedure")
@@ -619,8 +623,12 @@ def test_manual_sop_no_invented_limits_and_source_review_is_explicit(tmp_path):
     with pw.sync_playwright() as driver:
         instance, page, errors = start_page(driver, chromium)
         try:
-            page.locator("#normal").click()
-            page.locator('[data-tab="import"]').click()
+            rig = tmp_path / "source_measurements.csv"
+            rig.write_text("timestamp,spp\\n2026-11-10T09:00:00Z,120\\n"
+                           "2026-11-10T09:22:00Z,135\\n")
+            page.locator("#caseName").fill("PROCEDURE-REVIEW-TEST")
+            page.locator("#telemetryFile").set_input_files(rig)
+            page.wait_for_function("document.querySelector('#status').textContent.includes('Imported 2 of 2')")
             page.locator("#procedureRevision").fill("Rev A")
             page.locator("#procedurePage").fill("P 2")
             page.locator("#procedureCode").fill("SET-01")
