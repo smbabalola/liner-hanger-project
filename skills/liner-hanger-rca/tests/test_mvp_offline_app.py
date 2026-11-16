@@ -1078,7 +1078,8 @@ def test_real03_source_linked_planned_and_as_run_assembly_tallies_survive_reopen
             page.locator('[data-tab="report"]').click()
             report = page.locator("#reportText").input_value()
             assert "PLANNED-TOOL" in report and "ACTUAL-LINER" in report
-            assert "no BHA anchor verified" in report
+            assert "As-run anchor review: not supplied" in report
+            assert "Python tally static boundaries: not calculated" in report
             assert not errors, errors
         finally:
             instance.close()
