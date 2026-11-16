@@ -385,9 +385,31 @@ function addAssemblyComponent(){
  $("assemblyComponentId").value="";$("assemblyLength").value="";$("assemblyUnit").value="";$("assemblyPage").value="";
  renderAssemblyTallies();renderAssemblyDisplay();persist();
 }
+const originalAssemblyShapes=[...$("moving").childNodes].map(node=>node.cloneNode(true));
+function renderAssemblyGeometry(components,basis){
+ const moving=$("moving");
+ if(!components.length){moving.replaceChildren(...originalAssemblyShapes.map(node=>node.cloneNode(true)));return}
+ const ns="http://www.w3.org/2000/svg";
+ moving.replaceChildren();
+ // Symbolic component order only. Equal-size blocks are NOT physical lengths or downhole positions.
+ const spacing=2,top=8,span=278,block=Math.max(5,(span-(components.length-1)*spacing)/components.length);
+ const palette={drill_pipe:"#658dad",running_tool:"#f3b86d",liner:"#a890e1",other:"#8d9ba8"};
+ for(const [i,item] of components.entries()){
+  const rect=document.createElementNS(ns,"rect");rect.setAttribute("x","139");
+  rect.setAttribute("y",String(top+i*(block+spacing)));rect.setAttribute("width","42");
+  rect.setAttribute("height",String(block));rect.setAttribute("fill",palette[item.role]);
+  rect.setAttribute("data-role",item.role);rect.setAttribute("data-component-id",item.component_id);
+  const title=document.createElementNS(ns,"title");
+  title.textContent=(basis==="planned"?"PLANNED only: ":"As-run reported: ")+item.component_id+
+   " · "+(item.length===null?"length unknown":item.length+" "+item.length_unit)+" · "+item.source_ref+
+   " · equal-size symbolic block, not to scale";
+  rect.append(title);moving.append(rect);
+ }
+}
 function renderAssemblyDisplay(){
  const basis=$("assemblyDisplayBasis").value||"as_run",components=assemblyRows(basis);
  const root=$("assemblyReplayComponents");root.replaceChildren();
+ renderAssemblyGeometry(components,basis);
  if(!components.length){
   $("assemblyTallySummary").textContent=basis==="planned"?
    "No planned component tally. Generic assembly is illustrative only.":
@@ -397,7 +419,7 @@ function renderAssemblyDisplay(){
  const verified=components.every(x=>x.length!==null&&["m","ft"].includes(x.length_unit));
  $("assemblyTallySummary").textContent=(basis==="as_run"?"As-run source-linked tally":"PLANNED tally — not proof of actual equipment")+
   "; "+components.length+" component(s) · "+(verified?"all entered lengths explicitly sourced":"one or more lengths unknown")+
-  ". Diagram is not to scale; running-depth source remains a separate measurement, not a BHA anchor.";
+  ". Colored blocks show top-to-bottom order at equal symbolic height, not actual component dimensions. Running-depth source remains a separate measurement, not a BHA anchor.";
  for(const item of components){
   const entry=document.createElement("p");entry.className="sub";entry.textContent=
    item.sequence+". "+assemblyRoleLabels[item.role]+" ("+item.component_id+") · "+
