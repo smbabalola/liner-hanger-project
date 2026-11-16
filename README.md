@@ -1,7 +1,9 @@
 # Liner Hanger Investigation Workbench
 
-**Status: Local offline investigation MVP — automated end-to-end browser tests passed.**  
+**Status: Real investigation product MVP IN PROGRESS. The earlier offline synthetic demonstration is a verified baseline, not accepted completion of the real application.**  
 **Application entrypoint:** [Open app source folder](skills/liner-hanger-rca/app/) · [First-use instructions](skills/liner-hanger-rca/app/README.md)
+
+**Latest REAL-02 development:** Browser UI now includes a per-file evidence register, manual source-labelled job events and a rig-export CSV column/unit mapper, with unverified source units explicitly gated. [Regression 43820021238](https://github.com/smbabalola/liner-hanger-project/actions/runs/43820021238) passed **949 tests per Python version (3.11 and 3.12)**. The real end-to-end case, richer replay workstation and report integration are still open; follow [STEERING.md](STEERING.md), [TODO.md](TODO.md) and the [component integration map](docs/real-mvp-component-integration-map.md).
 
 ## Run on Windows
 
