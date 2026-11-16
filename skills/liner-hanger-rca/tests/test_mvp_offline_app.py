@@ -457,6 +457,8 @@ def test_nonstandard_rig_csv_mapping_and_units_survive_case_roundtrip(tmp_path):
             page.locator('[data-tab="replay"]').click()
             assert page.locator("#charts canvas").count() == 3
             assert "Running-depth-sourced" in page.locator("#assemblyStatus").inner_text()
+            assert "psi; original reading" in page.locator("#charts").inner_text()
+            assert "klb; original reading" in page.locator("#charts").inner_text()
             page.locator('[data-tab="report"]').click()
             report = page.locator("#reportText").input_value()
             assert "SPP Sensor 1" in report
@@ -534,6 +536,28 @@ def test_real_case_procedure_remains_unverifiable_until_units_confirmed(tmp_path
             assert page.locator("#findings article.gap").count() == 1
             assert "unit not verified" in page.locator("#findings").inner_text().lower()
             assert page.locator("#findings article.flag").count() == 0
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+
+def test_depth_without_confirmed_unit_does_not_move_or_claim_position(tmp_path):
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            rig = tmp_path / "incomplete_unit.csv"
+            rig.write_text("timestamp,running_depth,spp\n"
+                           "2026-11-10T09:00:00Z,1400,200\n"
+                           "2026-11-10T09:01:00Z,1405,210\n")
+            page.locator("#telemetryFile").set_input_files(rig)
+            page.wait_for_function("document.querySelector('#status').textContent.includes('Imported 2 of 2')")
+            page.locator('[data-tab="replay"]').click()
+            assert "No confirmed running-string depth AND unit" in page.locator("#assemblyStatus").inner_text()
+            assert "unknown unit" in page.locator("#charts").inner_text()
+            page.locator("#next").click()
+            assert "No confirmed running-string depth AND unit" in page.locator("#assemblyStatus").inner_text()
             assert not errors, errors
         finally:
             instance.close()
