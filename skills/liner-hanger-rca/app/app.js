@@ -305,7 +305,7 @@ function renderEvidence(){
    };card.append(reattach);
   }
   const remove=document.createElement("button");remove.type="button";remove.textContent="Remove from register";
-  remove.onclick=()=>{attachedSourceFiles.delete(item.source_id);data.evidence=data.evidence.filter(x=>x.source_id!==item.source_id);closeDocumentPreview();renderEvidence();describe();persist()};card.append(remove);
+  remove.onclick=()=>{if(["planned","as_run"].some(b=>assemblyRows(b).some(x=>x.source_id===item.source_id))){$("evidenceStatus").textContent="Cannot remove "+item.source_id+" while assembly tally components reference it; remove those components first.";return}attachedSourceFiles.delete(item.source_id);data.evidence=data.evidence.filter(x=>x.source_id!==item.source_id);closeDocumentPreview();renderEvidence();describe();persist()};card.append(remove);
   root.append(card);
  }
  $("evidenceStatus").textContent=items.length+" source file(s) registered; originals must be retained separately.";
