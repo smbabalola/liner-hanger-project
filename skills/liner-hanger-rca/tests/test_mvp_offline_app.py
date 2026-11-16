@@ -315,3 +315,50 @@ def test_duplicate_evidence_id_is_rejected_without_overwriting_original(tmp_path
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_manual_job_log_entry_preserves_unverified_clock_and_source():
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            before = page.locator("#timeline button").count()
+            page.locator("#eventLabel").fill("Reported ball dropped")
+            page.locator("#eventSource").fill("SYNTHETIC-DAILY-LOG/P4")
+            page.locator("#eventTime").fill("2026-11-10T09:25:00Z")
+            page.locator("#addEvent").click()
+            assert "registered" in page.locator("#eventStatus").inner_text()
+            page.locator('[data-tab="replay"]').click()
+            assert page.locator("#timeline button").count() == before + 1
+            assert "Reported ball dropped" in page.locator("#timeline").inner_text()
+            page.locator('[data-tab="report"]').click()
+            assert "SYNTHETIC-DAILY-LOG/P4" in page.locator("#reportText").input_value()
+            page.reload()
+            page.locator("#restore").click()
+            page.locator('[data-tab="replay"]').click()
+            assert "Reported ball dropped" in page.locator("#timeline").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_manual_event_rejects_naive_clock_and_missing_provenance():
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            page.locator("#eventLabel").fill("Reported circulation")
+            page.locator("#eventSource").fill("")
+            page.locator("#addEvent").click()
+            assert "required" in page.locator("#eventStatus").inner_text()
+            page.locator("#eventSource").fill("FICTIONAL-P2")
+            page.locator("#eventTime").fill("2026-11-10T09:20:00")
+            page.locator("#addEvent").click()
+            assert "timezone offset" in page.locator("#eventStatus").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
