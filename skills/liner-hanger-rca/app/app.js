@@ -20,7 +20,7 @@ const synonyms={
   returns:["returns","return_flow","flow_out"]
 };
 const units=Object.fromEntries(channels.map(x=>[x[0],x[2]]));
-const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],channel_units:{},telemetry_mapping:null,event_clock:null,case_kind:"imported"});
+const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],channel_units:{},telemetry_mapping:null,event_clock:null,assembly_tallies:{planned:[],as_run:[]},case_kind:"imported"});
 let data=defaultCase(),idx=0,timer=null,rangeStart=null,plotCanvases=[],pendingTelemetry=null;
 let viewStart=0,viewEnd=null,playStartWall=0,playStartRecorded=0;
 function viewBounds(){return [Math.max(0,viewStart),Math.min(data.rows.length-1,viewEnd??data.rows.length-1)]}
@@ -310,6 +310,7 @@ function renderEvidence(){
  }
  $("evidenceStatus").textContent=items.length+" source file(s) registered; originals must be retained separately.";
  procedureSourceOptions();
+ assemblySourceOptions();
 }
 async function registerEvidence(file,kind,source_id,review_status){
  if(!file)throw Error("Choose a source file first");
@@ -327,6 +328,81 @@ async function registerEvidence(file,kind,source_id,review_status){
   original_bytes_embedded:false,authentication:"caller_supplied_not_verified"});
  attachedSourceFiles.set(source_id,file);
  renderEvidence();describe();persist();
+}
+
+const assemblyRoleLabels={drill_pipe:"Drill pipe",running_tool:"Running tool",liner:"Liner",other:"Other / unclassified"};
+function assemblySourceOptions(){
+ const select=$("assemblySource"),selected=select.value;
+ select.replaceChildren();
+ const blank=document.createElement("option");blank.value="";blank.textContent="Choose source document";select.append(blank);
+ for(const src of data.evidence||[]){
+  if(src.kind!=="equipment"&&src.kind!=="other")continue;
+  const opt=document.createElement("option");opt.value=src.source_id;opt.textContent=src.source_id+" · "+src.file_name;select.append(opt);
+ }
+ if([...select.options].some(x=>x.value===selected))select.value=selected;
+}
+function assemblyRows(basis){
+ const tallies=data.assembly_tallies||{};return Array.isArray(tallies[basis])?tallies[basis]:[];
+}
+function renderAssemblyTallies(){
+ assemblySourceOptions();
+ const root=$("assemblyComponentList");root.replaceChildren();
+ for(const basis of ["planned","as_run"]){
+  const entries=assemblyRows(basis),header=document.createElement("h3");
+  header.textContent=(basis==="as_run"?"As run":"Planned")+" · "+entries.length+" component(s) in reported top-to-bottom order";root.append(header);
+  for(const [i,item] of entries.entries()){
+   const row=document.createElement("div");row.className="row";
+   const label=document.createElement("span");label.textContent=(i+1)+". "+item.component_id+" · "+assemblyRoleLabels[item.role]+
+    " · "+(item.length===null?"length unknown":item.length+" "+item.length_unit)+" · "+item.source_ref;row.append(label);
+   const remove=document.createElement("button");remove.type="button";remove.textContent="Remove "+item.component_id;
+   remove.onclick=()=>{data.assembly_tallies[basis].splice(i,1);renderAssemblyTallies();renderAssemblyDisplay();persist()};
+   row.append(remove);root.append(row);
+  }
+ }
+ $("assemblyBuilderStatus").textContent="Planned: "+assemblyRows("planned").length+
+  " component(s); as run: "+assemblyRows("as_run").length+
+  ". Source-linked inventory only; no unverified depth offsets.";
+}
+function addAssemblyComponent(){
+ const basis=$("assemblyBasis").value,source=$("assemblySource").value,
+  component_id=$("assemblyComponentId").value.trim(),role=$("assemblyRole").value,
+  lengthText=$("assemblyLength").value.trim(),unit=$("assemblyUnit").value,
+  page=$("assemblyPage").value.trim();
+ if(!["planned","as_run"].includes(basis)||!Object.hasOwn(assemblyRoleLabels,role))throw Error("Invalid assembly basis or role.");
+ if(!data.evidence.some(x=>x.source_id===source&&(x.kind==="equipment"||x.kind==="other")))
+  throw Error("Register and select the drawing/tally source before adding a component.");
+ if(!component_id||!page)throw Error("Component ID and source page/row reference are required.");
+ if(assemblyRows(basis).some(x=>x.component_id===component_id))
+  throw Error("Duplicate component ID in this tally; top-to-bottom sequence must be unambiguous.");
+ const length=lengthText===""?null:Number(lengthText);
+ if(length!==null&&(!Number.isFinite(length)||length<=0||!["m","ft"].includes(unit)))
+  throw Error("A documented length must be positive with explicit m or ft unit.");
+ if(length===null&&unit)throw Error("Leave the unit unselected when length is unknown.");
+ if(!data.assembly_tallies)data.assembly_tallies={planned:[],as_run:[]};
+ if(!Array.isArray(data.assembly_tallies[basis]))data.assembly_tallies[basis]=[];
+ data.assembly_tallies[basis].push({component_id,role,length,length_unit:length===null?null:unit,
+  source_id:source,source_ref:source+" / "+page,sequence:data.assembly_tallies[basis].length+1});
+ $("assemblyComponentId").value="";$("assemblyLength").value="";$("assemblyUnit").value="";$("assemblyPage").value="";
+ renderAssemblyTallies();renderAssemblyDisplay();persist();
+}
+function renderAssemblyDisplay(){
+ const basis=$("assemblyDisplayBasis").value||"as_run",components=assemblyRows(basis);
+ const root=$("assemblyReplayComponents");root.replaceChildren();
+ if(!components.length){
+  $("assemblyTallySummary").textContent=basis==="planned"?
+   "No planned component tally. Generic assembly is illustrative only.":
+   "No as-run component tally. Generic assembly is illustrative only; planned equipment is not evidence of actual installation.";
+  return;
+ }
+ const verified=components.every(x=>x.length!==null&&["m","ft"].includes(x.length_unit));
+ $("assemblyTallySummary").textContent=(basis==="as_run"?"As-run source-linked tally":"PLANNED tally — not proof of actual equipment")+
+  "; "+components.length+" component(s) · "+(verified?"all entered lengths explicitly sourced":"one or more lengths unknown")+
+  ". Diagram is not to scale; running-depth source remains a separate measurement, not a BHA anchor.";
+ for(const item of components){
+  const entry=document.createElement("p");entry.className="sub";entry.textContent=
+   item.sequence+". "+assemblyRoleLabels[item.role]+" ("+item.component_id+") · "+
+   (item.length===null?"length unknown":item.length+" "+item.length_unit)+" · "+item.source_ref;root.append(entry);
+ }
 }
 
 function procedureSourceOptions(){
@@ -663,6 +739,10 @@ function report(){
  " · correction "+(clockVerified()?(data.event_clock?.offset_minutes??0):"not applied")+" minutes.",
  ...data.events.map(e=>"- Reported: "+(e.time||"Time unverified")+"; aligned to rig: "+(alignedEventTime(e)||"unverified")+" — "+(e.label||e.description||"Event")+" [source: "+(e.source||"not supplied")+"]"),
  "",
+ "## Assembly tally (source linked, independent of depth positioning)",
+ ...["planned","as_run"].flatMap(b=>["### "+(b==="as_run"?"As run":"Planned") ,...(assemblyRows(b).length?assemblyRows(b).map(x=>"- "+x.sequence+". "+x.component_id+" ["+x.role+"] "+(x.length===null?"length unknown":x.length+" "+x.length_unit)+" · "+x.source_ref):["No "+b+" component tally entered."])]),
+ "Source-listed lengths do not establish actual downhole placement or activation; no BHA anchor verified.",
+ "",
  "## Entered operating procedure",
  "Source: "+(data.rules?.procedure?.approval_reference||"not supplied")+
  " · Revision: "+(data.rules?.procedure?.revision||"not supplied")+
@@ -705,7 +785,7 @@ function tab(name){
 function loadData(next){
  pausePlayback();
  if(timer){clearInterval(timer);timer=null;$("play").textContent="▶ Play"}
- attachedSourceFiles.clear();closeDocumentPreview();validateCase(next);idx=0;viewStart=0;viewEnd=null;toFields();describe();renderEvidence();renderProcedureSteps();renderEventClock();renderCharts();renderEvents();findings();notes();renderCursor();persist();
+ attachedSourceFiles.clear();closeDocumentPreview();validateCase(next);idx=0;viewStart=0;viewEnd=null;toFields();describe();renderEvidence();renderProcedureSteps();renderEventClock();renderAssemblyTallies();renderAssemblyDisplay();renderCharts();renderEvents();findings();notes();renderCursor();persist();
  msg("Loaded "+data.rows.length+" recorded samples into "+(data.id||"case")+". Data are not independently authenticated.");
 }
 function demo(anomaly){
@@ -738,6 +818,8 @@ $("addEvidence").onclick=async()=>{
  }catch(err){$("evidenceStatus").textContent="Evidence not added: "+err.message}
 };
 $("closeDocument").onclick=closeDocumentPreview;
+$("addAssemblyComponent").onclick=()=>{try{addAssemblyComponent()}catch(e){$("assemblyBuilderStatus").textContent="Component rejected: "+e.message}};
+$("assemblyDisplayBasis").onchange=renderAssemblyDisplay;
 $("saveEventClock").onclick=()=>{
  try{saveEventClock()}catch(e){$("eventClockStatus").textContent="Clock review rejected: "+e.message}
 };
@@ -846,5 +928,5 @@ $("noteForm").onsubmit=e=>{
  $("noteDialog").close();persist();notes();renderCursor();
 };
 $("downloadReport").onclick=()=>{loadState();$("reportText").value=report();filename(safe(data.id)+"_investigation.md",report(),"text/markdown")};
-tab("import");describe();renderEvidence();renderProcedureSteps();renderEventClock();
+tab("import");describe();renderEvidence();renderProcedureSteps();renderEventClock();renderAssemblyTallies();renderAssemblyDisplay();
 })();
