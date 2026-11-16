@@ -53,6 +53,40 @@ canvas{width:100%;height:112px;display:block;cursor:crosshair;margin-top:5px}#as
     <div class="row"><button id="addEvent" type="button">Add reported event</button><small id="eventStatus" role="status">Events are reported evidence, not measured tool states.</small></div>
   </div>
   <div class="field"><label for="rulesFile">Job-specific procedure rulebook JSON (optional; not assumed approved)</label><input type="file" id="rulesFile" accept=".json,application/json"></div>
+  <div class="panel" id="procedureBuilder">
+    <h2>Build job procedure from source documents</h2>
+    <p>Register the SOP/drawing in the evidence register, then enter each actual step with its source page. These are draft, engineer-entered comparisons until the approved revision and clocks have been explicitly reviewed. No manufacturer limits are supplied by the application.</p>
+    <div class="three">
+      <div class="field"><label for="procedureSource">Registered procedure source</label><select id="procedureSource"><option value="">Choose a registered SOP</option></select></div>
+      <div class="field"><label for="procedureRevision">Procedure revision</label><input id="procedureRevision" placeholder="Rev D (as printed on SOP)"></div>
+      <div class="field"><label for="procedurePage">Step page/section in source</label><input id="procedurePage" placeholder="Page 7, §3.2"></div>
+      <div class="field"><label for="procedureCode">Unique step code</label><input id="procedureCode" placeholder="BALL-DROP-01"></div>
+      <div class="field"><label for="procedureStep">Observed/required operational step</label><input id="procedureStep" placeholder="Confirm ball drop is logged"></div>
+      <div class="field"><label for="procedureCheck">Comparison type</label><select id="procedureCheck"><option value="event">Reported sequence (no numerical limit)</option><option value="signal">Measured signal threshold from this SOP</option></select></div>
+    </div>
+    <div id="procedureSignalInputs" class="panel" hidden>
+      <p>Only enter a limit explicitly stated by the referenced job-specific procedure, with the same channel unit and aligned clock. Do not copy a value from the synthetic demo.</p>
+      <div class="three">
+        <div class="field"><label for="procedureChannel">Recorded channel</label><select id="procedureChannel"><option value="spp">Standpipe pressure</option><option value="hookload">Hookload</option><option value="torque">Torque</option><option value="rpm">RPM</option><option value="flow">Pump flow</option><option value="volume">Pumped volume</option><option value="returns">Returns</option><option value="depth">Depth</option><option value="running_depth">Running-string depth</option></select></div>
+        <div class="field"><label for="procedureOperator">Comparison</label><select id="procedureOperator"><option value="<=">At or below (≤)</option><option value=">=">At or above (≥)</option><option value="<">Below</option><option value=">">Above</option></select></div>
+        <div class="field"><label for="procedureThreshold">Documented limit (numeric)</label><input id="procedureThreshold" inputmode="decimal" placeholder="Source-specified value only"></div>
+        <div class="field"><label for="procedureUnit">Limit unit in source</label><input id="procedureUnit" placeholder="Must match mapped telemetry unit"></div>
+        <div class="field"><label for="procedureStart">Check from (ISO UTC/offset)</label><input id="procedureStart" placeholder="2026-11-10T09:00:00Z"></div>
+        <div class="field"><label for="procedureEnd">Check until (ISO UTC/offset)</label><input id="procedureEnd" placeholder="2026-11-10T09:10:00Z"></div>
+      </div>
+    </div>
+    <div class="row"><button id="addProcedureStep" type="button">Add source-linked draft step</button><button id="markProcedureReview" type="button">Review procedure declarations</button></div>
+    <p id="procedureStatus" role="status">No manual procedure steps entered.</p>
+    <div id="procedureSteps" aria-label="Entered source-linked procedure steps"></div>
+    <div id="procedureReviewPanel" class="panel" hidden>
+      <h3>Explicit review declarations</h3>
+      <p>These are statements by the investigator, not automatic document authentication or external engineering approval. Do not check them without first confirming the source procedure, applicable revision, referenced limits and rig clock.</p>
+      <label><input id="procedureApprovalChecked" type="checkbox"> I have checked that the referenced SOP revision and entered steps/limits match the applicable approved job procedure.</label>
+      <label><input id="procedureClockChecked" type="checkbox"> I have checked that the recorded telemetry and job report clocks are correctly aligned.</label>
+      <div class="field"><label for="procedureReviewer">Reviewer name / identifier</label><input id="procedureReviewer" placeholder="Engineer completing the source check"></div>
+      <button id="saveProcedureReview" type="button">Record declarations for screening</button>
+    </div>
+  </div>
   <div class="panel" id="evidencePanel">
     <h2>Job evidence register — separate files</h2>
     <p>Attach a procedure, daily report, equipment schematic, as-run tally, fluids record or other source as a distinct evidence item. This step records its file identity and provenance. PDF drawings are <strong>not automatically interpreted</strong>; original file bytes remain on your computer and are not stored inside a case JSON export.</p>
