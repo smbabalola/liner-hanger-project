@@ -453,12 +453,15 @@ function drawCharts(){
 function assembly(){
  const sample=current();const svg=$("moving"),label=$("assemblyStatus");
  if(!sample){svg.setAttribute("transform","translate(0 0)");label.textContent="No case loaded";return}
- let verified=Number.isFinite(sample.running_depth)&&(data.case_kind==="synthetic"||!!data.channel_units?.running_depth),depth=sample.running_depth;
- if(verified){
+ const unitVerified=data.case_kind==="synthetic"||!!data.channel_units?.running_depth;
+ let observedIndex=-1;
+ if(unitVerified){for(let j=idx;j>=0;j--){if(Number.isFinite(data.rows[j].running_depth)){observedIndex=j;break}}}
+ if(observedIndex>=0){
+  const depth=data.rows[observedIndex].running_depth;
   const valid=data.rows.map(r=>r.running_depth).filter(Number.isFinite),min=Math.min(...valid),max=Math.max(...valid);
   const y=40+(max>min?(depth-min)/(max-min)*35:0);
   svg.setAttribute("transform","translate(0 "+y+")");
-  label.textContent="Running-depth-sourced movement at "+fmt(depth)+" "+(data.channel_units?.running_depth||"m MD")+". Assembly geometry remains schematic, not to scale.";
+  label.textContent=(observedIndex===idx?"Running-depth-sourced movement at ":"Holding last recorded running depth (sample "+(observedIndex+1)+", "+timestampAt(observedIndex)+") at ")+fmt(depth)+" "+(data.channel_units?.running_depth||"m MD")+". Assembly geometry remains schematic, not to scale; no depth interpolation.";
  }else{
   svg.setAttribute("transform","translate(0 0)");
   label.textContent="No confirmed running-string depth AND unit. Assembly is a stationary schematic; hole/bit depth cannot establish liner-hanger position.";
