@@ -405,9 +405,19 @@ $("saveCase").onclick=()=>{loadState();msg(persist()?"Saved case in this browser
 $("exportCase").onclick=$("downloadCase").onclick=()=>{loadState();filename(safe(data.id)+".json",JSON.stringify(data,null,2))};
 $("caseFile").onchange=async e=>{try{loadData(JSON.parse(await e.target.files[0].text()));tab("replay")}catch(err){msg("Case import rejected: "+err.message)}};
 $("telemetryFile").onchange=async e=>{
- try{loadState();const result=importCSV(await e.target.files[0].text(),data.source||e.target.files[0].name);
-   data.events=[];data.rules=null;data.notes=[];idx=0;describe();renderCharts();renderEvents();findings();notes();renderCursor();persist();
-   msg("Imported "+result.usable+" of "+result.records+" readings; review diagnostics before procedure comparison.");
+ try{loadState();
+   const wasSynthetic=data.case_kind==="synthetic",hadAnnotations=data.notes.length>0;
+   const result=importCSV(await e.target.files[0].text(),data.source||e.target.files[0].name);
+   if(wasSynthetic){
+     // Never carry fictional approved rules, events or source identities into an imported real case.
+     data.events=[];data.rules=null;data.notes=[];data.evidence=[];data.case_kind="imported";
+     data.warnings.push("Fictional example procedure, events and notes were cleared before importing real telemetry.");
+   }else if(hadAnnotations){
+     // Existing note indices cannot silently be reattached to a different timestamp stream.
+     data.notes=[];data.warnings.push("Prior range annotations were cleared because telemetry was replaced; restore the earlier saved case to recover them.");
+   }
+   idx=0;describe();renderEvidence();renderCharts();renderEvents();findings();notes();renderCursor();persist();
+   msg("Imported "+result.usable+" of "+result.records+" readings; previous separately entered real events, procedures and evidence were retained. Review mapping diagnostics.");
  }catch(err){msg("CSV import rejected: "+err.message)}
 };
 $("addEvent").onclick=()=>{
@@ -427,7 +437,7 @@ $("addEvent").onclick=()=>{
 $("eventsFile").onchange=async e=>{
  try{const events=JSON.parse(await e.target.files[0].text());if(!Array.isArray(events)||events.some(x=>typeof x!=="object"||x===null))
    throw Error("Expected JSON array of {time,label,source} events");
- data.events=events;renderEvents();describe();persist();msg("Loaded "+events.length+" reported events; times are source assertions.")
+ data.events.push(...events);renderEvents();describe();persist();msg("Added "+events.length+" reported events to the case; times are source assertions.")
  }catch(err){msg("Event import rejected: "+err.message)}
 };
 $("rulesFile").onchange=async e=>{
