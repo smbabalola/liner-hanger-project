@@ -20,7 +20,7 @@ const synonyms={
   returns:["returns","return_flow","flow_out"]
 };
 const units=Object.fromEntries(channels.map(x=>[x[0],x[2]]));
-const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],channel_units:{},telemetry_mapping:null,case_kind:"imported"});
+const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],channel_units:{},telemetry_mapping:null,event_clock:null,case_kind:"imported"});
 let data=defaultCase(),idx=0,timer=null,rangeStart=null,plotCanvases=[],pendingTelemetry=null;
 let viewStart=0,viewEnd=null,playStartWall=0,playStartRecorded=0;
 function viewBounds(){return [Math.max(0,viewStart),Math.min(data.rows.length-1,viewEnd??data.rows.length-1)]}
@@ -176,6 +176,7 @@ function importCSV(text,source,explicit=null,sourceUnits=null){
 function acceptImportedCSV(text,source,mapping=null,sourceUnits=null){
  pausePlayback();loadState();const wasSynthetic=data.case_kind==="synthetic",hadAnnotations=data.notes.length>0;
  const result=importCSV(text,source,mapping,sourceUnits);
+ invalidateEventClock("Telemetry stream replaced");
  if(wasSynthetic){
   data.events=[];data.rules=null;data.notes=[];data.evidence=[];data.case_kind="imported";
   data.id="";data.well="";data.warnings.push("Fictional case identity, procedure, events and annotations were cleared for real telemetry.");
@@ -198,6 +199,38 @@ function persist(){try{localStorage.setItem("liner_mvp_case_v1",JSON.stringify(d
 function loadState(){data.id=$("caseName").value.trim();data.well=$("wellName").value.trim();data.source=$("sourceLabel").value.trim()}
 function toFields(){$("caseName").value=data.id;$("wellName").value=data.well;$("sourceLabel").value=data.source}
 function current(){return data.rows[idx]}
+function clockVerified(){return data.case_kind==="synthetic"||data.event_clock?.verified===true}
+function alignedEventTime(event){
+ if(!clockVerified()||!event?.time||!Number.isFinite(Date.parse(event.time)))return null;
+ const shift=data.case_kind==="synthetic"?0:Number(data.event_clock.offset_minutes)*60000;
+ if(!Number.isFinite(shift))return null;
+ return new Date(Date.parse(event.time)+shift).toISOString();
+}
+function renderEventClock(){
+ const review=data.event_clock||{};
+ $("eventClockOffset").value=Number.isFinite(Number(review.offset_minutes))?String(review.offset_minutes):"0";
+ $("eventClockSource").value=review.source||"";
+ $("eventClockReviewer").value=review.reviewer||"";
+ $("eventClockVerified").checked=review.verified===true;
+ $("eventClockStatus").textContent=review.verified===true?
+  "Investigator-declared correction "+review.offset_minutes+" min; not independently authenticated.":
+  "Unverified: reported event times cannot be mapped to rig telemetry.";
+}
+function invalidateEventClock(reason){
+ if(data.case_kind==="synthetic")return;
+ if(data.event_clock?.verified===true){
+  data.event_clock={...data.event_clock,verified:false};
+  data.warnings.push(reason+"; prior event/rig clock verification withdrawn.");
+ }
+}
+function saveEventClock(){
+ const raw=$("eventClockOffset").value.trim(),offset=Number(raw),verified=$("eventClockVerified").checked;
+ const source=$("eventClockSource").value.trim(),reviewer=$("eventClockReviewer").value.trim();
+ if(raw===""||!Number.isFinite(offset)||Math.abs(offset)>1440)throw Error("Enter a finite correction within ±1440 minutes.");
+ if(verified&&(!source||!reviewer))throw Error("A source clock comparison reference and reviewer are required before verification.");
+ data.event_clock={offset_minutes:offset,verified,source,reviewer};
+ renderEventClock();renderEvents();findings();persist();
+}
 function timestampAt(i){return data.rows[i]?.t||"unavailable"}
 
 function closeDocumentPreview(){
@@ -484,10 +517,12 @@ function renderEvents(){
  if(!data.events.length){root.textContent="No job chronology supplied.";return}
  for(const event of data.events){
   const button=document.createElement("button");button.type="button";
-  const index=Number.isFinite(Date.parse(event.time))?nearest(event.time):null;
+  const matched=alignedEventTime(event),index=matched&&data.rows.length?nearest(matched):null;
   button.dataset.sample=index??-1;
+  button.disabled=index===null;
   button.textContent=(event.time||"Time not verified")+" · "+(event.label||event.description||"Reported event")+
-    " — source: "+(event.source||"not supplied");
+    " — source: "+(event.source||"not supplied")+
+    (matched?" · aligned rig time: "+matched+" (reviewer-declared)": " · clock not verified / time unavailable");
   button.onclick=()=>{if(index!==null){pausePlayback();idx=index;renderCursor()}};
   root.append(button)
  }
@@ -536,15 +571,15 @@ function runRules(){
    const entry={id:"EVENT-"+(id||"?"),step:requiredStep.step||id||"Reported event",
     description:"Chronological reported procedure step (not independently verified)",
     source:requiredStep.source_reference||"",status:"unverifiable",instances:[],reasons:[]};
-   if(!approved||!aligned||requiredStep.approved!==true||!entry.source)
+   if(!approved||!aligned||!clockVerified()||requiredStep.approved!==true||!entry.source)
     entry.reasons.push("Approved source/clock alignment or step reference not established");
    if(!id||typeof id!=="string")entry.reasons.push("Required event code missing");
    const matching=data.events.filter(e=>e.code===id);
    if(!matching.length)entry.reasons.push("Required step not found in supplied chronology; absence does not prove omission");
    if(matching.length>1)entry.reasons.push("Duplicate reported step events; exact sequence requires engineer review");
    if(matching.length===1){
-    const t=Date.parse(matching[0].time||"");
-    if(!Number.isFinite(t)||!matching[0].source)entry.reasons.push("Reported event time or source not verified");
+    const t=Date.parse(alignedEventTime(matching[0])||"");
+    if(!Number.isFinite(t)||!matching[0].source)entry.reasons.push("Reported event time/source or clock reconciliation not verified");
     else if(!entry.reasons.length){
      entry.status=previous!==null&&t<previous?"reported_order_question":"reported_in_sequence";
      if(entry.status==="reported_order_question")
@@ -624,7 +659,9 @@ function report(){
  ...data.warnings.map(w=>"- Evidence gap: "+w),
  "",
  "## Chronological reported events",
- ...data.events.map(e=>"- "+(e.time||"Time unverified")+" — "+(e.label||e.description||"Event")+" [source: "+(e.source||"not supplied")+"]"),
+ "Event/rig clock check: "+(clockVerified()?"investigator-declared; source "+(data.event_clock?.source||"synthetic only")+"; reviewer "+(data.event_clock?.reviewer||"fictional"):"unverified; no aligned event interpretation")+
+ " · correction "+(clockVerified()?(data.event_clock?.offset_minutes??0):"not applied")+" minutes.",
+ ...data.events.map(e=>"- Reported: "+(e.time||"Time unverified")+"; aligned to rig: "+(alignedEventTime(e)||"unverified")+" — "+(e.label||e.description||"Event")+" [source: "+(e.source||"not supplied")+"]"),
  "",
  "## Entered operating procedure",
  "Source: "+(data.rules?.procedure?.approval_reference||"not supplied")+
@@ -668,7 +705,7 @@ function tab(name){
 function loadData(next){
  pausePlayback();
  if(timer){clearInterval(timer);timer=null;$("play").textContent="▶ Play"}
- attachedSourceFiles.clear();closeDocumentPreview();validateCase(next);idx=0;viewStart=0;viewEnd=null;toFields();describe();renderEvidence();renderProcedureSteps();renderCharts();renderEvents();findings();notes();renderCursor();persist();
+ attachedSourceFiles.clear();closeDocumentPreview();validateCase(next);idx=0;viewStart=0;viewEnd=null;toFields();describe();renderEvidence();renderProcedureSteps();renderEventClock();renderCharts();renderEvents();findings();notes();renderCursor();persist();
  msg("Loaded "+data.rows.length+" recorded samples into "+(data.id||"case")+". Data are not independently authenticated.");
 }
 function demo(anomaly){
@@ -701,6 +738,9 @@ $("addEvidence").onclick=async()=>{
  }catch(err){$("evidenceStatus").textContent="Evidence not added: "+err.message}
 };
 $("closeDocument").onclick=closeDocumentPreview;
+$("saveEventClock").onclick=()=>{
+ try{saveEventClock()}catch(e){$("eventClockStatus").textContent="Clock review rejected: "+e.message}
+};
 $("normal").onclick=()=>{loadData(demo(false));tab("replay")};
 $("anomalous").onclick=()=>{loadData(demo(true));tab("replay")};
 $("restore").onclick=()=>{try{const value=localStorage.getItem("liner_mvp_case_v1");if(!value)throw Error("No saved local case");loadData(JSON.parse(value))}catch(e){msg(e.message)}};
@@ -753,9 +793,10 @@ $("addEvent").onclick=()=>{
   $("eventStatus").textContent="Use a timestamp with explicit UTC Z or timezone offset, or leave time unknown.";return}
  const time=raw?Date.parse(raw):NaN;
  if(raw&&!Number.isFinite(time)){$("eventStatus").textContent="Invalid reported timestamp; nothing added.";return}
+ invalidateEventClock("Reported chronology changed");
  data.events.push({time:raw?new Date(time).toISOString():null,label,source,code:$("eventCode").value.trim()||undefined,
   time_status:raw?"reported_unverified":"unknown",evidence_class:"reported_not_measured"});
- renderEvents();describe();persist();
+ renderEventClock();renderEvents();findings();describe();persist();
  $("eventLabel").value="";$("eventTime").value="";$("eventCode").value="";
  $("eventStatus").textContent="Reported event registered. Time and event are source assertions, not verified downhole actions.";
 };
@@ -805,5 +846,5 @@ $("noteForm").onsubmit=e=>{
  $("noteDialog").close();persist();notes();renderCursor();
 };
 $("downloadReport").onclick=()=>{loadState();$("reportText").value=report();filename(safe(data.id)+"_investigation.md",report(),"text/markdown")};
-tab("import");describe();renderEvidence();renderProcedureSteps();
+tab("import");describe();renderEvidence();renderProcedureSteps();renderEventClock();
 })();
