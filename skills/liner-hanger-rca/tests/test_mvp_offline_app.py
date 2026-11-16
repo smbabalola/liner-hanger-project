@@ -942,3 +942,73 @@ def test_real03_assembly_holds_last_observed_running_depth_through_missing_sampl
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_real03_event_clock_review_controls_timeline_alignment_and_reopen(tmp_path):
+    """Reported event clocks stay untrusted until user records a sourced correction."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            case = {"schema": "liner-mvp-case-1", "id": "CLOCK-TEST-FICTIONAL",
+                    "well": "fictional", "source": "recorded UTC rig clock",
+                    "rows": [{"t": "2026-11-10T09:00:00Z", "spp": 100},
+                             {"t": "2026-11-10T09:05:00Z", "spp": 110},
+                             {"t": "2026-11-10T09:10:00Z", "spp": 120}],
+                    "columns": ["spp"], "channel_units": {"spp": "psi"},
+                    "events": [{"time": "2026-11-10T09:00:00Z",
+                                "label": "Reported event on separate clock",
+                                "source": "FICTIONAL-LOG p.2", "code": "STEP-A"}],
+                    "notes": [], "warnings": [], "rules": None,
+                    "evidence": [], "case_kind": "imported"}
+            fixture = tmp_path / "clock_case.json"
+            fixture.write_text(json.dumps(case))
+            page.locator("#caseFile").set_input_files(fixture)
+            page.wait_for_function("document.querySelector('#importSummary').textContent.includes('3 timestamped samples')")
+            page.locator('[data-tab="replay"]').click()
+            event = page.locator("#timeline button").first
+            assert event.is_disabled()
+            assert "clock not verified" in event.inner_text()
+            page.locator('[data-tab="import"]').click()
+            page.locator("#eventClockOffset").fill("5")
+            page.locator("#eventClockVerified").check()
+            page.locator("#saveEventClock").click()
+            assert "Clock review rejected" in page.locator("#eventClockStatus").inner_text()
+            page.locator("#eventClockSource").fill("FICTIONAL-LOG p.2 / RIG-CLOCK p.1")
+            page.locator("#eventClockReviewer").fill("Fictional engineer")
+            page.locator("#saveEventClock").click()
+            page.locator('[data-tab="replay"]').click()
+            event = page.locator("#timeline button").first
+            assert event.is_enabled()
+            assert "aligned rig time: 2026-11-10T09:05:00.000Z" in event.inner_text()
+            event.click()
+            assert "sample 2/3" in page.locator("#cursorTime").inner_text()
+            with page.expect_download() as download:
+                page.locator('[data-tab="import"]').click()
+                page.locator("#exportCase").click()
+            saved = tmp_path / "saved_clock.json"
+            download.value.save_as(saved)
+            archived = json.loads(saved.read_text())
+            assert archived["events"][0]["time"] == "2026-11-10T09:00:00Z"
+            assert archived["event_clock"]["verified"] is True
+            assert archived["event_clock"]["offset_minutes"] == 5
+            page.reload()
+            page.locator("#caseFile").set_input_files(saved)
+            page.locator('[data-tab="replay"]').click()
+            assert page.locator("#timeline button").first.is_enabled()
+            page.locator('[data-tab="report"]').click()
+            text = page.locator("#reportText").input_value()
+            assert "FICTIONAL-LOG p.2 / RIG-CLOCK p.1" in text
+            assert "Reported: 2026-11-10T09:00:00Z" in text
+            assert "aligned to rig: 2026-11-10T09:05:00.000Z" in text
+            page.locator('[data-tab="import"]').click()
+            page.locator("#eventLabel").fill("Further reported event")
+            page.locator("#eventSource").fill("FICTIONAL-LOG p.3")
+            page.locator("#eventTime").fill("2026-11-10T09:02:00Z")
+            page.locator("#addEvent").click()
+            page.locator('[data-tab="replay"]').click()
+            assert page.locator("#timeline button").first.is_disabled()
+            assert "clock not verified" in page.locator("#timeline").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
