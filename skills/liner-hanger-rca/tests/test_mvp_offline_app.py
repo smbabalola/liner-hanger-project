@@ -837,6 +837,7 @@ def test_real03_irregular_telemetry_uses_elapsed_time_not_row_index(tmp_path):
             file = tmp_path / "fictional_case.json"
             file.write_text(json.dumps(case), encoding="utf-8")
             page.locator("#caseFile").set_input_files(file)
+            page.wait_for_function("document.querySelector('#importSummary').textContent.includes('4 timestamped samples')")
             page.locator('[data-tab="replay"]').click()
             canvas = page.locator("#charts canvas").first
             bounds = canvas.bounding_box()
