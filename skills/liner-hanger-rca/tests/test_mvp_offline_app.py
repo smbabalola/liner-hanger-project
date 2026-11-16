@@ -423,3 +423,112 @@ def test_demo_rules_cannot_leak_into_real_csv_case(tmp_path):
             assert not errors, errors
         finally:
             instance.close()
+
+
+
+def test_nonstandard_rig_csv_mapping_and_units_survive_case_roundtrip(tmp_path):
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            rig = tmp_path / "vendor_export.csv"
+            rig.write_text(
+                "RigDateTime,SPP Sensor 1,Surface Hook (klb),Liner Running Position\n"
+                "2026-11-10T09:00:00Z,234,118,1500\n"
+                "2026-11-10T09:01:00Z,240,119,1501\n",
+                encoding="utf-8")
+            page.locator("#telemetryFile").set_input_files(rig)
+            assert page.locator("#telemetryMappingPanel").is_visible()
+            page.locator("#map-t").select_option("0")
+            page.locator("#map-spp").select_option("1")
+            page.locator("#unit-spp").select_option("psi")
+            page.locator("#map-hookload").select_option("2")
+            page.locator("#unit-hookload").select_option("klb")
+            page.locator("#map-running_depth").select_option("3")
+            page.locator("#unit-running_depth").select_option("m MD")
+            page.locator("#applyMapping").click()
+            assert page.locator("#telemetryMappingPanel").is_hidden()
+            assert "Imported 2 of 2" in page.locator("#status").inner_text()
+            page.locator('[data-tab="replay"]').click()
+            assert page.locator("#charts canvas").count() == 3
+            assert "Running-depth-sourced" in page.locator("#assemblyStatus").inner_text()
+            page.locator('[data-tab="report"]').click()
+            report = page.locator("#reportText").input_value()
+            assert "SPP Sensor 1" in report
+            assert "psi" in report
+            page.locator('[data-tab="import"]').click()
+            with page.expect_download() as download:
+                page.locator("#exportCase").click()
+            backup = tmp_path / "case.json"
+            download.value.save_as(backup)
+            parsed = json.loads(backup.read_text())
+            assert parsed["telemetry_mapping"]["assignments"]["spp"]["raw_header"] == "SPP Sensor 1"
+            assert parsed["channel_units"]["spp"] == "psi"
+            assert parsed["rows"][0]["spp"] == 234
+            assert parsed["rows"][0]["source_row"] == 2
+            page.reload()
+            page.locator("#caseFile").set_input_files(backup)
+            page.locator('[data-tab="replay"]').click()
+            assert "Running-depth-sourced" in page.locator("#assemblyStatus").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_rig_mapping_rejects_source_column_reuse_and_timezone_free_time(tmp_path):
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            path = tmp_path / "odd.csv"
+            path.write_text("LoggedAt,Column A\n2026-11-10T09:00:00Z,100\n")
+            page.locator("#telemetryFile").set_input_files(path)
+            page.locator("#map-t").select_option("0")
+            page.locator("#map-spp").select_option("0")
+            page.locator("#applyMapping").click()
+            assert "Each source column may only be mapped" in page.locator("#mappingStatus").inner_text()
+            assert page.locator("#telemetryMappingPanel").is_visible()
+            page.locator("#map-spp").select_option("1")
+            page.locator("#applyMapping").click()
+            assert page.locator("#telemetryMappingPanel").is_hidden()
+            bad = tmp_path / "no-zone.csv"
+            bad.write_text("DateRecorded,PressureRead\n2026-11-10T09:00:00,200\n")
+            page.locator("#telemetryFile").set_input_files(bad)
+            page.locator("#map-t").select_option("0")
+            page.locator("#map-spp").select_option("1")
+            page.locator("#applyMapping").click()
+            assert "explicit timezone offset" in page.locator("#mappingStatus").inner_text()
+            assert page.locator("#telemetryMappingPanel").is_visible()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real_case_procedure_remains_unverifiable_until_units_confirmed(tmp_path):
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            source = tmp_path / "rig.csv"
+            source.write_text("timestamp,spp\n2026-11-10T09:00:00Z,110\n2026-11-10T09:01:00Z,230\n")
+            page.locator("#telemetryFile").set_input_files(source)
+            page.wait_for_function("document.querySelector('#status').textContent.includes('Imported 2 of 2')")
+            rulebook = {
+                "procedure":{"approved":True,"revision":"SYNTHETIC","approval_reference":"TEST-ONLY"},
+                "telemetry_clock_alignment_verified":True,
+                "channel_units":{"spp":"psi"},
+                "rules":[{"id":"R-1","step":"Synthetic test","description":"Test-only",
+                "channel":"spp","unit":"psi","operator":"<=","value":150,
+                "approved":True,"source_reference":"FICTIONAL",
+                "window":{"start":"2026-11-10T09:00:00Z","end":"2026-11-10T09:02:00Z"}}]
+            }
+            book = tmp_path / "rules.json"
+            book.write_text(json.dumps(rulebook))
+            page.locator("#rulesFile").set_input_files(book)
+            page.locator('[data-tab="deviations"]').click()
+            assert page.locator("#findings article.gap").count() == 1
+            assert "unit not verified" in page.locator("#findings").inner_text().lower()
+            assert page.locator("#findings article.flag").count() == 0
+            assert not errors, errors
+        finally:
+            instance.close()
