@@ -29,6 +29,16 @@
 
 **Still not implemented / REAL-02 remains OPEN:** full PDF/Excel source document interpretation from the UI, operator-friendly manual approval/procedure-rule construction, all specialized Python skill integrations, independent provenance authentication, mapping of multiple distinct telemetry streams, and end-to-end authorized real-job reconstruction. Do not declare REAL-02 or the real product MVP complete.
 
+## REAL-02 — source-linked procedures and local document review (2026-11-16)
+
+**Implemented in one existing browser app (not a separate demo):** source-identified SOP step entry with printed revision, page/section and stable step code; optional explicitly entered, unit-labelled and time-windowed measured signal criteria; manual event-to-step-code linking; explicit investigator review declarations for procedure source and clock alignment. A new step is **draft/unverifiable** until investigator declarations are recorded, and report export retains references and reviewer attribution. The app never generates OEM limits or infers downhole actuation.
+
+**Source document handling:** registered PDF/image/text/CSV/JSON originals can be previewed locally within the active browser session, with no file content embedded in exported cases or persisted in localStorage. Original files must be retained separately and reattached after restoring a saved case. Reattachment checks file name/size and registered SHA-256 when available. No general PDF/OCR extraction, DOCX/XLSX browser preview, document approval certification or data-model inference is claimed.
+
+**Tests:** Manual SOP-step/event/review browser cases passed on Python 3.11 and 3.12 at source commit `0e5acaff970a71822e194a27b6d9ba8b51299f3f`, [run 43821107956](https://github.com/smbabalola/liner-hanger-project/actions/runs/43821107956), **951 tests passing per interpreter**. Additional local preview/reattach tests are **pending the latest final regression**; do not claim their pass until confirmed.
+
+**Outstanding REAL-02 gates:** integrated source-PDF text extraction, source-quality mapping of multiple telemetry streams, fuller fluid/BHA documents, backend investigation engine wiring and independent actual historical job validation. **REAL-02 remains OPEN and REAL MVP remains IN PROGRESS.**
+
 ## Immediately next work
 
 1. Inspect which original assembly animation, chart interaction and investigation modules were never surfaced in the stripped-down offline demo. Reconnect proven components before implementing replacements.
