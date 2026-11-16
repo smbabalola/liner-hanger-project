@@ -740,3 +740,81 @@ def test_evidence_reattachment_rejects_wrong_file(tmp_path):
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_real03_zoom_controls_and_chart_selection_follow_visible_source_window():
+    """Viewport changes plot samples, while cursor and note range retain source indices."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator("#seek").fill("30")
+            assert "sample 31/61" in page.locator("#cursorTime").inner_text()
+            full = page.locator("#visibleRange").inner_text()
+            assert "61 samples" in full
+            page.locator("#zoomIn").click()
+            assert "61 samples" not in page.locator("#visibleRange").inner_text()
+            first = page.locator("#charts canvas").first
+            rect = first.bounding_box()
+            assert rect is not None
+            # A click at the middle of a zoomed plot must target a source index
+            # inside that window, not reinterpret the x coordinate as the full job.
+            first.click(position={"x": rect["width"] / 2, "y": rect["height"] / 2})
+            assert "sample 31/61" in page.locator("#cursorTime").inner_text()
+            page.locator("#zoomReset").click()
+            assert page.locator("#visibleRange").inner_text() == full
+            page.locator("#zoomOut").click()
+            assert "61 samples" in page.locator("#visibleRange").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_real04_hypothesis_review_persists_through_case_export_and_reload(tmp_path):
+    """No fabricated conclusion: reviewer alternatives and dispositions survive reload."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#anomalous").click()
+            page.locator('[data-tab="notes"]').click()
+            page.locator("#noteFrom").fill("22")
+            page.locator("#noteTo").fill("29")
+            page.locator("#rangeNote").click()
+            page.locator("#noteTitle").fill("Alternative mechanism under review")
+            page.locator("#noteKind").select_option("hypothesis")
+            page.locator("#noteBody").fill("Surface pressure rise may have multiple causes.")
+            page.locator("#noteSource").fill("FICTIONAL-CSV rows 24-31")
+            page.locator("#noteAlternative").fill("Possible flow restriction; no downhole proof.")
+            page.locator("#noteConfidence").select_option("low")
+            page.locator("#noteDisposition").select_option("needs_evidence")
+            page.locator("#noteReviewer").fill("Fictional reviewer")
+            page.locator('#noteForm button[type="submit"]').click()
+            assert "Possible flow restriction" in page.locator("#notesList").inner_text()
+            with page.expect_download() as download:
+                page.locator('[data-tab="import"]').click()
+                page.locator("#exportCase").click()
+            saved = tmp_path / "case.json"
+            download.value.save_as(saved)
+            case = json.loads(saved.read_text())
+            note = case["notes"][0]
+            assert note["alternative"] == "Possible flow restriction; no downhole proof."
+            assert note["disposition"] == "needs_evidence"
+            assert note["confidence"] == "low"
+            page.reload()
+            page.locator("#caseFile").set_input_files(saved)
+            page.locator('[data-tab="notes"]').click()
+            assert "Fictional reviewer" in page.locator("#notesList").inner_text()
+            page.locator("#notesList button", has_text="Edit").click()
+            assert page.locator("#noteAlternative").input_value() == note["alternative"]
+            assert page.locator("#noteDisposition").input_value() == "needs_evidence"
+            page.locator("#cancelNote").click()
+            page.locator('[data-tab="report"]').click()
+            report = page.locator("#reportText").input_value()
+            assert "Possible flow restriction" in report
+            assert "Reviewer: Fictional reviewer" in report
+            assert "Root cause:** UNDETERMINED" in report
+            assert not errors, errors
+        finally:
+            instance.close()
