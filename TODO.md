@@ -117,3 +117,7 @@
 **Data/approval blocker:** The existence of BH PDFs and drawings alone does not prove that timestamped SPP, hookload, torque, RPM, flow, volumes, depth and returns are available. Confirm source coverage before asserting REAL-05 is ready. Use only authorized job data and keep confidential materials outside public GitHub. Any real-job diagnoses remain engineering drafts pending qualified review.
 
 **Definition of done:** You can investigate a genuine historical operation through one local application from independent evidence import to replay, procedure screening, annotations and audit-ready report **without programming**. All five REAL gates must be demonstrably satisfied. Preserve accurate status even if the target date cannot be met.
+
+## REAL-03 historical case source gate — 2026-11-16
+
+- Added [Volve source-acceptance plan](docs/real-03-volve-source-acceptance.md) at commit `45dc50d1f10a7de2b1607b427796d1677f5369d0` on the REAL-03/04 branch. Public telemetry catalogue labels 2013-08-25 sample F-1 C, but official Norwegian wellbore dates start 2014-02-21; this **identity/date inconsistency is unresolved** and forbids a source-matched acceptance claim. Original WITSML and DDR bytes have not yet been acquired and hash-verified here. No tests were run for this documentation-only change; previous 962-per-version result is not evidence of this historical case. REAL-03, REAL-04, REAL-05 remain OPEN.
