@@ -395,7 +395,9 @@ def test_independent_event_and_procedure_inputs_survive_later_real_csv(tmp_path)
             telemetry.write_text(
                 "timestamp,spp\n2026-11-10T09:00:00Z,100\n2026-11-10T09:01:00Z,110\n")
             page.locator("#eventsFile").set_input_files(events)
+            page.wait_for_function("document.querySelector(\'#importSummary\').textContent.includes(\'1 reported events\')")
             page.locator("#rulesFile").set_input_files(rules)
+            page.wait_for_function("document.querySelector(\'#status\').textContent.includes(\'Loaded 1 user-supplied procedure rules\')")
             page.locator("#telemetryFile").set_input_files(telemetry)
             page.wait_for_function("document.querySelector(\'#status\').textContent.includes(\'Imported 2 of 2\')")
             assert "Imported 2 of 2" in page.locator("#status").inner_text()
@@ -699,6 +701,8 @@ def test_local_evidence_viewer_requires_original_reattachment_after_reload(tmp_p
             assert "pumps stopped" not in saved.read_text()
             page.reload()
             page.locator("#caseFile").set_input_files(saved)
+            page.locator('[data-tab="import"]').click()
+            page.wait_for_function("document.querySelector(\'#evidenceList\').textContent.includes(\'FICTIONAL-RIG-LOG\')")
             assert page.locator("#evidenceList button", has_text="Preview local source").count() == 0
             page.locator("#evidenceList input[type=file]").set_input_files(source)
             page.locator("#evidenceList button", has_text="Preview local source").wait_for()
