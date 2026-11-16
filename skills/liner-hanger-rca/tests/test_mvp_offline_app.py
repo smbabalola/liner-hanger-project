@@ -707,6 +707,7 @@ def test_local_evidence_viewer_requires_original_reattachment_after_reload(tmp_p
             page.locator("#evidenceList input[type=file]").set_input_files(source)
             page.locator("#evidenceList button", has_text="Preview local source").wait_for()
             page.locator("#evidenceList button", has_text="Preview local source").click()
+            page.locator("#documentViewer").wait_for(state="visible")
             assert "pumps stopped at 10:15" in page.locator("#documentContent").inner_text()
             assert not errors, errors
         finally:
