@@ -118,6 +118,7 @@ def test_import_csv_and_refuse_unverified_procedure_comparison(tmp_path):
             )
             page.locator("#caseName").fill("IMPORT-TEST")
             page.locator("#telemetryFile").set_input_files(csv_path)
+            page.wait_for_function("document.querySelector(\'#status\').textContent.includes(\'Imported 2 of 2\')")
             assert "Imported 2 of 2" in page.locator("#status").inner_text()
             assert "No verified running-string depth" in page.locator("#diagnostics").inner_text()
             page.locator('[data-tab="replay"]').click()
@@ -139,10 +140,12 @@ def test_reject_duplicate_timestamps_and_unsupported_case_without_crash(tmp_path
             invalid.write_text(
                 "timestamp,spp\n2026-11-10T09:00:00Z,10\n2026-11-10T09:00:00Z,15\n")
             page.locator("#telemetryFile").set_input_files(invalid)
+            page.wait_for_function("document.querySelector(\'#status\').textContent.includes(\'strictly increasing\')")
             assert "strictly increasing" in page.locator("#status").inner_text()
             wrong = tmp_path / "bad.json"
             wrong.write_text(json.dumps({"schema": "not-supported", "rows": []}))
             page.locator("#caseFile").set_input_files(wrong)
+            page.wait_for_function("document.querySelector(\'#status\').textContent.includes(\'Unsupported case JSON\')")
             assert "Unsupported case JSON" in page.locator("#status").inner_text()
             assert not errors, errors
         finally:
@@ -390,6 +393,7 @@ def test_independent_event_and_procedure_inputs_survive_later_real_csv(tmp_path)
             page.locator("#eventsFile").set_input_files(events)
             page.locator("#rulesFile").set_input_files(rules)
             page.locator("#telemetryFile").set_input_files(telemetry)
+            page.wait_for_function("document.querySelector(\'#status\').textContent.includes(\'Imported 2 of 2\')")
             assert "Imported 2 of 2" in page.locator("#status").inner_text()
             page.locator('[data-tab="replay"]').click()
             assert "Circulation reported" in page.locator("#timeline").inner_text()
