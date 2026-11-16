@@ -570,8 +570,8 @@ def test_manual_sop_source_sequence_and_report_from_browser(tmp_path):
         instance, page, errors = start_page(driver, chromium)
         try:
             rig = tmp_path / "source_measurements.csv"
-            rig.write_text("timestamp,spp\\n2026-11-10T09:00:00Z,120\\n"
-                           "2026-11-10T09:22:00Z,135\\n")
+            rig.write_text("timestamp,spp\n2026-11-10T09:00:00Z,120\n"
+                           "2026-11-10T09:22:00Z,135\n")
             page.locator("#caseName").fill("PROCEDURE-REVIEW-TEST")
             page.locator("#telemetryFile").set_input_files(rig)
             page.wait_for_function("document.querySelector('#status').textContent.includes('Imported 2 of 2')")
@@ -624,8 +624,8 @@ def test_manual_sop_no_invented_limits_and_source_review_is_explicit(tmp_path):
         instance, page, errors = start_page(driver, chromium)
         try:
             rig = tmp_path / "source_measurements.csv"
-            rig.write_text("timestamp,spp\\n2026-11-10T09:00:00Z,120\\n"
-                           "2026-11-10T09:22:00Z,135\\n")
+            rig.write_text("timestamp,spp\n2026-11-10T09:00:00Z,120\n"
+                           "2026-11-10T09:22:00Z,135\n")
             page.locator("#caseName").fill("PROCEDURE-REVIEW-TEST")
             page.locator("#telemetryFile").set_input_files(rig)
             page.wait_for_function("document.querySelector('#status').textContent.includes('Imported 2 of 2')")
