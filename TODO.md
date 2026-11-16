@@ -4,11 +4,17 @@
 
 ## Active release checklist (execute in order)
 
-- [ ] **REAL-01 — Audit and expose existing capabilities.** Inspect `skills/liner-hanger-rca/app/`, all prior replay/animation/annotation UIs, Python parsing/timeline/evidence/rule/report modules and launch instructions. Create one component map showing: working and visible / implemented but hidden / disconnected / genuinely absent; choose a single integrated local app architecture. **Pass:** grounded inventory and implementation sequence, no parallel disconnected shell.
+- [x] **REAL-01 — Audit and expose existing capabilities [COMPONENT AUDIT COMPLETE].** Inspect `skills/liner-hanger-rca/app/`, all prior replay/animation/annotation UIs, Python parsing/timeline/evidence/rule/report modules and launch instructions. Create one component map showing: working and visible / implemented but hidden / disconnected / genuinely absent; choose a single integrated local app architecture. **Pass:** grounded inventory and implementation sequence, no parallel disconnected shell.
 - [ ] **REAL-02 — Actual job case and independent imports.** UI create/open/save/reopen investigations. Import telemetry files, chronological reports, procedures, schematic/assembly data and fluid records independently; support column/unit/time/depth mapping, provenance, timestamp synchronization diagnostics, absent channel/error states and preservation of raw source identities. Document supported formats; provide manual event/procedure entry where full PDF extraction is unavailable. **Pass:** user can build a case from separately provided real documents and measurements without editing code or JSON.
 - [ ] **REAL-03 — Engineering replay workstation.** Make animated wellbore + running-tool/liner/drillpipe and time-aligned plots the primary screen; synchronize depth movement, SPP, hookload, torque, RPM, pump rate/volume, return-flow and reported job events when available. Provide play/pause, scrub/zoom and chart time-range selection. Use approximate clearly labelled assembly where dimensions are unknown; never simulate observed tool activation without evidence. **Pass:** source-matched replay is inspectable throughout a historical job.
 - [ ] **REAL-04 — Investigation and persistence.** Link approved procedural steps to job events and telemetry; show supported potential deviations vs missing/ambiguous records, not fake OEM thresholds. Build range-note modal with edit, hover/selection reveal, saved reload; support observations, alternative failure hypotheses and reviewer disposition. **Pass:** a researcher can document and revisit a complete investigation.
 - [ ] **REAL-05 — Auditable RCA report + real-case validation.** Export useful evidence-linked report including chronology, sources, plot/range references, candidate deviations, interpretations, limitations and review status. Perform full case investigation using a **user-authorized real liner-hanger job package with timestamped surface data**, cross-check against raw records, and do a Windows manual acceptance review. Retain normal/anomalous fixtures as automated regression. **Pass:** end-to-end real case completed and reviewed, with test logs and residual defects recorded; no unsupported engineering approval claim.
+
+## Latest verified workstream activity — 2026-11-16
+
+- **REAL-01: COMPLETE (code/path inventory only).** [Integration map](docs/real-mvp-component-integration-map.md) identifies the current browser app, earlier Utah FORGE replay, rich v1.5 chart annotation workspace, Python `evidence_timeline.py` / `check_procedure.py` / `bha_tally.py` / `investigation_report.py`, and the actual disconnections. Decision: **keep one existing browser shell**; adapt assets and add an optional Python bridge instead of building another unrelated demo.
+- **REAL-02: IN PROGRESS.** Added **independent UI evidence-file register** under Import case: job reports, procedures, BHA/equipment drawings, fluids reports, telemetry source, other. Each source has a required ID, type, review declaration, file name, size, optional browser SHA-256 and no embedded binary; metadata persists with the case and appears in draft reporting. Added Playwright browser tests for restoring evidence after reload, JSON export and duplicate ID rejection. **This is metadata intake only**: PDF/OEM parsing, file byte storage, interactive column mapping and true multi-source reconstruction remain open.
+- GitHub Action run for the latest evidence-register test commit `a1b7c9ec`: **awaiting verified final result** before updating test counts or claiming this stage passed. Historical full baseline remains **939 passing tests on each Python version** for the synthetic-only demo. Do not mark REAL-02 accepted.
 
 ## Immediately next work
 
@@ -29,7 +35,7 @@
 
 | Gate | Current state | Evidence required to close |
 | --- | --- | --- |
-| REAL-01 inventory | OPEN | path-level component map, integration choice |
+| REAL-01 inventory | COMPLETE — documented in `docs/real-mvp-component-integration-map.md` | Existing browser app retained; richer annotation, replay, BHA, evidence and report engines mapped |
 | REAL-02 real imports | OPEN | screen-driven multi-source case, mapping and reopening |
 | REAL-03 visible replay | OPEN | synchronized assembly, events and telemetry on source data |
 | REAL-04 procedure/notes | OPEN | traceable source comparisons and persistent range notes |
