@@ -20,7 +20,7 @@ const synonyms={
   returns:["returns","return_flow","flow_out"]
 };
 const units=Object.fromEntries(channels.map(x=>[x[0],x[2]]));
-const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],warnings:[],columns:[],case_kind:"imported"});
+const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],case_kind:"imported"});
 let data=defaultCase(),idx=0,timer=null,rangeStart=null,plotCanvases=[];
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safe=x=>String(x??"").replace(/[^a-z0-9_.-]+/gi,"_").slice(0,80)||"case";
@@ -90,9 +90,44 @@ function loadState(){data.id=$("caseName").value.trim();data.well=$("wellName").
 function toFields(){$("caseName").value=data.id;$("wellName").value=data.well;$("sourceLabel").value=data.source}
 function current(){return data.rows[idx]}
 function timestampAt(i){return data.rows[i]?.t||"unavailable"}
+function renderEvidence(){
+ const root=$("evidenceList");root.replaceChildren();
+ const items=Array.isArray(data.evidence)?data.evidence:[];
+ for(const item of items){
+  const card=document.createElement("article");card.className="panel";card.style.margin="8px 0";card.style.padding="10px";
+  const title=document.createElement("strong");title.textContent=item.source_id+" · "+item.kind.replaceAll("_"," ");card.append(title);
+  const details=document.createElement("p");details.textContent=item.file_name+" · "+item.size_bytes+" bytes · "+item.review_status+
+   " · SHA-256: "+(item.sha256||"unavailable");card.append(details);
+  const note=document.createElement("p");note.className="sub";note.textContent="Original bytes not embedded. Keep the source file for independent review.";card.append(note);
+  const remove=document.createElement("button");remove.type="button";remove.textContent="Remove from register";
+  remove.onclick=()=>{data.evidence=data.evidence.filter(x=>x.source_id!==item.source_id);renderEvidence();describe();persist()};card.append(remove);
+  root.append(card);
+ }
+ $("evidenceStatus").textContent=items.length+" source file(s) registered; originals must be retained separately.";
+}
+async function registerEvidence(file,kind,source_id,review_status){
+ if(!file)throw Error("Choose a source file first");
+ if(!source_id||!source_id.trim())throw Error("A source ID/reference is required");
+ if(!["job_report","procedure","equipment","fluids","telemetry","other"].includes(kind))throw Error("Unsupported evidence category");
+ if(!["unreviewed","source_identified"].includes(review_status))throw Error("Unsupported review declaration");
+ if(!Array.isArray(data.evidence))data.evidence=[];
+ if(data.evidence.some(x=>x.source_id===source_id))throw Error("Duplicate source ID; use a unique evidence reference");
+ const allowed=/\.(pdf|csv|txt|json|xlsx|xls|png|jpe?g|docx?|)$/i;
+ if(!/\.(pdf|csv|txt|json|xlsx|xls|png|jpe?g|docx?)$/i.test(file.name))throw Error("Unsupported evidence file extension");
+ let sha256=null;
+ if(globalThis.crypto?.subtle?.digest){
+  try{const digest=await crypto.subtle.digest("SHA-256",await file.arrayBuffer());
+   sha256=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,"0")).join("");
+  }catch(e){sha256=null}
+ }
+ data.evidence.push({source_id,kind,review_status,file_name:file.name,size_bytes:file.size,
+  media_type:file.type||"unknown",last_modified_ms:file.lastModified,sha256,
+  original_bytes_embedded:false,authentication:"caller_supplied_not_verified"});
+ renderEvidence();describe();persist();
+}
 function describe(){
  $("importSummary").textContent=data.rows.length+" timestamped samples, "+data.events.length+" reported events, "+
- (data.rules?.rules?.length||0)+" procedure rules, "+data.notes.length+" annotations. Case: "+(data.id||"unnamed")+".";
+ (data.rules?.rules?.length||0)+" procedure rules, "+data.notes.length+" annotations, "+(data.evidence?.length||0)+" evidence files. Case: "+(data.id||"unnamed")+".";
  $("diagnostics").replaceChildren();
  for(const warning of data.warnings){const p=document.createElement("p");p.className="danger";p.textContent="⚠ "+warning;$("diagnostics").append(p)}
  const p=document.createElement("p");p.textContent="Mapped: "+(data.columns.join(", ")||"none")+". Original units are not inferred or converted.";$("diagnostics").append(p);
@@ -288,6 +323,11 @@ function report(){
  "**Status:** DRAFT — NOT INDEPENDENTLY ENGINEERING APPROVED",
  "**Root cause:** UNDETERMINED; no automatic conclusion",
  "",
+ "## Registered source documents",
+ ...(data.evidence||[]).map(x=>"- "+x.source_id+" ["+x.kind+"] "+x.file_name+
+  " · "+x.review_status+" · SHA-256: "+(x.sha256||"unavailable")+" · original bytes not embedded"),
+ ...(data.evidence?.length?[]:["No source documents registered"]),
+ "",
  "## Telemetry and boundaries",
  "Samples: "+data.rows.length+". Channels: "+(data.columns.join(", ")||"none")+".",
  "First timestamp: "+(data.rows[0]?.t||"unavailable"),
@@ -325,7 +365,7 @@ function tab(name){
 }
 function loadData(next){
  if(timer){clearInterval(timer);timer=null;$("play").textContent="▶ Play"}
- validateCase(next);idx=0;toFields();describe();renderCharts();renderEvents();findings();notes();renderCursor();persist();
+ validateCase(next);idx=0;toFields();describe();renderEvidence();renderCharts();renderEvents();findings();notes();renderCursor();persist();
  msg("Loaded "+data.rows.length+" recorded samples into "+(data.id||"case")+". Data are not independently authenticated.");
 }
 function demo(anomaly){
@@ -351,6 +391,12 @@ function demo(anomaly){
   case_kind:"synthetic",verified_physics:false};
 }
 document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>tab(b.dataset.tab));
+$("addEvidence").onclick=async()=>{
+ try{loadState();await registerEvidence($("evidenceFile").files[0],
+  $("evidenceType").value,$("evidenceReference").value.trim(),$("evidenceReview").value);
+  $("evidenceFile").value="";$("evidenceReference").value="";
+ }catch(err){$("evidenceStatus").textContent="Evidence not added: "+err.message}
+};
 $("normal").onclick=()=>{loadData(demo(false));tab("replay")};
 $("anomalous").onclick=()=>{loadData(demo(true));tab("replay")};
 $("restore").onclick=()=>{try{const value=localStorage.getItem("liner_mvp_case_v1");if(!value)throw Error("No saved local case");loadData(JSON.parse(value))}catch(e){msg(e.message)}};
@@ -399,5 +445,5 @@ $("noteForm").onsubmit=e=>{
  $("noteDialog").close();persist();notes();renderCursor();
 };
 $("downloadReport").onclick=()=>{loadState();$("reportText").value=report();filename(safe(data.id)+"_investigation.md",report(),"text/markdown")};
-tab("import");describe();
+tab("import");describe();renderEvidence();
 })();
