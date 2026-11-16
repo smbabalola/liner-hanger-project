@@ -561,3 +561,100 @@ def test_depth_without_confirmed_unit_does_not_move_or_claim_position(tmp_path):
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_manual_sop_source_sequence_and_report_from_browser(tmp_path):
+    """A job PDF can be registered and its steps entered without editing JSON."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            sop = tmp_path / "SOP.pdf"
+            sop.write_bytes(b"%PDF-1.4\nSynthetic source placeholder, no BH material\n")
+            page.locator("#evidenceType").select_option("procedure")
+            page.locator("#evidenceReference").fill("SYNTHETIC-SOP-REV-A")
+            page.locator("#evidenceFile").set_input_files(sop)
+            page.locator("#addEvidence").click()
+            page.wait_for_function(
+                "document.querySelector('#evidenceStatus').textContent.includes('1 source file(s) registered')")
+            page.locator("#procedureSource").select_option("SYNTHETIC-SOP-REV-A")
+            page.locator("#procedureRevision").fill("Rev A")
+            page.locator("#procedurePage").fill("P 3, Step 2")
+            page.locator("#procedureCode").fill("DROP-BALL")
+            page.locator("#procedureStep").fill("Record ball-drop operation")
+            page.locator("#addProcedureStep").click()
+            assert "1 source-linked step(s)" in page.locator("#procedureStatus").inner_text()
+            assert page.locator("#procedureSteps article").count() == 1
+            page.locator('[data-tab="deviations"]').click()
+            assert "unverifiable" in page.locator("#findings").inner_text()
+            assert "Required step not found" in page.locator("#findings").inner_text()
+            page.locator('[data-tab="import"]').click()
+            page.locator("#eventLabel").fill("Reported ball dropped")
+            page.locator("#eventSource").fill("FICTIONAL-DAILY-LOG/P3")
+            page.locator("#eventTime").fill("2026-11-10T09:22:00Z")
+            page.locator("#eventCode").fill("DROP-BALL")
+            page.locator("#addEvent").click()
+            assert "registered" in page.locator("#eventStatus").inner_text()
+            page.locator("#markProcedureReview").click()
+            page.locator("#procedureApprovalChecked").check()
+            page.locator("#procedureClockChecked").check()
+            page.locator("#procedureReviewer").fill("Test reviewer, fictional")
+            page.locator("#saveProcedureReview").click()
+            page.locator('[data-tab="deviations"]').click()
+            assert "reported in sequence" in page.locator("#findings").inner_text()
+            page.locator('[data-tab="report"]').click()
+            report = page.locator("#reportText").input_value()
+            assert "SYNTHETIC-SOP-REV-A / P 3, Step 2" in report
+            assert "Reported ball dropped" in report
+            assert "Test reviewer" not in report or "not externally authenticated" in report
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_manual_sop_no_invented_limits_and_source_review_is_explicit(tmp_path):
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            page.locator("#procedureRevision").fill("Rev A")
+            page.locator("#procedurePage").fill("P 2")
+            page.locator("#procedureCode").fill("SET-01")
+            page.locator("#procedureStep").fill("Apply documented setting pressure")
+            page.locator("#addProcedureStep").click()
+            assert "Register and select" in page.locator("#procedureStatus").inner_text()
+            sop = tmp_path / "fictional.txt"
+            sop.write_text("Synthetic procedure placeholder")
+            page.locator("#evidenceType").select_option("procedure")
+            page.locator("#evidenceReference").fill("SOP-A")
+            page.locator("#evidenceFile").set_input_files(sop)
+            page.locator("#addEvidence").click()
+            page.wait_for_function(
+                "document.querySelector('#evidenceStatus').textContent.includes('1 source file(s) registered')")
+            page.locator("#procedureSource").select_option("SOP-A")
+            page.locator("#procedureCheck").select_option("signal")
+            page.locator("#procedureChannel").select_option("spp")
+            page.locator("#procedureOperator").select_option("<=")
+            page.locator("#procedureThreshold").fill("")
+            page.locator("#procedureUnit").fill("psi")
+            page.locator("#procedureStart").fill("2026-11-10T09:20:00Z")
+            page.locator("#procedureEnd").fill("2026-11-10T09:30:00Z")
+            page.locator("#addProcedureStep").click()
+            assert "Documented numeric limit" in page.locator("#procedureStatus").inner_text()
+            assert page.locator("#procedureSteps article").count() == 0
+            page.locator("#procedureThreshold").fill("185")
+            page.locator("#addProcedureStep").click()
+            assert page.locator("#procedureSteps article").count() == 1
+            page.locator('[data-tab="deviations"]').click()
+            assert "unverifiable" in page.locator("#findings").inner_text()
+            assert page.locator("#findings article.flag").count() == 0
+            page.locator('[data-tab="report"]').click()
+            assert "SET-01" in page.locator("#reportText").input_value()
+            assert "not declared" in page.locator("#reportText").input_value()
+            assert not errors, errors
+        finally:
+            instance.close()
