@@ -1,65 +1,38 @@
-# STEERING — Liner Hanger Investigation MVP
+# STEERING — Liner Hanger RCA Application
 
-**Decision:** 2026-11-15 — User-approved scope reduction to finish a usable **entire application MVP**, not all nine research/calculation stages.  
-**Primary goal:** Deliver and test a locally runnable retrospective liner-hanger investigation application. **Reduced local-browser demo MVP verified 2026-11-15**: [GitHub Actions run 43764373475](https://github.com/smbabalola/liner-hanger-project/actions/runs/43764373475), 939 tests passed on Python 3.11 and 939 on 3.12, including actual Chromium file:// normal/anomalous case, annotations, report and standalone-folder tests. Windows user smoke and any engineering/field certification remain open.  
-**Repository:** `smbabalola/liner-hanger-project`; existing Windows checkout `C:\dev\liner-hanger-project`.  
-**Task authority:** This file and [TODO.md](TODO.md) supersede the old nine-stage calculation-first execution order. Retain prior work and engineering evidence in Git history and existing skill references.
+**Product decision: 2026-11-16.** The user clarified that the MVP must be a **real, usable retrospective liner-hanger investigation application**, not merely a synthetic offline browser demonstration. This decision supersedes the reduced demo-only acceptance in the 2026-11-15 steering. The previously delivered offline demo and its passing tests remain valid historical engineering evidence, but **do not constitute completion of the product MVP**.
 
-## Single MVP outcome
+**Primary mission:** An engineer can open a historical job, bring in its actual source records, replay operations with a distinguishable moving drillstring/running-tool/liner assembly and synchronized surface signals, examine procedure adherence, add evidence-linked annotations, evaluate competing failure hypotheses and export an auditable RCA draft **without writing code or manually editing structured files**.
 
-A user loads **one historical or explicitly synthetic liner-hanger job** and can, in the same local application:
+**Execution priority:** Deliver and validate the connected product workflow before expanding calculations. Reuse existing Python skill engines, browser UI, replay/animation prototypes and evidence models; do not build another disconnected demo. This file and [TODO.md](TODO.md) are the active instructions. Preserve prior work in Git history and the existing references.
 
-1. **Create/open a case** with its well/job identity, available assembly outline, procedure steps, job log, and recorded surface data.
-2. **Import and map CSV surface telemetry** — timestamp, depth, standpipe pressure, hookload, torque, RPM, flow/pump rate, pumped volume and returns when present — with units, clock/source information and missing-channel warnings. Do not require all channels or wireline/formation logs.
-3. **Replay the operation** with synchronized time-series charts, a basic **moving drillstring/running-tool/liner schematic** (where depth/assembly data permit) and chronological reported job events. A basic outline is acceptable when exact BHA is unknown. A visual must not imply verified downhole tool actuation.
-4. **Check the approved/entered procedure** against reported steps and observable rig signals; produce a chronological list of supported deviations and *evidence gaps*. Never infer OEM limits or internal failures from a surface signal alone.
-5. **Add, edit and save timestamp/range annotations** via a modal, with relevant observations revealed on inspection and preserved in the case.
-6. **Review alternative explanations**, clearly distinguishing observations, reported events, calculations, hypotheses, and unverified root causes.
-7. **Export a readable investigation report** with case details, timeline, deviations, evidence links, notes, missing inputs and review status.
+## Product MVP — required, visible capabilities
 
-**Release audience:** local engineering demonstration/review only, not rig control, live advisory, OEM certification or a field-approved diagnostic product.
+1. **Case workspace and flexible real-data ingestion.** Create/open/save/reopen investigations. Import separately supplied rig surface time series (CSV or documented supported formats), chronological job reports, operating procedures, equipment/BHA/well schematics and drilling-fluid records where available. Offer explicit column mapping, units, time zones/clocks, depth datum, source provenance and alignment review; tolerate missing channels with clear warnings. Preserve original evidence and mappings. Do **not** require wireline or formation-evaluation logs.
+2. **Investigation-centric replay screen.** Make the wellbore/assembly view and synchronized interactive telemetry plots the primary working area: standpipe pressure, hookload, torque, RPM, pump rate, cumulative pumped volume, depth, returns/flow when present. Include playback controls, scrubber, zoom, selectable time ranges and synchronized chronological job events. Show drillpipe, running tool and liner as distinguishable elements; animate **only from supported depth/assembly observations**. A basic explicitly approximate outline is acceptable when the complete BHA is missing. Do not depict downhole tool activation as verified when only surface indicators exist.
+3. **Procedure versus evidence.** Allow the case's approved/entered procedure and steps to be mapped to the time series and reported log. Highlight source-grounded possible deviations (sequence, pressure/flow/weight/torque or other criteria **only when specified by the supplied authoritative procedure**) and evidence gaps. Separate a missing record from proof an action never occurred. Keep setting/cementing/liner-top stages conditional on equipment and documents actually supplied.
+4. **Interactive investigation notebook.** Select time point/range on a chart or timeline, open a modal to record/edit observations, supporting/contrary evidence, alternative explanations, confidence and reviewer disposition. Save and reload annotations; reveal linked notes during replay.
+5. **Traceable reporting.** Export a readable RCA draft with job identity, input-source register, telemetry/event timeline, procedure comparison, candidate deviations, notes, competing hypotheses, uncertainty, missing evidence and review/sign-off status. Distinguish measured facts, reported events, numerical calculations and inferred explanations.
+6. **Usable local experience.** One discoverable launch path and coherent navigation; no mandatory code editing, fixture selection or JSON preparation to investigate a real job. Explain unsupported source formats and unavailable calculations. Preserve privacy: never commit private Baker Hughes/customer job packs, logs, OEM documents or secrets to this public repository.
 
-## MVP release conditions — all required
+## Acceptance gates (all required to call the REAL MVP complete)
 
-- **One runnable local app** with real UI navigation through Import → Replay → Deviations/Notes → Report. This is **app delivery**, not merely a collection of Python scripts, UI mockups or documentation.
-- **End-to-end synthetic normal case** and **end-to-end synthetic anomalous case** each work through that UI, with reliable loading, aligned replay, expected differences, saved annotations and exported reports. Normal cases must not manufacture faults.
-- Invalid/missing channels, inconsistent timestamps, incomplete assemblies, unsupported configurations and missing OEM instructions produce clear **unavailable/needs review** states, not invented parameters or arbitrary alarms.
-- **Automated tests and a fresh local/CI run pass** for the shipped MVP; confirm basic functionality and report generation. Record actual commands, results, commit SHA and any known limitations in TODO.
-- Basic launch instructions plus a short first-use guide are included. No private BH manuals, customer packages or original rig logs are committed to the public repository.
-- Output explicitly states **investigation draft — not independently engineering approved**. No field-restricted physics model or OEM limit may be portrayed as operationally validated.
+- [ ] **REAL-01 — Existing capability inventory and integration design:** audit the browser shell, Python evidence/telemetry/procedure engines, previous moving-assembly UI and report components. Identify implemented-but-hidden, disconnected and missing features and publish one integration map.
+- [ ] **REAL-02 — Real-job ingestion:** from the UI, load/save/reopen a case with independently imported actual surface records and operational documents; map channels/units/time/depth and show source quality diagnostics. Unsupported document parsing must be transparent, with a manual evidence-entry alternative.
+- [ ] **REAL-03 — Investigation replay:** operationally coherent assembly motion, synchronized channels, event log, controls and range selection, proven using time-aligned input—not just fictional preconfigured screenshots.
+- [ ] **REAL-04 — Procedure review and findings:** source-linked comparisons, missing-step/sequence handling, candidate deviations and evidence gaps, plus notes and competing hypotheses with persistence.
+- [ ] **REAL-05 — End-to-end report and acceptance:** run a **permitted actual historical job package** through Import → Replay → Procedure/Deviations → Annotations → Report; compare the screen and export against source records; test normal and anomalous synthetic fixtures as regression; perform a local Windows user acceptance check. Record limitations and objective observed results.
 
-If any item fails, mark the MVP **NOT COMPLETE**, fix it or report the exact blocker. Do not mark it 100% on the strength of individual solver test counts.
+**Release policy:** The historical reduced **offline demonstration passed 939 tests on Python 3.11 and 3.12** in [CI run 43764373475](https://github.com/smbabalola/liner-hanger-project/actions/runs/43764373475), with detail in [release evidence](docs/mvp-local-release-evidence.md). This establishes a working demo baseline, **not REAL-02–05**. Until all real MVP gates are evidenced, status is **REAL PRODUCT MVP — IN PROGRESS / NOT ACCEPTED**. Never replace missing real-job acceptance with a test count or assume historical CI is current HEAD.
 
-## Build order — shortest path to a usable app
+## Engineering boundaries and pragmatic deferrals
 
-**MVP-01 Inventory/choose:** Inspect the **existing** UI prototypes, telemetry replay, moving assembly, annotation, evidence and reporting components. Reuse working code; do not rewrite validated parts or start another disconnected prototype. Identify the smallest local runtime and single case format.
+The tool is for **retrospective, human-reviewed RCA**, not live rig control, field set-point recommendations, OEM equipment certification or autonomous failure verdicts. Show measured pressure and inferred downhole mechanisms separately; never invent OEM settings, fluid properties, equipment dimensions or limits. Where a calculation is not applicable or unvalidated, label it unavailable/research-only. Qualified engineer review is required before operational reliance.
 
-**MVP-02 Wire the app:** For the intentionally reduced *offline browser demo*, implement the established telemetry/source/procedure/evidence contracts in the single browser shell and provide a single open-case/import workflow. Direct calls to the full Python investigation skill are deferred; document this architecture exception. Do not claim full Python-backend parity.
+**Defer:** generalized Bingham/Herschel–Bulkley turbulent/transitional modelling, full predictive standpipe-pressure validation, advanced torque/drag/surge-swab research, additional OEMs, cloud/multi-tenant/mobile deployment and AI root-cause certainty. Preserve all LH-CALC code/tests and historical acceptance records, but they are **not blockers** to the real investigation experience when not invoked.
 
-**MVP-03 Replay + procedure review:** Synchronize telemetry, assembly view and job logs; show deviation candidates with a concrete source/time/step and explicit uncertainty.
+**Actual job materials:** check the user's available authorized Baker Hughes package, drilling-fluid records and telemetry separately. A procedure PDF or equipment drawing does **not** establish that a timestamped surface dataset exists. If an authorized complete real dataset is unavailable, demonstrate all working UI capabilities with synthetic inputs but **leave REAL-05 open** and report the precise missing source.
 
-**MVP-04 Notes + report:** Modal/range annotations, persistence and evidence-linked report export.
+## Working rules
 
-**MVP-05 End-to-end acceptance:** Exercise both normal/anomalous fixtures through the app, repair any release-blocking defects, verify clean launch and document limitations. Only then call **MVP complete**.
-
-Work sequentially and in meaningful batches; use the first failing MVP gate. Keep `STEERING.md` short and `TODO.md` as a concise live checklist. Update both when scope or release status changes.
-
-## Explicitly deferred — NOT MVP blockers
-
-- Further LH-CALC-02 full-field 3D torque/drag qualification; LH-CALC-03 generalized Bingham/Herschel–Bulkley turbulent or transitional hydraulics, full SPP rig-equipment model and independent field approval; LH-CALC-04/05 advanced surge/swab and quantitative OEM actuation modelling; LH-CALC-06/07/08 nine-stage certification gates **beyond what the MVP actually invokes**.
-- Automated root-cause certainty, new OEM support, cloud hosting, multi-tenant authentication, WITSML, live rig advisory, mobile builds, voice automation and elaborate simulations.
-- Source-incomplete quantitative comparisons and private operator/OEM case validation.
-
-**Keep existing calculators available behind clearly labelled research/unsupported interfaces, or leave them disconnected if unnecessary. Do not delete their code or tests.** The deferred `LH-CALC` stage checkboxes stay historically unaccepted; MVP success is tracked **separately** and does not confer engineering approval.
-
-## Engineering honesty and confidentiality
-
-Use the Baker Hughes first-release procedural focus and existing investigation skill. The initial release may inspect **ball drop/seating, hanger setting, running-tool release, cementing and liner-top packer** stages as the supplied procedure/data allow; no universal model-specific limits. Evidence is surface telemetry + chronological job logs + user-authorized programme and drilling-fluid records — **not wireline/formation-evaluation logs**. Ranges and signal types must be source-mapped; distinguish rig SPP from cement-unit/setting differential. No silent default OEM dimensions, ratings, measured pressures or failed-job diagnoses.
-
-Preserve historical implementation and review records via Git history and skill reference files. Do not commit restricted Baker Hughes training guides, job packs, customer records, secrets or any local untracked archive. Human review is required before engineering/field use, **but a labelled demo MVP does not need imaginary operator/OEM sign-off**.
-
-## Status and autonomy
-
-**MVP STATUS: COMPLETE AT REDUCED LOCAL OFFLINE BROWSER-DEMO SCOPE — AUTOMATED UI ACCEPTANCE VERIFIED.** The app at `skills/liner-hanger-rca/app/index.html` passed end-to-end normal/anomalous, modal annotation persistence, report download, invalid CSV/schema gates, reported-step chronology and isolated-copy case JSON portability. Full run [43764373475](https://github.com/smbabalola/liner-hanger-project/actions/runs/43764373475) at implementation commit `519de543` passed **939/939 per interpreter** on Python 3.11 and 3.12. This **does not mean** Windows user manual acceptance, full Python backend API integration, real case/OEM calibration, physical model/field approval, deployment or a commercially complete platform; see [release evidence](docs/mvp-local-release-evidence.md). If any platform-specific first-use defect emerges, reopen that MVP gate.
-
-Do not assume continuous work occurs between chat messages. If a scheduled automation operates on the repository, it must follow this **MVP-first** steering order and must not resume deferred LH-CALC research until explicitly reprioritized by the user.
+Proceed against the first incomplete REAL gate in [TODO.md](TODO.md). Prioritize restoring/wiring **existing product capabilities** rather than rewriting proven subsystems or adding physics. Keep truthful progress, run relevant tests, and update the live checklist after changes. Never claim the commercial product or real MVP is done until the real-case gate is satisfied. Do not silently reclassify a prototype as accepted.
