@@ -1120,3 +1120,97 @@ def test_real03_assembly_tally_requires_provenance_and_preserves_linked_sources(
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_real03_tally_bridge_ui_case_roundtrip_and_investigation(tmp_path):
+    """Local tally bridge result is auditable and the investigation survives reopening."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            # Mock only the transport here. The separate Python tests execute the
+            # actual bha_tally.py code and HTTP endpoint.
+            captured = []
+            def respond(route):
+                if route.request.method == "OPTIONS":
+                    route.fulfill(status=204, headers={
+                        "Access-Control-Allow-Origin": "null",
+                        "Access-Control-Allow-Methods": "POST, OPTIONS",
+                        "Access-Control-Allow-Headers": "Content-Type",
+                    })
+                    return
+                payload = route.request.post_data_json
+                captured.append(payload)
+                route.fulfill(status=200, content_type="application/json",
+                              headers={"Access-Control-Allow-Origin": "null"},
+                              body=json.dumps({
+                                  "basis": "as_run", "engine": "bha_tally.py/Tally.position_m",
+                                  "boundaries": [
+                                      {"component_id": "RT-1", "role": "running_tool",
+                                       "top_md_m": "991.00", "bottom_md_m": "1000.0",
+                                       "source_ref": "EQUIP p.1"},
+                                  ],
+                                  "review_level": "investigator-declared",
+                              }))
+            page.route("http://127.0.0.1:8766/v1/tally/positions", respond)
+            page.locator("#anomalous").click()
+            page.locator('[data-tab="import"]').click()
+            equipment = tmp_path / "source.txt"
+            equipment.write_text("FICTIONAL AS-RUN TALLY, not actual rig data")
+            page.locator("#evidenceType").select_option("equipment")
+            page.locator("#evidenceReference").fill("EQUIP")
+            page.locator("#evidenceFile").set_input_files(equipment)
+            page.locator("#addEvidence").click()
+            page.wait_for_function("document.querySelector('#assemblySource').querySelectorAll('option').length === 2")
+            page.locator("#assemblySource").select_option("EQUIP")
+            page.locator("#assemblyComponentId").fill("RT-1")
+            page.locator("#assemblyRole").select_option("running_tool")
+            page.locator("#assemblyLength").fill("9")
+            page.locator("#assemblyUnit").select_option("m")
+            page.locator("#assemblyPage").fill("p.1")
+            page.locator("#addAssemblyComponent").click()
+            page.locator("#anchorComponent").select_option("RT-1")
+            page.locator("#anchorDepth").fill("1000")
+            page.locator("#anchorUnit").select_option("m")
+            page.locator("#anchorDatum").fill("RKB")
+            page.locator("#anchorSource").fill("EQUIP p.1")
+            page.locator("#anchorReviewer").fill("Test engineer")
+            page.locator("#evaluateTally").click()
+            assert "Tally not calculated" in page.locator("#tallyBridgeStatus").inner_text()
+            page.locator("#anchorReviewed").check()
+            page.locator("#evaluateTally").click()
+            page.wait_for_function("document.querySelector('#tallyPositionList').textContent.includes('991.00')")
+            assert captured and captured[0]["basis"] == "as_run"
+            assert captured[0]["anchor"]["reviewed"] is True
+            assert captured[0]["anchor"]["source_ref"] == "EQUIP p.1"
+            page.locator('[data-tab="notes"]').click()
+            page.locator("#noteFrom").fill("24")
+            page.locator("#noteTo").fill("29")
+            page.locator("#rangeNote").click()
+            page.locator("#noteTitle").fill("Review pressure response with assembly source")
+            page.locator("#noteKind").select_option("hypothesis")
+            page.locator("#noteSource").fill("EQUIP p.1; synthetic pressure samples")
+            page.locator("#noteAlternative").fill("Pump restriction alternative; no downhole proof")
+            page.locator("#noteReviewer").fill("Test engineer")
+            page.locator('#noteForm button[type="submit"]').click()
+            with page.expect_download() as download:
+                page.locator('[data-tab="import"]').click()
+                page.locator("#exportCase").click()
+            saved = tmp_path / "reviewed_case.json"
+            download.value.save_as(saved)
+            case = json.loads(saved.read_text())
+            assert case["assembly_positions"]["boundaries"][0]["top_md_m"] == "991.00"
+            assert case["assembly_anchor"]["datum"] == "RKB"
+            assert case["notes"][0]["alternative"].startswith("Pump restriction alternative")
+            page.reload()
+            page.locator("#caseFile").set_input_files(saved)
+            page.locator('[data-tab="import"]').click()
+            assert "991.00" in page.locator("#tallyPositionList").inner_text()
+            page.locator('[data-tab="report"]').click()
+            report = page.locator("#reportText").input_value()
+            assert "Python tally static boundaries: investigator-declared" in report
+            assert "Pump restriction alternative" in report
+            assert "Root cause:** UNDETERMINED" in report
+            assert not errors, errors
+        finally:
+            instance.close()
