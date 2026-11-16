@@ -438,6 +438,8 @@ function report(){
 function tab(name){
  document.querySelectorAll(".tab").forEach(x=>x.hidden=x.id!==name);
  document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===name));
+ // Import forms may be long: reset scroll so the new replay canvas is in view and interactive.
+ document.documentElement.scrollTop=0;document.body.scrollTop=0;
  if(name==="replay")renderCursor();if(name==="deviations")findings();if(name==="notes")notes();if(name==="report")$("reportText").value=report();
 }
 function loadData(next){
