@@ -609,6 +609,12 @@ def test_manual_sop_source_sequence_and_report_from_browser(tmp_path):
             page.locator("#procedureClockChecked").check()
             page.locator("#procedureReviewer").fill("Test reviewer, fictional")
             page.locator("#saveProcedureReview").click()
+            # Procedure review does not authenticate the independent job-report clock.
+            page.locator("#eventClockOffset").fill("0")
+            page.locator("#eventClockSource").fill("FICTIONAL-DAILY-LOG/P3 and rig CSV clock checked")
+            page.locator("#eventClockReviewer").fill("Test reviewer, fictional")
+            page.locator("#eventClockVerified").check()
+            page.locator("#saveEventClock").click()
             page.locator('[data-tab="deviations"]').click()
             assert "reported in sequence" in page.locator("#findings").inner_text()
             page.locator('[data-tab="report"]').click()
