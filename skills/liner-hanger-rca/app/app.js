@@ -587,7 +587,8 @@ function report(){
  "Source: "+(data.rules?.procedure?.approval_reference||"not supplied")+
  " · Revision: "+(data.rules?.procedure?.revision||"not supplied")+
  " · Investigator review: "+(data.rules?.procedure?.approved===true?"declared by investigator, not externally authenticated":"not declared")+
- " · Clock alignment: "+(data.rules?.telemetry_clock_alignment_verified===true?"investigator declared":"not verified"),
+ " · Clock alignment: "+(data.rules?.telemetry_clock_alignment_verified===true?"investigator declared":"not verified")+
+ " · Reviewer declaration: "+(data.rules?.procedure?.reviewer||"not supplied"),
  ...(data.rules?.required_event_sequence||[]).map(x=>"- Required reported step "+x.code+" · "+x.step+" · "+x.source_reference),
  ...(data.rules?.rules||[]).map(x=>"- Measured rule "+x.id+" · "+x.step+" · "+x.channel+" "+x.operator+" "+x.value+" "+x.unit+
   " · "+x.source_reference),
