@@ -103,6 +103,11 @@ canvas{width:100%;height:112px;display:block;cursor:crosshair;margin-top:5px}#as
     <div class="field"><label for="evidenceFile">Choose separate evidence file</label><input type="file" id="evidenceFile" accept=".pdf,.csv,.txt,.json,.xlsx,.xls,.png,.jpg,.jpeg,.docx,.doc"></div>
     <div class="row"><button id="addEvidence" type="button">Register evidence file</button><small id="evidenceStatus" role="status">No evidence files registered.</small></div>
     <div id="evidenceList" aria-label="Case evidence file register"></div>
+    <div id="documentViewer" class="panel" hidden>
+      <div class="row"><strong id="documentTitle">Local source preview</strong><button id="closeDocument" type="button">Close preview</button></div>
+      <p id="documentStatus">Original content stays in the browser session and is not embedded in the case export.</p>
+      <div id="documentContent"></div>
+    </div>
     <p class="sub">This is a provenance register, not an OCR/PDF parser or an approved engineering document store. Retain the original files separately; the exported case contains references, filenames, sizes and SHA-256 when browser-supported, but <strong>not the original file data</strong>.</p>
   </div>
   <div class="row"><button id="normal" class="primary">Load synthetic normal example</button><button id="anomalous">Load synthetic anomalous example</button><button id="restore">Restore saved case</button><button id="saveCase">Save case locally</button><button id="exportCase">Export case JSON</button><label class="button" for="caseFile">Import saved case JSON</label><input id="caseFile" type="file" accept=".json" hidden></div>
