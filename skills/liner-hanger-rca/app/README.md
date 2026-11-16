@@ -1,5 +1,7 @@
 # Liner Hanger Investigation Workbench — Local MVP
 
+> **REAL PRODUCT MVP UPDATE — 2026-11-16:** This application is the established browser shell for the real investigation product; it is **not yet the accepted real-case MVP**. [STEERING.md](../../../STEERING.md) and [TODO.md](../../../TODO.md) require independent job-source intake, a richer central replay workstation, complete procedures/annotations and one authorized real case acceptance. The 939×2 synthetic-browser tests are historical baseline, not final product approval. The new Source Register can add separate procedure, daily report, equipment/BHA, fluids and telemetry document **references**, with original filename/size and optional SHA-256; **no PDF content extraction or source binary preservation is claimed**. Source files remain outside downloaded case JSON and must be retained separately. Job events can also be entered manually with their source and timestamp status; actual procedure sources are not automatically approved. Not all existing Python skill engines are connected to this browser shell yet.
+
 **Status:** Local/offline engineering demonstration. **Not** field-certified or manufacturer-approved. Never use outputs to direct live rig activities.
 
 ## Launch
