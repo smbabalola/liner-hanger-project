@@ -15,7 +15,10 @@ def test_offline_app_assets_and_no_network_dependencies():
     js = JS.read_text(encoding="utf-8")
     assert '<script src="app.js"></script>' in html
     assert "https://" not in html and "http://" not in html
-    assert 'fetch(' not in js and 'XMLHttpRequest' not in js
+    # The only optional network call is to a read-only local Python tally calculator.
+    assert js.count("fetch(") == 1
+    assert 'fetch("http://127.0.0.1:8766/v1/tally/positions"' in js
+    assert "XMLHttpRequest" not in js
     for label in ("telemetryFile", "eventsFile", "rulesFile", "seek", "charts",
                   "assembly", "findings", "noteDialog", "downloadReport"):
         assert 'id="' + label + '"' in html
