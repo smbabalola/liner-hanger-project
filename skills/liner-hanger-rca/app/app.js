@@ -20,7 +20,7 @@ const synonyms={
   returns:["returns","return_flow","flow_out"]
 };
 const units=Object.fromEntries(channels.map(x=>[x[0],x[2]]));
-const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],channel_units:{},telemetry_mapping:null,event_clock:null,assembly_tallies:{planned:[],as_run:[]},case_kind:"imported"});
+const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],channel_units:{},telemetry_mapping:null,event_clock:null,assembly_tallies:{planned:[],as_run:[]},assembly_anchor:null,assembly_positions:null,case_kind:"imported"});
 let data=defaultCase(),idx=0,timer=null,rangeStart=null,plotCanvases=[],pendingTelemetry=null;
 let viewStart=0,viewEnd=null,playStartWall=0,playStartRecorded=0;
 function viewBounds(){return [Math.max(0,viewStart),Math.min(data.rows.length-1,viewEnd??data.rows.length-1)]}
@@ -344,6 +344,68 @@ function assemblySourceOptions(){
 function assemblyRows(basis){
  const tallies=data.assembly_tallies||{};return Array.isArray(tallies[basis])?tallies[basis]:[];
 }
+function invalidateAssemblyPositions(){
+ data.assembly_positions=null;
+ $("tallyPositionList").replaceChildren();
+ $("tallyBridgeStatus").textContent="Tally changed. Run the Python calculation again after verifying the as-run anchor.";
+}
+function renderAnchorEditor(){
+ const current=$("anchorComponent").value,select=$("anchorComponent");
+ select.replaceChildren();
+ const empty=document.createElement("option");empty.value="";empty.textContent="Select as-run component";select.append(empty);
+ for(const item of assemblyRows("as_run")){
+  const option=document.createElement("option");option.value=item.component_id;option.textContent=item.component_id;select.append(option);
+ }
+ const review=data.assembly_anchor||{};
+ select.value=[...select.options].some(x=>x.value===current)?current:review.component_id||"";
+ $("anchorEnd").value=review.end||"top";
+ $("anchorDepth").value=review.measured_depth??"";
+ $("anchorUnit").value=review.depth_unit||"";
+ $("anchorDatum").value=review.datum||"";
+ $("anchorSource").value=review.source_ref||"";
+ $("anchorReviewer").value=review.reviewer||"";
+ $("anchorReviewed").checked=review.reviewed===true;
+ renderTallyPositions();
+}
+function renderTallyPositions(){
+ const root=$("tallyPositionList");root.replaceChildren();
+ const result=data.assembly_positions;
+ if(!result||!Array.isArray(result.boundaries)){
+  $("tallyBridgeStatus").textContent="No Python-calculated static boundaries. Source review or local bridge required.";
+  return;
+ }
+ $("tallyBridgeStatus").textContent="Python tally calculated (reviewer-declared, NOT engineering approved). No dynamic position or tool-state inference.";
+ for(const item of result.boundaries){
+  const p=document.createElement("p");p.className="sub";
+  p.textContent=item.component_id+" · top "+(item.top_md_m??"unknown")+" m MD; bottom "+(item.bottom_md_m??"unknown")+" m MD · "+item.source_ref;
+  root.append(p);
+ }
+}
+async function evaluateTally(){
+ const basis="as_run",components=assemblyRows(basis);
+ const measured_depth=$("anchorDepth").value.trim(),depth_unit=$("anchorUnit").value,
+  source_ref=$("anchorSource").value.trim(),datum=$("anchorDatum").value.trim(),
+  reviewer=$("anchorReviewer").value.trim(),component_id=$("anchorComponent").value,
+  end=$("anchorEnd").value,reviewed=$("anchorReviewed").checked;
+ if(!components.length)throw Error("Enter an as-run component tally before calculating boundaries.");
+ if(!component_id||!["top","bottom"].includes(end)||measured_depth===""||
+   !Number.isFinite(Number(measured_depth))||Number(measured_depth)<0||!["m","ft"].includes(depth_unit)||
+   !source_ref||!datum||!reviewer||!reviewed)
+  throw Error("Component boundary, non-negative depth, explicit unit/datum/source, reviewer and check declaration are all required.");
+ const anchor={component_id,end,measured_depth,depth_unit,datum,source_ref,reviewer,reviewed};
+ data.assembly_anchor=anchor;invalidateAssemblyPositions();persist();
+ $("tallyBridgeStatus").textContent="Requesting local Python BHA tally engine…";
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),3500);
+ try{
+  const response=await fetch("http://127.0.0.1:8766/v1/tally/positions",{
+   method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({basis,components,anchor}),signal:controller.signal});
+  const result=await response.json();
+  if(!response.ok)throw Error(result.error||"Tally rejected");
+  if(result.basis!=="as_run"||!Array.isArray(result.boundaries))throw Error("Unexpected tally response");
+  data.assembly_positions=result;renderTallyPositions();persist();
+ }finally{clearTimeout(timeout)}
+}
 function renderAssemblyTallies(){
  assemblySourceOptions();
  const root=$("assemblyComponentList");root.replaceChildren();
@@ -355,10 +417,11 @@ function renderAssemblyTallies(){
    const label=document.createElement("span");label.textContent=(i+1)+". "+item.component_id+" · "+assemblyRoleLabels[item.role]+
     " · "+(item.length===null?"length unknown":item.length+" "+item.length_unit)+" · "+item.source_ref;row.append(label);
    const remove=document.createElement("button");remove.type="button";remove.textContent="Remove "+item.component_id;
-   remove.onclick=()=>{data.assembly_tallies[basis].splice(i,1);renderAssemblyTallies();renderAssemblyDisplay();persist()};
+   remove.onclick=()=>{data.assembly_tallies[basis].splice(i,1);data.assembly_tallies[basis].forEach((c,j)=>c.sequence=j+1);if(basis==="as_run"){data.assembly_anchor=null;invalidateAssemblyPositions()}renderAssemblyTallies();renderAssemblyDisplay();persist()};
    row.append(remove);root.append(row);
   }
  }
+ renderAnchorEditor();
  $("assemblyBuilderStatus").textContent="Planned: "+assemblyRows("planned").length+
   " component(s); as run: "+assemblyRows("as_run").length+
   ". Source-linked inventory only; no unverified depth offsets.";
@@ -380,6 +443,7 @@ function addAssemblyComponent(){
  if(length===null&&unit)throw Error("Leave the unit unselected when length is unknown.");
  if(!data.assembly_tallies)data.assembly_tallies={planned:[],as_run:[]};
  if(!Array.isArray(data.assembly_tallies[basis]))data.assembly_tallies[basis]=[];
+ if(basis==="as_run"){data.assembly_anchor=null;invalidateAssemblyPositions()}
  data.assembly_tallies[basis].push({component_id,role,length,length_unit:length===null?null:unit,
   source_id:source,source_ref:source+" / "+page,sequence:data.assembly_tallies[basis].length+1});
  $("assemblyComponentId").value="";$("assemblyLength").value="";$("assemblyUnit").value="";$("assemblyPage").value="";
@@ -763,7 +827,10 @@ function report(){
  "",
  "## Assembly tally (source linked, independent of depth positioning)",
  ...["planned","as_run"].flatMap(b=>["### "+(b==="as_run"?"As run":"Planned") ,...(assemblyRows(b).length?assemblyRows(b).map(x=>"- "+x.sequence+". "+x.component_id+" ["+x.role+"] "+(x.length===null?"length unknown":x.length+" "+x.length_unit)+" · "+x.source_ref):["No "+b+" component tally entered."])]),
- "Source-listed lengths do not establish actual downhole placement or activation; no BHA anchor verified.",
+  "Source-listed lengths do not establish actual downhole placement or activation.",
+ "As-run anchor review: "+(data.assembly_anchor?(JSON.stringify(data.assembly_anchor)):"not supplied")+".",
+ "Python tally static boundaries: "+(data.assembly_positions?"investigator-declared, not engineering approved":"not calculated; no verified positions")+".",
+ ...(data.assembly_positions?.boundaries||[]).map(x=>"- "+x.component_id+" top "+(x.top_md_m??"unknown")+" m MD; bottom "+(x.bottom_md_m??"unknown")+" m MD; source "+x.source_ref),
  "",
  "## Entered operating procedure",
  "Source: "+(data.rules?.procedure?.approval_reference||"not supplied")+
@@ -842,6 +909,11 @@ $("addEvidence").onclick=async()=>{
 $("closeDocument").onclick=closeDocumentPreview;
 $("addAssemblyComponent").onclick=()=>{try{addAssemblyComponent()}catch(e){$("assemblyBuilderStatus").textContent="Component rejected: "+e.message}};
 $("assemblyDisplayBasis").onchange=renderAssemblyDisplay;
+$("evaluateTally").onclick=async()=>{
+ try{await evaluateTally()}
+ catch(e){$("tallyBridgeStatus").textContent="Tally not calculated: "+(e.name==="AbortError"?"local bridge timed out":e.message)+
+  ". Start the optional local Python bridge to enable source-gated boundaries."}
+};
 $("saveEventClock").onclick=()=>{
  try{saveEventClock()}catch(e){$("eventClockStatus").textContent="Clock review rejected: "+e.message}
 };
