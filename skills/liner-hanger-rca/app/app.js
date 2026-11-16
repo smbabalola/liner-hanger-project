@@ -22,11 +22,42 @@ const synonyms={
 const units=Object.fromEntries(channels.map(x=>[x[0],x[2]]));
 const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],channel_units:{},telemetry_mapping:null,case_kind:"imported"});
 let data=defaultCase(),idx=0,timer=null,rangeStart=null,plotCanvases=[],pendingTelemetry=null;
-let viewStart=0,viewEnd=null;
+let viewStart=0,viewEnd=null,playStartWall=0,playStartRecorded=0;
 function viewBounds(){return [Math.max(0,viewStart),Math.min(data.rows.length-1,viewEnd??data.rows.length-1)]}
 function setView(a,b){if(!data.rows.length)return;viewStart=Math.max(0,Math.floor(a));viewEnd=Math.min(data.rows.length-1,Math.max(viewStart+1,Math.ceil(b)));renderCharts();renderCursor()}
 function resetView(){viewStart=0;viewEnd=null;renderCharts();renderCursor()}
 function timeFraction(i,start,end){const a=Date.parse(data.rows[start].t),b=Date.parse(data.rows[end].t);return b>a?(Date.parse(data.rows[i].t)-a)/(b-a):0}
+function pausePlayback(){
+ if(timer!==null){clearInterval(timer);timer=null}
+ $("play").textContent="▶ Play";
+ $("playbackClock").textContent="Paused · recorded-sample cursor";
+}
+function sourceIndexAtOrBefore(utcMs){
+ let lo=0,hi=data.rows.length;
+ while(lo<hi){const mid=Math.floor((lo+hi)/2);
+  if(Date.parse(data.rows[mid].t)<=utcMs)lo=mid+1;else hi=mid}
+ return Math.max(0,lo-1);
+}
+function playbackStep(){
+ if(!data.rows.length){pausePlayback();return}
+ const last=data.rows.length-1,rate=Number($("speed").value)||1;
+ const elapsed=(performance.now()-playStartWall)*rate;
+ const target=playStartRecorded+elapsed;
+ const end=Date.parse(data.rows[last].t);
+ idx=target>=end?last:sourceIndexAtOrBefore(target);
+ renderCursor();
+ if(target>=end){pausePlayback();$("playbackClock").textContent="End of recorded job reached"}
+ else $("playbackClock").textContent="Playing "+rate+"× recorded time · holding actual sample "+(idx+1)+"/"+data.rows.length;
+}
+function beginPlayback(){
+ if(!data.rows.length){tab("import");msg("Load a case before replay");return}
+ if(timer!==null){pausePlayback();return}
+ if(idx>=data.rows.length-1)idx=0;
+ playStartWall=performance.now();playStartRecorded=Date.parse(data.rows[idx].t);
+ $("play").textContent="Ⅱ Pause";
+ timer=setInterval(playbackStep,50);
+ playbackStep();
+}
 function visibleIndexAt(fraction,start,end){const a=Date.parse(data.rows[start].t),b=Date.parse(data.rows[end].t),target=a+Math.max(0,Math.min(1,fraction))*(b-a);let nearestIndex=start,delta=Infinity;for(let j=start;j<=end;j++){const d=Math.abs(Date.parse(data.rows[j].t)-target);if(d<delta){delta=d;nearestIndex=j}}return nearestIndex}
 const attachedSourceFiles=new Map();let previewUrl=null;
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -143,7 +174,7 @@ function importCSV(text,source,explicit=null,sourceUnits=null){
  return {records:rows.length,usable:rows.length,found};
 }
 function acceptImportedCSV(text,source,mapping=null,sourceUnits=null){
- loadState();const wasSynthetic=data.case_kind==="synthetic",hadAnnotations=data.notes.length>0;
+ pausePlayback();loadState();const wasSynthetic=data.case_kind==="synthetic",hadAnnotations=data.notes.length>0;
  const result=importCSV(text,source,mapping,sourceUnits);
  if(wasSynthetic){
   data.events=[];data.rules=null;data.notes=[];data.evidence=[];data.case_kind="imported";
@@ -631,6 +662,7 @@ function tab(name){
  if(name==="replay")renderCursor();if(name==="deviations")findings();if(name==="notes")notes();if(name==="report")$("reportText").value=report();
 }
 function loadData(next){
+ pausePlayback();
  if(timer){clearInterval(timer);timer=null;$("play").textContent="▶ Play"}
  attachedSourceFiles.clear();closeDocumentPreview();validateCase(next);idx=0;viewStart=0;viewEnd=null;toFields();describe();renderEvidence();renderProcedureSteps();renderCharts();renderEvents();findings();notes();renderCursor();persist();
  msg("Loaded "+data.rows.length+" recorded samples into "+(data.id||"case")+". Data are not independently authenticated.");
@@ -745,21 +777,15 @@ $("rulesFile").onchange=async e=>{
  data.rules=book;renderProcedureSteps();findings();describe();persist();msg("Loaded "+book.rules.length+" user-supplied procedure rules; approvals not authenticated.")
  }catch(err){msg("Procedure import rejected: "+err.message)}
 };
-$("seek").oninput=e=>{idx=Number(e.target.value);renderCursor()};
+$("seek").oninput=e=>{pausePlayback();idx=Number(e.target.value);renderCursor()};
 $("zoomIn").onclick=()=>{if(!data.rows.length)return;const [a,b]=viewBounds(),span=Math.max(2,Math.floor((b-a)/2));setView(Math.max(0,idx-Math.floor(span/2)),Math.min(data.rows.length-1,idx+Math.ceil(span/2)))};
 $("zoomOut").onclick=()=>{if(!data.rows.length)return;const [a,b]=viewBounds(),span=b-a+1;setView(Math.max(0,a-Math.ceil(span/2)),Math.min(data.rows.length-1,b+Math.ceil(span/2)))};
 $("zoomReset").onclick=resetView;
-$("start").onclick=()=>{idx=0;renderCursor()};
-$("prev").onclick=()=>{idx--;renderCursor()};
-$("next").onclick=()=>{idx++;renderCursor()};
-$("play").onclick=()=>{
- if(timer){clearInterval(timer);timer=null;$("play").textContent="▶ Play";return}
- if(!data.rows.length){tab("import");msg("Load a case before replay");return}
- $("play").textContent="Ⅱ Pause";timer=setInterval(()=>{
-  idx+=Number($("speed").value)||1;if(idx>=data.rows.length-1){idx=data.rows.length-1;clearInterval(timer);timer=null;$("play").textContent="▶ Play"}
-  renderCursor();
- },220)
-};
+$("start").onclick=()=>{pausePlayback();idx=0;renderCursor()};
+$("prev").onclick=()=>{pausePlayback();idx--;renderCursor()};
+$("next").onclick=()=>{pausePlayback();idx++;renderCursor()};
+$("play").onclick=beginPlayback;
+$("speed").onchange=()=>{if(timer!==null){playStartRecorded=Date.parse(data.rows[idx].t);playStartWall=performance.now();playbackStep()}};
 $("newNote").onclick=()=>openNote(idx,idx);
 $("rangeNote").onclick=()=>openNote($("noteFrom").value,$("noteTo").value);
 $("cancelNote").onclick=()=>$("noteDialog").close();
