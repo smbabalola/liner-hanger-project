@@ -1054,10 +1054,12 @@ def test_real03_source_linked_planned_and_as_run_assembly_tallies_survive_reopen
             page.locator('[data-tab="replay"]').click()
             assert "As-run source-linked tally" in page.locator("#assemblyTallySummary").inner_text()
             assert "ACTUAL-LINER" in page.locator("#assemblyReplayComponents").inner_text()
+            assert page.locator('#moving rect[data-component-id="ACTUAL-LINER"][data-role="liner"]').count() == 1
             assert "length unknown" in page.locator("#assemblyReplayComponents").inner_text()
             page.locator("#assemblyDisplayBasis").select_option("planned")
             assert "PLANNED tally" in page.locator("#assemblyTallySummary").inner_text()
             assert "12.5 ft" in page.locator("#assemblyReplayComponents").inner_text()
+            assert page.locator('#moving rect[data-component-id="PLANNED-TOOL"][data-role="running_tool"]').count() == 1
             with page.expect_download() as download:
                 page.locator('[data-tab="import"]').click()
                 page.locator("#exportCase").click()
