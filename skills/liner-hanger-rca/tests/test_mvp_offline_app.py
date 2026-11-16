@@ -443,6 +443,7 @@ def test_nonstandard_rig_csv_mapping_and_units_survive_case_roundtrip(tmp_path):
                 "2026-11-10T09:01:00Z,240,119,1501\n",
                 encoding="utf-8")
             page.locator("#telemetryFile").set_input_files(rig)
+            page.locator("#telemetryMappingPanel").wait_for(state="visible")
             assert page.locator("#telemetryMappingPanel").is_visible()
             page.locator("#map-t").select_option("0")
             page.locator("#map-spp").select_option("1")
