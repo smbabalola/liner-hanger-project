@@ -20,8 +20,8 @@ const synonyms={
   returns:["returns","return_flow","flow_out"]
 };
 const units=Object.fromEntries(channels.map(x=>[x[0],x[2]]));
-const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],case_kind:"imported"});
-let data=defaultCase(),idx=0,timer=null,rangeStart=null,plotCanvases=[];
+const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],channel_units:{},telemetry_mapping:null,case_kind:"imported"});
+let data=defaultCase(),idx=0,timer=null,rangeStart=null,plotCanvases=[],pendingTelemetry=null;
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safe=x=>String(x??"").replace(/[^a-z0-9_.-]+/gi,"_").slice(0,80)||"case";
 const number=x=>x!==""&&x!==null&&x!==undefined&&Number.isFinite(Number(x))?Number(x):null;
@@ -43,40 +43,111 @@ function csvRecords(text){
   if(cell!==""||row.length){row.push(cell);if(row.some(x=>x!==""))rec.push(row)}
   return rec;
 }
-function importCSV(text,source){
-  const table=csvRecords(text);if(table.length<2)throw Error("CSV needs a header and at least one timestamped row");
-  const header=table[0].map(headerNorm),mapping={},found=[],warnings=[];
-  for(const [key,options] of Object.entries(synonyms)){
-    let matches=header.map((h,i)=>options.includes(h)?i:-1).filter(i=>i>=0);
-    if(matches.length>1)warnings.push("Ambiguous "+key+" headers: first matching column used");
-    if(matches.length){mapping[key]=matches[0];found.push(key)}
+function guessMapping(rawHeaders){
+ const norm=rawHeaders.map(headerNorm),mapped={};
+ for(const [key,variants] of Object.entries(synonyms)){
+  const indices=norm.map((x,i)=>variants.includes(x)?i:-1).filter(x=>x>=0);
+  if(indices.length===1)mapped[key]=indices[0];
+ }
+ return mapped;
+}
+function mapUnitLabels(){
+ const unitLabels={t:["UTC or explicit offset"],depth:["m MD","ft MD"],running_depth:["m MD","ft MD"],
+  spp:["psi","bar","kPa","MPa"],hookload:["klb","kN","tonne-force"],torque:["kft-lbf","kN·m","ft-lbf","N·m"],
+  rpm:["rpm"],flow:["gal/min","L/min","bbl/min","m³/min"],volume:["bbl","L","m³"],
+  returns:["gal/min","L/min","bbl/min","m³/min"]};
+ return unitLabels;
+}
+function openTelemetryMapping(text,file){
+ const table=csvRecords(text);
+ if(table.length<2)throw Error("CSV needs a header and at least one timestamped row");
+ const headers=table[0].map(x=>x.trim()),suggested=guessMapping(headers);
+ pendingTelemetry={text,name:file.name,headers};
+ const root=$("mappingFields");root.replaceChildren();
+ const options=mapUnitLabels();
+ for(const key of Object.keys(synonyms)){
+  const wrap=document.createElement("div");wrap.className="field";
+  const label=document.createElement("label");label.textContent=key==="t"?"Recorded timestamp (required)":channels.find(x=>x[0]===key)?.[1]||key;
+  label.htmlFor="map-"+key;
+  const sel=document.createElement("select");sel.id="map-"+key;sel.dataset.mappingKey=key;
+  const blank=document.createElement("option");blank.value="";blank.textContent=key==="t"?"Select recorded time column":"Not present";sel.append(blank);
+  headers.forEach((name,i)=>{const op=document.createElement("option");op.value=String(i);op.textContent=name||"Column "+(i+1);sel.append(op)});
+  if(suggested[key]!==undefined)sel.value=String(suggested[key]);
+  wrap.append(label,sel);
+  if(key!=="t"){
+   const unitLabel=document.createElement("label");unitLabel.htmlFor="unit-"+key;unitLabel.textContent="Source unit (must be confirmed)";
+   const u=document.createElement("select");u.id="unit-"+key;u.dataset.unitKey=key;
+   const unknown=document.createElement("option");unknown.value="";unknown.textContent="Unknown / not verified";u.append(unknown);
+   for(const text of options[key]||[]){const op=document.createElement("option");op.value=text;op.textContent=text;u.append(op)}
+   wrap.append(unitLabel,u);
   }
-  if(mapping.t===undefined)throw Error("CSV needs a timestamp column (t, timestamp or time)");
-  const rows=[],invalid=[];let rawCount=0;
-  table.slice(1).forEach((record,i)=>{
-    rawCount++;
-    let raw=record[mapping.t],ts=Date.parse(raw||"");
-    if(!Number.isFinite(ts)){invalid.push("Invalid timestamp at CSV row "+(i+2));return}
-    const sample={t:stamp(ts),source_row:i+2};
-    for(const key of Object.keys(mapping)){if(key==="t")continue;
-      const value=record[mapping[key]]??"";
-      sample[key]=value.trim()===""?null:number(value.trim());
-      if(value.trim()!==""&&sample[key]===null)warnings.push("Non-numeric "+key+" at row "+(i+2)+" excluded");
-    }
-    rows.push(sample);
-  });
-  if(invalid.length)throw Error(invalid.slice(0,4).join("; ")+"; correct timestamp/timezone errors before importing");
-  for(let i=1;i<rows.length;i++)if(Date.parse(rows[i].t)<=Date.parse(rows[i-1].t))
-    throw Error("CSV timestamps must be unique and strictly increasing (row "+rows[i].source_row+")");
-  if(!rows.length)throw Error("CSV has no valid readings");
-  if(!/[zZ]$|[+-]\d\d:\d\d$/.test(String(table[1][mapping.t]||"")))
-    warnings.push("Timestamp timezone not specified: local-browser interpretation, verify before procedure comparisons");
-  if(mapping.running_depth===undefined)warnings.push("No verified running-string depth; schematic movement is illustrative only");
-  if(!Object.keys(mapping).some(x=>x==="spp"))warnings.push("Standpipe pressure channel unavailable");
-  if(!Object.keys(mapping).some(x=>x==="hookload"))warnings.push("Hookload channel unavailable");
-  if(!data.source)warnings.push("Telemetry source/clock provenance missing");
-  data.rows=rows;data.columns=found;data.warnings=[...new Set(warnings)];data.source=source||data.source;
-  return {records:rawCount,usable:rows.length,found};
+  root.append(wrap);
+ }
+ $("mappingSource").textContent="File: "+file.name+" · "+(table.length-1)+" raw data rows; no values or columns have been changed.";
+ $("mappingStatus").textContent="Confirm each column's identity and source unit before importing.";
+ $("telemetryMappingPanel").hidden=false;
+}
+function importCSV(text,source,explicit=null,sourceUnits=null){
+ const table=csvRecords(text);if(table.length<2)throw Error("CSV needs a header and at least one timestamped row");
+ const rawHeaders=table[0].map(x=>x.trim()),mapping=explicit||guessMapping(rawHeaders),found=Object.keys(mapping),warnings=[];
+ if(mapping.t===undefined)throw Error("CSV needs a manually selected recorded timestamp column");
+ const selected=Object.values(mapping);
+ if(new Set(selected).size!==selected.length)throw Error("Each source column may only be mapped to one signal");
+ for(const [key,index] of Object.entries(mapping)){
+  if(!Object.hasOwn(synonyms,key)||!Number.isInteger(index)||index<0||index>=rawHeaders.length)
+   throw Error("Invalid mapping for "+key);
+ }
+ const rows=[];
+ for(const [i,record] of table.slice(1).entries()){
+  const raw=(record[mapping.t]||"").trim();
+  if(!/(?:Z|[+-]\d{2}:\d{2})$/i.test(raw))throw Error("CSV timestamp needs an explicit timezone offset at source row "+(i+2));
+  const parsed=Date.parse(raw);
+  if(!Number.isFinite(parsed))throw Error("Invalid timestamp at CSV row "+(i+2));
+  const sample={t:stamp(parsed),source_row:i+2};
+  for(const key of found){
+   if(key==="t")continue;
+   const rawValue=(record[mapping[key]]??"").trim();
+   const parsedValue=rawValue===""?null:number(rawValue);
+   if(rawValue!==""&&parsedValue===null)warnings.push("Non-numeric "+key+" at row "+(i+2)+" excluded");
+   sample[key]=parsedValue;
+  }
+  rows.push(sample);
+ }
+ for(let i=1;i<rows.length;i++)if(Date.parse(rows[i].t)<=Date.parse(rows[i-1].t))
+  throw Error("CSV timestamps must be unique and strictly increasing (row "+rows[i].source_row+")");
+ if(mapping.running_depth===undefined)warnings.push("No verified running-string depth; schematic movement is illustrative only");
+ if(mapping.spp===undefined)warnings.push("Standpipe pressure channel unavailable");
+ if(mapping.hookload===undefined)warnings.push("Hookload channel unavailable");
+ if(!source)warnings.push("Telemetry source/clock provenance missing");
+ const verifiedUnits={};
+ for(const key of found){
+  if(key==="t")continue;
+  const value=sourceUnits?.[key]||"";
+  if(value)verifiedUnits[key]=value;
+  else warnings.push("Source unit for "+key+" is not confirmed; quantitative procedure comparisons unavailable");
+ }
+ data.rows=rows;data.columns=found;data.warnings=[...new Set(warnings)];
+ data.channel_units=verifiedUnits;data.telemetry_mapping={
+  file_name:source,source_headers:rawHeaders,assignments:Object.fromEntries(
+   Object.entries(mapping).map(([key,i])=>[key,{column_index:i,raw_header:rawHeaders[i],source_unit:verifiedUnits[key]||null}])),
+  timestamps_require_offset:true,raw_original_not_embedded:true,engineer_verified:false
+ };
+ data.source=source||data.source;
+ return {records:rows.length,usable:rows.length,found};
+}
+function acceptImportedCSV(text,source,mapping=null,sourceUnits=null){
+ loadState();const wasSynthetic=data.case_kind==="synthetic",hadAnnotations=data.notes.length>0;
+ const result=importCSV(text,source,mapping,sourceUnits);
+ if(wasSynthetic){
+  data.events=[];data.rules=null;data.notes=[];data.evidence=[];data.case_kind="imported";
+  data.id="";data.well="";data.warnings.push("Fictional case identity, procedure, events and annotations were cleared for real telemetry.");
+  toFields();
+ }else if(hadAnnotations){
+  data.notes=[];data.warnings.push("Prior range annotations were cleared because telemetry was replaced; restore the previous case to recover them.");
+ }
+ idx=0;describe();renderEvidence();renderCharts();renderEvents();findings();notes();renderCursor();persist();
+ msg("Imported "+result.usable+" of "+result.records+" readings; previously entered independent sources were retained. Review units and clock alignment.");
+ return result;
 }
 function validateCase(value){
   if(!value||value.schema!=="liner-mvp-case-1"||!Array.isArray(value.rows)||!Array.isArray(value.notes)||!Array.isArray(value.events))
@@ -224,7 +295,7 @@ function runRules(){
   if(!aligned)entry.reasons.push("Clock alignment not verified");
   if(!data.columns.includes(rule.channel))entry.reasons.push("Channel missing");
   if(!["<","<=",">",">=","between"].includes(rule.operator)||number(rule.value)===null||rule.operator==="between"&&number(rule.upper)===null)entry.reasons.push("Invalid comparator/threshold");
-  if(!book.channel_units?.[rule.channel]||book.channel_units[rule.channel]!==rule.unit)
+  if(!book.channel_units?.[rule.channel]||book.channel_units[rule.channel]!==rule.unit||(!["synthetic"].includes(data.case_kind)&&data.channel_units?.[rule.channel]!==rule.unit))
     entry.reasons.push("Rule unit not verified against source channel");
   const start=Date.parse(rule.window?.start||""),end=Date.parse(rule.window?.end||"");
   if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start)entry.reasons.push("Invalid observation window");
@@ -331,6 +402,11 @@ function report(){
  "",
  "## Telemetry and boundaries",
  "Samples: "+data.rows.length+". Channels: "+(data.columns.join(", ")||"none")+".",
+ "Source channel mapping (no unit conversion):",
+ ...Object.entries(data.telemetry_mapping?.assignments||{}).map(([key,x])=>
+  "- "+key+" ← "+x.raw_header+" [source unit: "+(x.source_unit||"unverified")+"]"),
+ "Mapped source file: "+(data.telemetry_mapping?.file_name||"not supplied")+
+ " · original CSV bytes not embedded; source unit assertions require review.",
  "First timestamp: "+(data.rows[0]?.t||"unavailable"),
  "Last timestamp: "+(data.rows[data.rows.length-1]?.t||"unavailable"),
  ...data.warnings.map(w=>"- Evidence gap: "+w),
@@ -405,35 +481,36 @@ $("saveCase").onclick=()=>{loadState();msg(persist()?"Saved case in this browser
 $("exportCase").onclick=$("downloadCase").onclick=()=>{loadState();filename(safe(data.id)+".json",JSON.stringify(data,null,2))};
 $("caseFile").onchange=async e=>{try{loadData(JSON.parse(await e.target.files[0].text()));tab("replay")}catch(err){msg("Case import rejected: "+err.message)}};
 $("telemetryFile").onchange=async e=>{
- try{loadState();
-   const wasSynthetic=data.case_kind==="synthetic",hadAnnotations=data.notes.length>0;
-   const result=importCSV(await e.target.files[0].text(),data.source||e.target.files[0].name);
-   if(wasSynthetic){
-     // Never carry fictional approved rules, events or source identities into an imported real case.
-     data.events=[];data.rules=null;data.notes=[];data.evidence=[];data.case_kind="imported";
-     data.warnings.push("Fictional example procedure, events and notes were cleared before importing real telemetry.");
-   }else if(hadAnnotations){
-     // Existing note indices cannot silently be reattached to a different timestamp stream.
-     data.notes=[];data.warnings.push("Prior range annotations were cleared because telemetry was replaced; restore the earlier saved case to recover them.");
-   }
-   idx=0;describe();renderEvidence();renderCharts();renderEvents();findings();notes();renderCursor();persist();
-   msg("Imported "+result.usable+" of "+result.records+" readings; previous separately entered real events, procedures and evidence were retained. Review mapping diagnostics.");
+ try{
+  const file=e.target.files?.[0];if(!file)return;
+  const text=await file.text(),table=csvRecords(text);
+  if(table.length<2)throw Error("CSV needs a header and at least one timestamped row");
+  const mapping=guessMapping(table[0]);
+  if(mapping.t===undefined){
+   openTelemetryMapping(text,file);
+   msg("Review the source headers: select a timestamp and map each measured channel.");
+  }else{
+   // Known column names preserve the earlier quick-import path, but units remain unverified.
+   acceptImportedCSV(text,file.name,mapping,{});
+   $("telemetryMappingPanel").hidden=true;
+  }
  }catch(err){msg("CSV import rejected: "+err.message)}
 };
-$("addEvent").onclick=()=>{
- const label=$("eventLabel").value.trim(),source=$("eventSource").value.trim(),raw=$("eventTime").value.trim();
- if(!label||!source){$("eventStatus").textContent="Action and report/page source reference are both required.";return}
- if(raw&&!(/(?:Z|[+-]\d{2}:\d{2})$/i.test(raw))){$("eventStatus").textContent="Use a timestamp with explicit UTC Z or timezone offset, or leave time unknown.";return}
- const time=raw?Date.parse(raw):NaN;
- if(raw&&!Number.isFinite(time)){$("eventStatus").textContent="Invalid reported timestamp; nothing added.";return}
- const event={time:raw?new Date(time).toISOString():null,label,source,
-   time_status:raw?"reported_unverified":"unknown",
-   evidence_class:"reported_not_measured"};
- data.events.push(event);
- renderEvents();describe();persist();
- $("eventLabel").value="";$("eventTime").value="";
- $("eventStatus").textContent="Reported event registered. Time and event are source assertions, not verified downhole actions.";
+$("applyMapping").onclick=()=>{
+ try{
+  if(!pendingTelemetry)throw Error("No pending CSV source");
+  const mapping={},sourceUnits={};
+  for(const el of document.querySelectorAll("#mappingFields [data-mapping-key]")){
+   if(el.value!=="")mapping[el.dataset.mappingKey]=Number(el.value);
+  }
+  for(const el of document.querySelectorAll("#mappingFields [data-unit-key]")){
+   if(el.value)sourceUnits[el.dataset.unitKey]=el.value;
+  }
+  acceptImportedCSV(pendingTelemetry.text,pendingTelemetry.name,mapping,sourceUnits);
+  pendingTelemetry=null;$("telemetryMappingPanel").hidden=true;
+ }catch(err){$("mappingStatus").textContent="Mapping rejected: "+err.message}
 };
+$("cancelMapping").onclick=()=>{pendingTelemetry=null;$("telemetryMappingPanel").hidden=true};
 $("eventsFile").onchange=async e=>{
  try{const events=JSON.parse(await e.target.files[0].text());if(!Array.isArray(events)||events.some(x=>typeof x!=="object"||x===null))
    throw Error("Expected JSON array of {time,label,source} events");
