@@ -666,3 +666,69 @@ def test_manual_sop_no_invented_limits_and_source_review_is_explicit(tmp_path):
             assert not errors, errors
         finally:
             instance.close()
+
+
+def test_local_evidence_viewer_requires_original_reattachment_after_reload(tmp_path):
+    """Text source preview is temporary, provenance persists without raw contents."""
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            source = tmp_path / "source_report.txt"
+            source.write_text("Fictional job note: pumps stopped at 10:15; confirm rig log.")
+            page.locator("#evidenceType").select_option("job_report")
+            page.locator("#evidenceReference").fill("FICTIONAL-RIG-LOG")
+            page.locator("#evidenceFile").set_input_files(source)
+            page.locator("#addEvidence").click()
+            page.wait_for_function(
+                "document.querySelector('#evidenceStatus').textContent.includes('1 source file(s) registered')")
+            page.locator("#evidenceList button", has_text="Preview local source").click()
+            assert page.locator("#documentViewer").is_visible()
+            assert "pumps stopped at 10:15" in page.locator("#documentContent").inner_text()
+            page.locator("#closeDocument").click()
+            assert page.locator("#documentViewer").is_hidden()
+            with page.expect_download() as event:
+                page.locator("#exportCase").click()
+            saved = tmp_path / "saved_case.json"
+            event.value.save_as(saved)
+            assert "pumps stopped" not in saved.read_text()
+            page.reload()
+            page.locator("#caseFile").set_input_files(saved)
+            assert page.locator("#evidenceList button", has_text="Preview local source").count() == 0
+            page.locator("#evidenceList input[type=file]").set_input_files(source)
+            page.locator("#evidenceList button", has_text="Preview local source").wait_for()
+            page.locator("#evidenceList button", has_text="Preview local source").click()
+            assert "pumps stopped at 10:15" in page.locator("#documentContent").inner_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_evidence_reattachment_rejects_wrong_file(tmp_path):
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            original = tmp_path / "procedure.txt"
+            original.write_text("Fictional original SOP")
+            page.locator("#evidenceType").select_option("procedure")
+            page.locator("#evidenceReference").fill("SOP-REVIEW")
+            page.locator("#evidenceFile").set_input_files(original)
+            page.locator("#addEvidence").click()
+            page.wait_for_function(
+                "document.querySelector('#evidenceStatus').textContent.includes('1 source file(s) registered')")
+            page.reload()
+            page.locator("#restore").click()
+            page.locator('[data-tab="import"]').click()
+            wrong = tmp_path / "different.txt"
+            wrong.write_text("Fictional different SOP")
+            page.locator("#evidenceList input[type=file]").set_input_files(wrong)
+            assert "Reattachment rejected" in page.locator("#evidenceStatus").inner_text()
+            assert page.locator("#evidenceList button", has_text="Preview local source").count() == 0
+            assert not errors, errors
+        finally:
+            instance.close()
