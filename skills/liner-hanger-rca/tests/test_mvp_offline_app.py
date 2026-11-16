@@ -253,3 +253,65 @@ def test_standalone_copy_and_case_json_roundtrip(tmp_path):
             assert not errors, errors
         finally:
             instance.close()
+
+
+
+def test_independent_source_files_have_persistent_provenance_not_embedded_binary(tmp_path):
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            pdf = tmp_path / "procedure.pdf"
+            pdf.write_bytes(b"%PDF-1.4\n% synthetic fixture not a licensed manual\n")
+            page.locator("#evidenceType").select_option("procedure")
+            page.locator("#evidenceReference").fill("SYNTHETIC-SOP-A")
+            page.locator("#evidenceFile").set_input_files(pdf)
+            page.locator("#addEvidence").click()
+            assert "1 source file(s) registered" in page.locator("#evidenceStatus").inner_text()
+            assert "SYNTHETIC-SOP-A" in page.locator("#evidenceList").inner_text()
+            assert "Original bytes not embedded" in page.locator("#evidenceList").inner_text()
+            page.reload()
+            page.locator("#restore").click()
+            page.locator('[data-tab="import"]').click()
+            assert "SYNTHETIC-SOP-A" in page.locator("#evidenceList").inner_text()
+            page.locator('[data-tab="report"]').click()
+            assert "SYNTHETIC-SOP-A" in page.locator("#reportText").input_value()
+            page.locator('[data-tab="import"]').click()
+            with page.expect_download() as downloaded:
+                page.locator("#exportCase").click()
+            target = tmp_path / "case.json"
+            downloaded.value.save_as(target)
+            case = json.loads(target.read_text())
+            assert len(case["evidence"]) == 1
+            entry = case["evidence"][0]
+            assert entry["kind"] == "procedure"
+            assert entry["original_bytes_embedded"] is False
+            assert entry["sha256"] is None or len(entry["sha256"]) == 64
+            assert "%PDF-" not in target.read_text()
+            assert not errors, errors
+        finally:
+            instance.close()
+
+
+def test_duplicate_evidence_id_is_rejected_without_overwriting_original(tmp_path):
+    pw, chromium = browser()
+    with pw.sync_playwright() as driver:
+        instance, page, errors = start_page(driver, chromium)
+        try:
+            page.locator("#normal").click()
+            page.locator('[data-tab="import"]').click()
+            file = tmp_path / "daily.txt"
+            file.write_text("Fictional daily report", encoding="utf-8")
+            page.locator("#evidenceReference").fill("LOG-1")
+            page.locator("#evidenceFile").set_input_files(file)
+            page.locator("#addEvidence").click()
+            page.locator("#evidenceReference").fill("LOG-1")
+            page.locator("#evidenceFile").set_input_files(file)
+            page.locator("#addEvidence").click()
+            assert "Duplicate source ID" in page.locator("#evidenceStatus").inner_text()
+            assert page.locator("#evidenceList article").count() == 1
+            assert not errors, errors
+        finally:
+            instance.close()
