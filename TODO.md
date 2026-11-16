@@ -39,6 +39,13 @@
 
 **Outstanding REAL-02 gates:** integrated source-PDF text extraction, source-quality mapping of multiple telemetry streams, fuller fluid/BHA documents, backend investigation engine wiring and independent actual historical job validation. **REAL-02 remains OPEN and REAL MVP remains IN PROGRESS.**
 
+## REAL-03/04 incremental integration — 2026-11-16 (not yet accepted)
+
+- Draft PR #1 on `feature/real-03-04-workstation-review`: extended the existing replay UI with cursor-centred chart zoom and reset, preserving timestamp/sample-linked chart selection and unconverted source measurements. It does **not** establish time-cadenced playback, fully sourced assembly geometry, multi-stream clock correction or a verified historical end-to-end run.
+- Range annotation modal now records alternative explanations/contrary evidence, evidence confidence, review disposition and reviewer identity; the case JSON, notes panel and Markdown report include the new fields. Existing source-gated procedure/event rules and missing-evidence safeguards remain in place. No automatic root-cause or OEM approval assertion.
+- Verification: GitHub Actions regression run [43823618640](https://github.com/smbabalola/liner-hanger-project/actions/runs/43823618640) started on PR commit `b44948ee73144a825c8d8ed7d805cc1dc0ac2d26`; **result to be confirmed** before gate acceptance. Browser-specific tests for zoom/extra fields, exported/reloaded notes, current schematic and alignment are required.
+- REAL-02, REAL-03 and REAL-04 remain OPEN. REAL-05 remains OPEN. Do not merge or mark complete based on code changes alone.
+
 ## Immediately next work
 
 1. Inspect which original assembly animation, chart interaction and investigation modules were never surfaced in the stripped-down offline demo. Reconnect proven components before implementing replacements.
