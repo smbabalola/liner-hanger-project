@@ -22,6 +22,7 @@ const synonyms={
 const units=Object.fromEntries(channels.map(x=>[x[0],x[2]]));
 const defaultCase=()=>({schema:"liner-mvp-case-1",id:"",well:"",source:"",rows:[],events:[],rules:null,notes:[],evidence:[],warnings:[],columns:[],channel_units:{},telemetry_mapping:null,case_kind:"imported"});
 let data=defaultCase(),idx=0,timer=null,rangeStart=null,plotCanvases=[],pendingTelemetry=null;
+const attachedSourceFiles=new Map();let previewUrl=null;
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safe=x=>String(x??"").replace(/[^a-z0-9_.-]+/gi,"_").slice(0,80)||"case";
 const number=x=>x!==""&&x!==null&&x!==undefined&&Number.isFinite(Number(x))?Number(x):null;
@@ -161,6 +162,56 @@ function loadState(){data.id=$("caseName").value.trim();data.well=$("wellName").
 function toFields(){$("caseName").value=data.id;$("wellName").value=data.well;$("sourceLabel").value=data.source}
 function current(){return data.rows[idx]}
 function timestampAt(i){return data.rows[i]?.t||"unavailable"}
+
+function closeDocumentPreview(){
+ if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null}
+ $("documentContent").replaceChildren();$("documentViewer").hidden=true;
+}
+async function fileDigest(file){
+ if(!globalThis.crypto?.subtle?.digest)return null;
+ try{
+  const buffer=await file.arrayBuffer(),digest=await crypto.subtle.digest("SHA-256",buffer);
+  return Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,"0")).join("");
+ }catch(e){return null}
+}
+async function reattachSource(item,file){
+ if(!file||file.name!==item.file_name||file.size!==item.size_bytes)
+  throw Error("Selected file name or size does not match this source record");
+ const hash=await fileDigest(file);
+ if(item.sha256&&hash!==item.sha256)
+  throw Error("Source fingerprint could not be verified or does not match: attachment rejected");
+ attachedSourceFiles.set(item.source_id,file);
+ renderEvidence();
+}
+async function previewSource(item){
+ const file=attachedSourceFiles.get(item.source_id);
+ if(!file)throw Error("Source file is not attached in this browser session; reattach the original");
+ closeDocumentPreview();
+ const ext=(item.file_name.toLowerCase().split(".").pop()||"");
+ const frame=$("documentContent");
+ $("documentTitle").textContent=item.source_id+" · "+item.file_name;
+ $("documentStatus").textContent="Local document preview only; no content extraction or approved engineering interpretation. "+
+   (item.sha256?"Registered SHA-256: "+item.sha256:"Fingerprint unavailable; source content not independently authenticated.");
+ if(ext==="pdf"){
+  previewUrl=URL.createObjectURL(file);
+  const iframe=document.createElement("iframe");iframe.title="Local PDF source";iframe.src=previewUrl;
+  iframe.style.width="100%";iframe.style.height="550px";iframe.style.border="1px solid #486075";
+  frame.append(iframe);
+ }else if(["png","jpg","jpeg"].includes(ext)){
+  previewUrl=URL.createObjectURL(file);
+  const img=document.createElement("img");img.alt="Local source image";img.src=previewUrl;
+  img.style.maxWidth="100%";img.style.maxHeight="650px";frame.append(img);
+ }else if(["txt","csv","json"].includes(ext)){
+  const pre=document.createElement("pre");pre.style.whiteSpace="pre-wrap";pre.style.overflowWrap="anywhere";
+  pre.style.maxHeight="400px";pre.style.overflow="auto";
+  pre.textContent=(await file.text()).slice(0,100000);
+  frame.append(pre);
+  if(file.size>100000)$("documentStatus").textContent+=" First 100,000 characters only; open original to review the rest.";
+ }else{
+  $("documentStatus").textContent="Inline preview unavailable for this file type. Open the original locally; its metadata remains registered.";
+ }
+ $("documentViewer").hidden=false;
+}
 function renderEvidence(){
  const root=$("evidenceList");root.replaceChildren();
  const items=Array.isArray(data.evidence)?data.evidence:[];
@@ -170,8 +221,21 @@ function renderEvidence(){
   const details=document.createElement("p");details.textContent=item.file_name+" · "+item.size_bytes+" bytes · "+item.review_status+
    " · SHA-256: "+(item.sha256||"unavailable");card.append(details);
   const note=document.createElement("p");note.className="sub";note.textContent="Original bytes not embedded. Keep the source file for independent review.";card.append(note);
+  const attached=attachedSourceFiles.has(item.source_id);
+  if(attached){
+   const view=document.createElement("button");view.type="button";view.textContent="Preview local source";
+   view.onclick=()=>previewSource(item).catch(e=>{$("evidenceStatus").textContent=e.message});
+   card.append(view);
+  }else{
+   const reattach=document.createElement("input");reattach.type="file";
+   reattach.setAttribute("aria-label","Reattach original "+item.source_id);
+   reattach.onchange=async()=>{
+    try{await reattachSource(item,reattach.files?.[0])}
+    catch(e){$("evidenceStatus").textContent="Reattachment rejected: "+e.message}
+   };card.append(reattach);
+  }
   const remove=document.createElement("button");remove.type="button";remove.textContent="Remove from register";
-  remove.onclick=()=>{data.evidence=data.evidence.filter(x=>x.source_id!==item.source_id);renderEvidence();describe();persist()};card.append(remove);
+  remove.onclick=()=>{attachedSourceFiles.delete(item.source_id);data.evidence=data.evidence.filter(x=>x.source_id!==item.source_id);closeDocumentPreview();renderEvidence();describe();persist()};card.append(remove);
   root.append(card);
  }
  $("evidenceStatus").textContent=items.length+" source file(s) registered; originals must be retained separately.";
@@ -187,15 +251,11 @@ async function registerEvidence(file,kind,source_id,review_status){
  if(data.evidence.some(x=>x.source_id===source_id))throw Error("Duplicate source ID; use a unique evidence reference");
  const allowed=/\.(pdf|csv|txt|json|xlsx|xls|png|jpe?g|docx?|)$/i;
  if(!/\.(pdf|csv|txt|json|xlsx|xls|png|jpe?g|docx?)$/i.test(file.name))throw Error("Unsupported evidence file extension");
- let sha256=null;
- if(globalThis.crypto?.subtle?.digest){
-  try{const digest=await crypto.subtle.digest("SHA-256",await file.arrayBuffer());
-   sha256=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,"0")).join("");
-  }catch(e){sha256=null}
- }
+ const sha256=await fileDigest(file);
  data.evidence.push({source_id,kind,review_status,file_name:file.name,size_bytes:file.size,
   media_type:file.type||"unknown",last_modified_ms:file.lastModified,sha256,
   original_bytes_embedded:false,authentication:"caller_supplied_not_verified"});
+ attachedSourceFiles.set(source_id,file);
  renderEvidence();describe();persist();
 }
 
@@ -562,7 +622,7 @@ function tab(name){
 }
 function loadData(next){
  if(timer){clearInterval(timer);timer=null;$("play").textContent="▶ Play"}
- validateCase(next);idx=0;toFields();describe();renderEvidence();renderProcedureSteps();renderCharts();renderEvents();findings();notes();renderCursor();persist();
+ attachedSourceFiles.clear();closeDocumentPreview();validateCase(next);idx=0;toFields();describe();renderEvidence();renderProcedureSteps();renderCharts();renderEvents();findings();notes();renderCursor();persist();
  msg("Loaded "+data.rows.length+" recorded samples into "+(data.id||"case")+". Data are not independently authenticated.");
 }
 function demo(anomaly){
@@ -594,6 +654,7 @@ $("addEvidence").onclick=async()=>{
   $("evidenceFile").value="";$("evidenceReference").value="";
  }catch(err){$("evidenceStatus").textContent="Evidence not added: "+err.message}
 };
+$("closeDocument").onclick=closeDocumentPreview;
 $("normal").onclick=()=>{loadData(demo(false));tab("replay")};
 $("anomalous").onclick=()=>{loadData(demo(true));tab("replay")};
 $("restore").onclick=()=>{try{const value=localStorage.getItem("liner_mvp_case_v1");if(!value)throw Error("No saved local case");loadData(JSON.parse(value))}catch(e){msg(e.message)}};
